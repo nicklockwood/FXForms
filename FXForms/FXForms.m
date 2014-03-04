@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0 beta
+//  Version 1.0 beta 2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -217,10 +217,9 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 @interface FXFormField ()
 
-@property (nonatomic, strong) id<FXForm> form;
 @property (nonatomic, strong) Class valueClass;
 @property (nonatomic, strong) Class cell;
-@property (nonatomic, copy) NSString *key;
+@property (nonatomic, readwrite) NSString *key;
 @property (nonatomic, readwrite) NSArray *options;
 @property (nonatomic, copy) NSString *header;
 @property (nonatomic, copy) NSString *footer;
@@ -238,12 +237,18 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 + (NSArray *)fieldsWithForm:(id<FXForm>)form;
 {
+    //get fields
     NSMutableArray *fields = [[form fields] mutableCopy];
     if (!fields)
     {
+        //use default fields
         fields = [NSMutableArray arrayWithArray:FXFormProperties(form)];
     }
     
+    //add extra fields
+    [fields addObjectsFromArray:[form extraFields] ?: @[]];
+    
+    //process fields
     NSMutableDictionary *fieldDictionariesByKey = [NSMutableDictionary dictionary];
     for (NSDictionary *dict in FXFormProperties(form))
     {
@@ -266,7 +271,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             NSString *selector = [key stringByAppendingString:@"Field"];
             if ([form respondsToSelector:NSSelectorFromString(selector)])
             {
-                [dictionary addEntriesFromDictionary:[form valueForKey:selector]];
+                [dictionary addEntriesFromDictionary:[(NSObject *)form valueForKey:selector]];
             }
             [dictionary addEntriesFromDictionary:dictionaryOrKey];
             if ([dictionary[FXFormFieldValueClass] isKindOfClass:[NSString class]])
@@ -277,7 +282,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             {
                 dictionary[FXFormFieldCell] = NSClassFromString(dictionary[FXFormFieldCell]);
             }
-            if ([dictionary[FXFormFieldOptions] count])
+            if ([(NSArray *)dictionary[FXFormFieldOptions] count])
             {
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
             }
@@ -295,7 +300,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                     wasCapital = isCapital;
                     if (character != ':') [output appendFormat:@"%C", character];
                 }
-                dictionary[FXFormFieldTitle] = output;
+                dictionary[FXFormFieldTitle] = NSLocalizedString(output, nil);
             }
         }
         else
@@ -328,6 +333,35 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return self;
 }
 
+- (BOOL)isIndexedType
+{
+    if (![self.options count])
+    {
+        return NO;
+    }
+    if ([self.type isEqualToString:FXFormFieldTypeInteger] ||
+        [self.type isEqualToString:FXFormFieldTypeNumber] ||
+        [self.valueClass isSubclassOfClass:[NSNumber class]])
+    {
+        return ![[self.options firstObject] isKindOfClass:[NSNumber class]];
+    }
+    return NO;
+}
+
+- (NSString *)fieldDescription
+{
+    if ([self isIndexedType])
+    {
+        NSUInteger index = [self.value integerValue];
+        if (index != NSNotFound && index < [self.options count])
+        {
+            return [self.options[index] fieldDescription];
+        }
+        return nil;
+    }
+    return [self.value fieldDescription];
+}
+
 - (id)valueForUndefinedKey:(NSString *)key
 {
     return _cellConfig[key];
@@ -342,11 +376,11 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 {
     if (self.key)
     {
-        id value = [self.form valueForKey:self.key];
+        id value = [(NSObject *)self.form valueForKey:self.key];
         if (!value && [self.valueClass conformsToProtocol:@protocol(FXForm)])
         {
             value = [[self.valueClass alloc] init];
-            [self.form setValue:value forKey:self.key];
+            [(NSObject *)self.form setValue:value forKey:self.key];
         }
         return value;
     }
@@ -357,7 +391,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 {
     if (self.key && [self.form respondsToSelector:NSSelectorFromString([NSString stringWithFormat:@"set%@%@:", [[self.key substringToIndex:1] uppercaseString], [self.key substringFromIndex:1]])])
     {
-        [self.form setValue:value forKey:self.key];
+        [(NSObject *)self.form setValue:value forKey:self.key];
     }
 }
 
@@ -434,12 +468,29 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (id)valueForKey:(NSString *)key
 {
-    return @([self.field.options[[key integerValue]] isEqual:self.field.value]);
+    NSInteger index = NSNotFound;
+    if ([self.field isIndexedType])
+    {
+        index = [self.field.value integerValue];
+    }
+    else
+    {
+        index = [self.field.options indexOfObject:self.field.value];
+    }
+    return @([key integerValue] == index);
 }
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    self.field.value = self.field.options[[key integerValue]];
+    value = self.field.options[[key integerValue]];
+    if ([self.field isIndexedType])
+    {
+        self.field.value = @([self.field.options indexOfObject:value]);
+    }
+    else
+    {
+        self.field.value = value;
+    }
 }
 
 - (BOOL)respondsToSelector:(SEL)selector
@@ -474,11 +525,19 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     FXFormSection *section = nil;
     for (FXFormField *field in [FXFormField fieldsWithForm:form])
     {
-        if ([field.valueClass conformsToProtocol:@protocol(FXForm)] && field.isInline)
+        if ([field.options count] && field.isInline)
+        {
+            id<FXForm> subform = [[FXOptionsForm alloc] initWithField:field];
+            NSArray *subsections = [FXFormSection sectionsWithForm:subform];
+            if (![[subsections firstObject] header]) [[subsections firstObject] setHeader:field.header ?: field.title];
+            [sections addObjectsFromArray:subsections];
+            section = nil;
+        }
+        else if ([field.valueClass conformsToProtocol:@protocol(FXForm)] && field.isInline)
         {
             id<FXForm> subform = field.value;
             NSArray *subsections = [FXFormSection sectionsWithForm:subform];
-            if (![[subsections firstObject] header]) [[subsections firstObject] setHeader:field.title];
+            if (![[subsections firstObject] header]) [[subsections firstObject] setHeader:field.header ?: field.title];
             [sections addObjectsFromArray:subsections];
             section = nil;
         }
@@ -518,14 +577,19 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (NSString *)fieldDescription
 {
-    for (Class testClass in @[[NSString class], [NSNumber class]])
+    if ([self conformsToProtocol:@protocol(FXForm)])
     {
-        if ([self isKindOfClass:testClass]) return [self description];
+        return nil;
     }
-    return nil;
+    return [self description];
 }
 
 - (NSArray *)fields
+{
+    return nil;
+}
+
+- (NSArray *)extraFields
 {
     return nil;
 }
@@ -599,7 +663,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     self.cellClassesForFieldTypes[fieldType] = cellClass;
 }
 
-- (void)setDelegate:(id<UITableViewDelegate>)delegate
+- (void)setDelegate:(id<FXFormControllerDelegate>)delegate
 {
     _delegate = delegate;
     
@@ -952,7 +1016,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self.field.value fieldDescription];
+    self.detailTextLabel.text = [self.field fieldDescription];
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 7.0)
     {
         self.selectionStyle = UITableViewCellSelectionStyleDefault;
@@ -1005,7 +1069,12 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     {
         self.field.value = @(![self.field.value boolValue]);
         self.accessoryType = [self.field.value boolValue]? UITableViewCellAccessoryCheckmark: UITableViewCellAccessoryNone;
-        [tableView reloadData];
+        NSIndexPath *indexPath = [tableView indexPathForCell:self];
+        if (indexPath)
+        {
+            //reload entire section, in case fields are linked
+            [tableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
     }
     else if ([self.field.options count])
     {

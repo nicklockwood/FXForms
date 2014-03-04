@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "FXForms.h"
 
+
 @interface LoginForm : NSObject <FXForm>
 
 @property (nonatomic, strong) NSString *email;

@@ -10,13 +10,20 @@
 
 @implementation RootForm
 
-//we want to disaply our login form inline instead
+//we want to display our login form inline instead
 //of in a separate view controller, so by implementing
 //the <propertyName>Field method, we can specify that
 
 - (NSDictionary *)loginField
 {
     return @{FXFormFieldInline: @YES};
+}
+
+//let's specify a header for our registration form field
+
+- (NSDictionary *)registrationField
+{
+    return @{FXFormFieldHeader: @"Not Registered?"};
 }
 
 @end

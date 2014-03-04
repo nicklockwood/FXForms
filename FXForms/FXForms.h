@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.0 beta
+//  Version 1.0 beta 2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -73,21 +73,20 @@ static NSString *const FXFormFieldTypeCheckmark = @"checkmark";
 
 
 @protocol FXForm <NSObject>
-
-- (id)valueForKey:(NSString *)key;
-- (void)setValue:(id)value forKey:(NSString *)key;
-
 @optional
 
 - (NSArray *)fields;
+- (NSArray *)extraFields;
 
 @end
 
 
 @interface FXFormField : NSObject
 
-@property (nonatomic, readonly) NSString *title;
+@property (nonatomic, readonly) id<FXForm> form;
+@property (nonatomic, readonly) NSString *key;
 @property (nonatomic, readonly) NSString *type;
+@property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) NSArray *options;
 @property (nonatomic, readonly) SEL action;
 @property (nonatomic, strong) id value;
@@ -101,10 +100,15 @@ static NSString *const FXFormFieldTypeCheckmark = @"checkmark";
 #pragma mark Controllers
 
 
+@protocol FXFormControllerDelegate <UITableViewDelegate>
+
+@end
+
+
 @interface FXFormController : NSObject
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
-@property (nonatomic, weak) id<UITableViewDelegate> delegate;
+@property (nonatomic, weak) id<FXFormControllerDelegate> delegate;
 @property (nonatomic, strong) id<FXForm> form;
 
 - (NSUInteger)numberOfSections;
@@ -119,7 +123,7 @@ static NSString *const FXFormFieldTypeCheckmark = @"checkmark";
 @end
 
 
-@interface FXFormViewController : UIViewController <UITableViewDelegate>
+@interface FXFormViewController : UIViewController <FXFormControllerDelegate>
 
 @property (nonatomic, readonly) FXFormController *formController;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;

@@ -10,6 +10,14 @@
 #import "FXForms.h"
 
 
+typedef NS_OPTIONS(NSInteger, Gender)
+{
+    GenderMale = 0,
+    GenderFemale,
+    GenderOther
+};
+
+
 @interface RegistrationForm : NSObject <FXForm>
 
 @property (nonatomic, strong) NSString *email;
@@ -17,7 +25,7 @@
 @property (nonatomic, strong) NSString *repeatPassword;
 
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *gender;
+@property (nonatomic, assign) Gender gender;
 @property (nonatomic, assign) NSUInteger age;
 
 @end

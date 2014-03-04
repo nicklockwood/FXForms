@@ -35,8 +35,9 @@
              @{FXFormFieldKey: @"name", FXFormFieldHeader: @"Details"},
              
              //this is a multiple choice field, so we'll need to provide some options
+             //because this is an enum property, the indexes of the options should match enum values
              
-             @{FXFormFieldKey: @"gender", FXFormFieldOptions: @[@"Male", @"Female", @"It's complicated"]},
+             @{FXFormFieldKey: @"gender", FXFormFieldOptions: @[@"Male", @"Female", @"It's Complicated"]},
              
              //we want to use a stepper control for this values, so let's specify that
              
@@ -47,7 +48,7 @@
              //object in the responder chain that implements the submitForm
              //method, which in this case would be the AppDelegate
              
-             @{FXFormFieldTitle: @"Submit", FXFormFieldHeader: @"", FXFormFieldAction: @"submitForm"},
+             @{FXFormFieldTitle: @"Submit", FXFormFieldHeader: @"", FXFormFieldAction: @"submitRegistrationForm"},
              
              ];
 }
