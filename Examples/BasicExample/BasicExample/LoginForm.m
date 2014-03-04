@@ -10,6 +10,13 @@
 
 @implementation LoginForm
 
+//let's make the email field's title red, just because we can
+
+- (NSDictionary *)emailField
+{
+    return @{@"textLabel.color": [UIColor redColor]};
+}
+
 //we're happy with the layout and properties of our login form, but we
 //want to add an additional button field at the end, so
 //we've used the extraFields method

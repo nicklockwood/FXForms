@@ -51,7 +51,7 @@ That's literally all you have to do. FXForms is *really* smart - much smarter th
 * Modifying values in the form will automatically assign those values back to your model object. You can use custom setter methods or KVO to intercept the changes if you nee to perform additional logic.
 * If your form contains subforms (properties that conform to the FXForm protocol), they will automatically be instantiated if they are nil - no need to set default values.
 
-These smart behaviors are all inferred by inspecting the property type and name using Objective-C's runtime API, but they can also all be overridden if you wish - that's covered later under Tweaking form behavior
+These default behaviors are all inferred by inspecting the property type and name using Objective-C's runtime API, but they can also all be overridden if you wish - that's covered later under Tweaking form behavior
 
 
 Displaying a form (basic)
@@ -141,6 +141,15 @@ Alternatively, you can return a dictionary in the -fields array instead of a str
     }
 
 These two approaches are equivalent.
+
+Finally, you may wish to add additional, virtual form fields (e.g. buttons or labels) that don't correspond to any properties on your form class. You can do this by implementing the -fields method, but if you're happy with the default fields and just want to add some extra fields at the end, you can override the -extraFields method instead, which works the same way, but leaves in place the default fields inferred from the form class:
+
+    - (NSArray *)extraFields
+    {
+        return @[
+                 @{FXFormFieldTitle: @"Extra Field"},
+                ];
+    }
 
 
 Grouping fields
@@ -282,6 +291,20 @@ If the field type matches the values in the options array, selecting the option 
 
 If the field type is numeric, and the options values are not numeric, it will be assumed that the field value should be set to the *index* of the selected item, instead of the value.
 
+
+Cell configuration
+-------------------
+
+If you want to tweak some properties of the field cells, without subclassing them, you can actually set any cell property by keyPath, just by adding extra values to your field dictionary. For example, this code would turn the textLabel for the email field red:
+
+    - (NSDictionary *)emailField
+    {
+        return @{@"textLabel.color": [UIColor redColor]};
+    }
+    
+Cells are not recycled in the FXForm controller, so you don't need to worry about cleaning up any properties that you set in this way.
+    
+    
 
 Custom cells
 ----------------
