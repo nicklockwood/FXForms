@@ -39,6 +39,10 @@
              
              @{FXFormFieldKey: @"gender", FXFormFieldOptions: @[@"Male", @"Female", @"It's Complicated"]},
              
+             //another regular field
+             
+             @"dateOfBirth",
+             
              //we want to use a stepper control for this values, so let's specify that
              
              @{FXFormFieldKey: @"age", FXFormFieldType: FXFormFieldTypeStepper},

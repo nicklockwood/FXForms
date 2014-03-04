@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.0 beta 2
+//  Version 1.0 beta 3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -57,6 +57,8 @@ static NSString *const FXFormFieldTypeSwitch = @"switch";
 static NSString *const FXFormFieldTypeStepper = @"stepper";
 static NSString *const FXFormFieldTypeSlider = @"slider";
 static NSString *const FXFormFieldTypeCheckmark = @"checkmark";
+static NSString *const FXFormFieldTypeDate = @"date";
+
 
 #endif
 
@@ -178,5 +180,12 @@ static NSString *const FXFormFieldTypeCheckmark = @"checkmark";
 @interface FXFormSliderCell : FXFormBaseCell
 
 @property (nonatomic, readonly) UISlider *slider;
+
+@end
+
+
+@interface FXFormDatePickerCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UIDatePicker *datePicker;
 
 @end

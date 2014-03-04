@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0 beta 2
+//  Version 1.0 beta 3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -147,6 +147,10 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                             else if ([valueClass isSubclassOfClass:[NSNumber class]])
                             {
                                 valueType = FXFormFieldTypeNumber;
+                            }
+                            else if ([valueClass isSubclassOfClass:[NSDate class]])
+                            {
+                                valueType = FXFormFieldTypeDate;
                             }
                             else
                             {
@@ -358,6 +362,14 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             return [self.options[index] fieldDescription];
         }
         return nil;
+    }
+    else if ([self.type isEqualToString:FXFormFieldTypeDate] &&
+             [self.valueClass isSubclassOfClass:[NSDate class]])
+    {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateStyle = NSDateFormatterShortStyle;
+        formatter.timeStyle = NSDateFormatterNoStyle;
+        return [formatter stringFromDate:self.value];
     }
     return [self.value fieldDescription];
 }
@@ -626,7 +638,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                        FXFormFieldTypeInteger: [FXFormTextFieldCell class],
                                        FXFormFieldTypeSwitch: [FXFormSwitchCell class],
                                        FXFormFieldTypeStepper: [FXFormStepperCell class],
-                                       FXFormFieldTypeSlider: [FXFormSliderCell class]} mutableCopy];
+                                       FXFormFieldTypeSlider: [FXFormSliderCell class],
+                                       FXFormFieldTypeDate: [FXFormDatePickerCell class]} mutableCopy];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillShow:)
@@ -745,6 +758,27 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
 }
 
+- (UIView *)firstResponder:(UIView *)view
+{
+    if ([view isFirstResponder])
+    {
+        return view;
+    }
+    for (UIView *subview in view.subviews)
+    {
+        UIView *responder = [self firstResponder:subview];
+        if (responder)
+        {
+            if ([subview isKindOfClass:[UITableViewCell class]])
+            {
+                return subview;
+            }
+            return responder;
+        }
+    }
+    return nil;
+}
+
 #pragma mark -
 #pragma mark Datasource methods
 
@@ -834,34 +868,25 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    //dismiss keyboard
+    [[self firstResponder:self.tableView] resignFirstResponder];
+    
+    //forward to delegate
+    if ([self.delegate respondsToSelector:_cmd])
+    {
+        [self.delegate scrollViewDidScroll:scrollView];
+    }
+}
+
 #pragma mark -
 #pragma mark Keyboard events
 
-- (UIView *)responderCell:(UIView *)view
-{
-    if ([view isFirstResponder])
-    {
-        return view;
-    }
-    for (UIView *subview in view.subviews)
-    {
-        UIView *responder = [self responderCell:subview];
-        if (responder)
-        {
-            if ([subview isKindOfClass:[UITableViewCell class]])
-            {
-                return subview;
-            }
-            return responder;
-        }
-    }
-    return nil;
-}
-
 - (void)keyboardWillShow:(NSNotification *)note
 {
-    UIView *responder = [self responderCell:self.tableView];
-    if ([responder isKindOfClass:[UITableViewCell class]])
+    UIView *responder = [self firstResponder:self.tableView];
+    if (responder)
     {
         NSDictionary *keyboardInfo = [note userInfo];
         CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
@@ -890,8 +915,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (void)keyboardWillHide:(NSNotification *)note
 {
-    UIView *responder = [self responderCell:self.tableView];
-    if ([responder isKindOfClass:[UITableViewCell class]])
+    UIView *responder = [self firstResponder:self.tableView];
+    if (responder)
     {
         NSDictionary *keyboardInfo = [note userInfo];
 
@@ -1156,7 +1181,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.textField.text = [self.field.value description];
+    self.textField.text = [self.field fieldDescription];
     
     self.textField.returnKeyType = UIReturnKeyDone;
     self.textField.textAlignment = NSTextAlignmentRight;
@@ -1285,8 +1310,9 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self.field.value description];
+    self.detailTextLabel.text = [self.field fieldDescription];
     self.stepper.value = [self.field.value doubleValue];
+    [self setNeedsLayout];
 }
 
 - (UIStepper *)stepper
@@ -1297,7 +1323,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)valueChanged
 {
     self.field.value = @(self.stepper.value);
-    self.detailTextLabel.text = [self.field.value description];
+    self.detailTextLabel.text = [self.field fieldDescription];
     [self.field performActionWithResponder:self sender:self];
 }
 
@@ -1350,6 +1376,59 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 {
     self.field.value = @(self.slider.value);
     [self.field performActionWithResponder:self sender:self];
+}
+
+@end
+
+
+@interface FXFormDatePickerCell ()
+
+@property (nonatomic, strong) UIDatePicker *datePicker;
+
+@end
+
+
+@implementation FXFormDatePickerCell
+
+- (void)setUp
+{
+    [super setUp];
+    
+    self.datePicker = [[UIDatePicker alloc] init];
+    self.datePicker.datePickerMode = UIDatePickerModeDate;
+    [self.datePicker addTarget:self action:@selector(valueChanged) forControlEvents:UIControlEventValueChanged];
+}
+
+- (void)update
+{
+    self.textLabel.text = self.field.title;
+    self.detailTextLabel.text = [self.field fieldDescription];
+    [self setNeedsLayout];
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (UIView *)inputView
+{
+    return self.datePicker;
+}
+
+- (void)valueChanged
+{
+    self.field.value = self.datePicker.date;
+    self.detailTextLabel.text = [self.field fieldDescription];
+    [self setNeedsLayout];
+    
+    [self.field performActionWithResponder:self sender:self];
+}
+
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
+{
+    [self becomeFirstResponder];
+    [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
 }
 
 @end

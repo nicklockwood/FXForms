@@ -268,6 +268,10 @@ A numeric value, set using a UISlider control.
     
 A boolean value, toggled using a checkmark tick.
 
+    static NSString *const FXFormFieldTypeDate = @"date";
+
+A date value, selected using a UIDatePicker.
+
 
 Form field options
 ----------------------
@@ -288,7 +292,7 @@ There are two levels of customisation possible for cells. The simplest option is
 
 If you already have a base cell class and don't want to base your cells on FXFormBaseCell, you can create an FXForms-compatible cell from scratch by subclass UITableViewCell and adopting the FXFormFieldCell protocol.
 
-Your custom cell must have a property called field, of type FXFormField. FXFormField is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate FXFormField wrappers directly, however the can be accessed and enumerated via methods on the FXFormController. FXFormField also provides the -performActionWithResponder:sender: that you can use to replicate the cascading action selector behavior of the default cells.
+Your custom cell must have a property called field, of type FXFormField. FXFormField is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate FXFormField wrappers directly, however the can be accessed and enumerated via methods on the FXFormController. FXFormField also provides the -performActionWithResponder:sender: that you can use to replicate the cascading action selector behavio of the default cells.
 
 Once you have created your custom cell, you can use it as follows:
 

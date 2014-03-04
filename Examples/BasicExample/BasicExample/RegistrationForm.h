@@ -27,5 +27,6 @@ typedef NS_OPTIONS(NSInteger, Gender)
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, assign) Gender gender;
 @property (nonatomic, assign) NSUInteger age;
+@property (nonatomic, strong) NSDate *dateOfBirth;
 
 @end
