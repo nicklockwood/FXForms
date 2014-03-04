@@ -304,7 +304,6 @@ If you want to tweak some properties of the field cells, without subclassing the
     
 Cells are not recycled in the FXForm controller, so you don't need to worry about cleaning up any properties that you set in this way.
     
-    
 
 Custom cells
 ----------------
