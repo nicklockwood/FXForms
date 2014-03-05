@@ -123,7 +123,7 @@ The fields method should return an array of strings, dictionaries, or a mixture.
 
 The -fields method will be called again every time the form is reassigned to the formController. That means that you can generate the fields dynamically, based on application logic. For example, you could show or hide certain fields based on other properties.
 
-In addition to omitting and rearranging fields, you may wish to override their attributes. There are two ways to do this: One way is to add a method to the form object, such as -(NSDictionary *)<name>Field; where name is the property that the field relates to. This method returns a dictionary of properties that you wish to override (see Form field properties, below). For example, if we wanted to override the title of the email field, we could do it like this:
+In addition to omitting and rearranging fields, you may wish to override their attributes. There are two ways to do this: One way is to add a method to the form object, such as -(NSDictionary *)[name]Field; where name is the property that the field relates to. This method returns a dictionary of properties that you wish to override (see Form field properties, below). For example, if we wanted to override the title of the email field, we could do it like this:
 
     - (NSDictionary *)emailField
     {
