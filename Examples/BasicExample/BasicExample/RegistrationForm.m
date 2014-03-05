@@ -45,7 +45,7 @@
              
              //we want to use a stepper control for this value, so let's specify that
              
-             @{FXFormFieldKey: @"age", FXFormFieldType: FXFormFieldTypeStepper},
+             @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
              
              //this field doesn't correspond to any property of the form
              //it's just an action button. the action will be called on first

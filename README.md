@@ -1,7 +1,7 @@
 Purpose
 --------------
 
-FXForms is an Objective-C library for easily creating table-based forms on iOS. It is ideal for settings pages, or user data entry tasks.
+FXForms is an Objective-C library for easily creating table-based forms on iOS. It is ideal for settings pages, or data-entry tasks.
 
 Unlike other solutions, FXForms works directly with strongly-typed data models that you supply (instead of dictionaries or complicated dataSource protocols), and infers as much information as possible from your models using introspection, to avoid the need for tedious duplication of type information.
 
@@ -33,7 +33,7 @@ To create a form object, just make any new NSObject subclass that conforms to th
     
     @end
 
-The FXForm protocol has no compulsory methods or properties, so that's literally all you need to do. The FXForms library will inspect your object and identify all public and private properties and use them to generate the form. For example, suppose you wanted to have a form containing an "Email" and "Password" field,  and a "Remember Me" switch; you would define it like this:
+The FXForm protocol has no compulsory methods or properties. The FXForms library will inspect your object and identify all public and private properties and use them to generate the form. For example, suppose you wanted to have a form containing an "Email" and "Password" field,  and a "Remember Me" switch; you would define it like this:
 
     @interface MyForm : NSObject <FXForm>
     
@@ -43,7 +43,7 @@ The FXForm protocol has no compulsory methods or properties, so that's literally
 
     @end
 
-That's literally all you have to do. FXForms is *really* smart - much smarter than you would expect. For example:
+That's literally all you have to do. FXForms is *really* smart; much more so than you might expect. For example:
 
 * Fields will appear in the same order you declare them in your class
 * Fields will automatically be assigned suitable control types, for example, the rememberMe field will be displayed as a UISwitch, the email field will automatically have a keyboard of type UIKeyboardTypeEmailAddress and the password field will automatically have secureTextEntry enabled. 
@@ -193,7 +193,7 @@ This is the name of the related property of the form object. If your field isn't
     
     static NSString *const FXFormFieldType = @"type";
     
-This is the field type, which is used to decide how the field will be displayed in the table. The type is used to determine which type of cell to use to represent the field, but it may also be used to configure the cell. The type is automatically inferred from the field property declaration, but can be overridden. Supported types are listed under Form field types below, however you can supply any string as the type and implement a custom form cell to display and/or edit it.
+This is the field type, which is used to decide how the field will be displayed in the table. The type is used to determine which type of cell to use to represent the field, but it may also be used to configure the cell (a single cell class may support multiple field types). The type is automatically inferred from the field property declaration, but can be overridden. Supported types are listed under Form field types below, however you can supply any string as the type and implement a custom form cell to display and/or edit it.
     
     static NSString *const FXFormFieldCell = @"cell";
     
@@ -235,7 +235,7 @@ This is the default field type, used if no specific type can be determined.
     
     static NSString *const FXFormFieldTypeLabel = @"label";
     
-This type can be used if you want the field to be treated as non-interactive/read-only.
+This type can be used if you want the field to be treated as non-interactive/read-only. Form values will be displayed by converting the value to a string using the -fieldDescription method. This maps to the standard NSObject -description method for all built-in types, but you can override it for your own custom value classes.
     
     static NSString *const FXFormFieldTypeText = @"text";
     
@@ -261,25 +261,25 @@ Like FXFormFieldTypeText, but with a numeric keyboard, and input restricted to a
     
 Like FXFormFieldTypeNumber, but restricted to integer input.
     
-    static NSString *const FXFormFieldTypeSwitch = @"switch";
+    static NSString *const FXFormFieldTypeBoolean = @"boolean";
     
 A boolean value, set using a UISwitch control.
-    
-    static NSString *const FXFormFieldTypeStepper = @"stepper";
-    
-A numeric value, set using a UIStepper control.
-    
-    static NSString *const FXFormFieldTypeSlider = @"slider";
-    
-A numeric value, set using a UISlider control.
-    
-    static NSString *const FXFormFieldTypeCheckmark = @"checkmark";
-    
-A boolean value, toggled using a checkmark tick.
 
+    static NSString *const FXFormFieldTypeOption = @"option";
+
+Like FXFormFieldTypeBoolean, but this type is used for toggle options and by default is creates a checkmark control instead of a switch.
+    
     static NSString *const FXFormFieldTypeDate = @"date";
 
 A date value, selected using a UIDatePicker.
+
+    static NSString *const FXFormFieldTypeTime = @"time";
+
+A time value, selected using a UIDatePicker.
+
+    static NSString *const FXFormFieldTypeDateTime = @"datetime";
+
+A date and time, selected using a UIDatePicker.
 
 
 Form field options
@@ -314,7 +314,7 @@ There are two levels of customisation possible for cells. The simplest option is
 
 If you already have a base cell class and don't want to base your cells on FXFormBaseCell, you can create an FXForms-compatible cell from scratch by subclass UITableViewCell and adopting the FXFormFieldCell protocol.
 
-Your custom cell must have a property called field, of type FXFormField. FXFormField is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate FXFormField wrappers directly, however the can be accessed and enumerated via methods on the FXFormController. FXFormField also provides the -performActionWithResponder:sender: that you can use to replicate the cascading action selector behavio of the default cells.
+Your custom cell must have a property called field, of type FXFormField. FXFormField is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate FXFormField wrappers directly, however the can be accessed and enumerated via methods on the FXFormController. FXFormField also provides the -performActionWithResponder:sender: that you can use to replicate the cascading action selector behavior of the default cells.
 
 Once you have created your custom cell, you can use it as follows:
 
