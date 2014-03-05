@@ -85,7 +85,7 @@ Here is example code for a custom form view controller:
     @interface MyFormViewController : UIViewController <FXFormControllerDelegate>
     
     @property (nonatomic, strong) IBOutlet UITableView *tableView;
-    @property (nonatomic, strong) UITableView *formController;
+    @property (nonatomic, strong) FXFormController *formController;
 
     @end
     
