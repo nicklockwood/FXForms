@@ -5,6 +5,7 @@ FXForms is an Objective-C library for easily creating table-based forms on iOS. 
 
 Unlike other solutions, FXForms works directly with strongly-typed data models that you supply (instead of dictionaries or complicated dataSource protocols), and infers as much information as possible from your models using introspection, to avoid the need for tedious duplication of type information.
 
+![Screenshot of BasicExample](Examples/BasicExample/Screenshot.png)
 
 Supported iOS & SDK Versions
 -----------------------------
