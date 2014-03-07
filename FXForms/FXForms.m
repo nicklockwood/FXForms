@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0 beta 4
+//  Version 1.0 beta 5
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -153,7 +153,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                 {
                                     valueType = FXFormFieldTypeEmail;
                                 }
-                                else if ([lowercaseKey hasSuffix:@"url"])
+                                else if ([lowercaseKey hasSuffix:@"url"] || [lowercaseKey hasSuffix:@"link"])
                                 {
                                     valueType = FXFormFieldTypeURL;
                                 }
@@ -633,8 +633,6 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 @interface FXFormController () <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, copy) NSArray *sections;
-@property (nonatomic, assign) UIEdgeInsets previousTableContentInset;
-@property (nonatomic, assign) UIEdgeInsets previousTableScrollIndicatorInsets;
 @property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldTypes;
 
 @end
@@ -895,16 +893,14 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     {
         NSDictionary *keyboardInfo = [note userInfo];
         CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-        CGRect tableFrame = [self.tableView.window convertRect:self.tableView.frame fromView:self.tableView.superview];
-        CGFloat inset = tableFrame.origin.y + tableFrame.size.height - keyboardFrame.origin.y;
+        keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
+        CGFloat inset = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
         
         UIEdgeInsets tableContentInset = self.tableView.contentInset;
-        self.previousTableContentInset = tableContentInset;
-        tableContentInset.bottom = MAX(tableContentInset.bottom, inset);
+        tableContentInset.bottom = inset;
         
         UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
-        self.previousTableScrollIndicatorInsets = tableScrollIndicatorInsets;
-        tableScrollIndicatorInsets.bottom = MAX(tableScrollIndicatorInsets.bottom, inset);
+        tableScrollIndicatorInsets.bottom = inset;
         
         //animate insets
         [UIView beginAnimations:nil context:nil];
@@ -924,12 +920,19 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     if (cell)
     {
         NSDictionary *keyboardInfo = [note userInfo];
-
+        
+        UIEdgeInsets tableContentInset = self.tableView.contentInset;
+        tableContentInset.bottom = 0;
+        
+        UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
+        tableScrollIndicatorInsets.bottom = 0;
+        
+        //restore insets
         [UIView beginAnimations:nil context:nil];
         [UIView setAnimationCurve:(UIViewAnimationCurve)keyboardInfo[UIKeyboardAnimationCurveUserInfoKey]];
         [UIView setAnimationDuration:[keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue]];
-        self.tableView.contentInset = self.previousTableContentInset;
-        self.tableView.scrollIndicatorInsets = self.previousTableScrollIndicatorInsets;
+        self.tableView.contentInset = tableContentInset;
+        self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
         [UIView commitAnimations];
     }
 }
@@ -1117,6 +1120,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
     else if ([self.field.options count])
     {
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
         FXFormViewController *subcontroller = [[FXFormViewController alloc] init];
         subcontroller.title = self.field.title;
         subcontroller.formController.cellClassesForFieldTypes = [subcontroller.formController.cellClassesForFieldTypes mutableCopy];
@@ -1125,6 +1129,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
     else if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)])
     {
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
         FXFormViewController *subcontroller = [[FXFormViewController alloc] init];
         subcontroller.title = self.field.title;
         subcontroller.formController.cellClassesForFieldTypes = [subcontroller.formController.cellClassesForFieldTypes mutableCopy];
@@ -1133,6 +1138,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
     else if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])
     {
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
         UIViewController *subcontroller = self.field.value;
         if (!subcontroller.title) subcontroller.title = self.field.title;
         [controller.navigationController pushViewController:subcontroller animated:YES];
