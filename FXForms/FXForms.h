@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.0 beta 5
+//  Version 1.0
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -30,6 +30,8 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
 #import <UIKit/UIKit.h>
 
 
@@ -37,6 +39,7 @@
 
 static NSString *const FXFormFieldKey = @"key";
 static NSString *const FXFormFieldType = @"type";
+static NSString *const FXFormFieldClass = @"class";
 static NSString *const FXFormFieldCell = @"cell";
 static NSString *const FXFormFieldTitle = @"title";
 static NSString *const FXFormFieldAction = @"action";
@@ -188,3 +191,7 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 @property (nonatomic, readonly) UIDatePicker *datePicker;
 
 @end
+
+
+#pragma GCC diagnostic pop
+

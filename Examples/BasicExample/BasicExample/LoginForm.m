@@ -30,7 +30,7 @@
              //object in the responder chain that implements the submitForm
              //method, which in this case would be the AppDelegate
              
-             @{FXFormFieldTitle: @"Submit", FXFormFieldHeader: @"", FXFormFieldAction: @"submitLoginForm:"},
+             @{FXFormFieldTitle: @"Submit", FXFormFieldHeader: @"", FXFormFieldAction: @"submitLoginForm"},
              
              ];
 }

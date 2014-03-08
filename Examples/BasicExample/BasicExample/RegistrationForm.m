@@ -47,12 +47,29 @@
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
              
+             //we want to add a section header here, so we use another config dictionary
+             
+             @{FXFormFieldKey: @"termsAndConditions", FXFormFieldHeader: @"Legal"},
+             
+             //another regular field. note that we haven't actually instantiated the terms
+             //and conditions or privacy policy view controllers - FXForms will instantiate
+             //view controllers automatically if the value is nil, or will used the supplied
+             //controller instance if there is one
+             
+             @"privacyPolicy",
+             
+             //the automatically generated title (Agreed To Terms) and cell (FXFormSwitchCell)
+             //don't really work for this field, so we'll override them both (a type of
+             //FXFormFieldTypeOption will use an checkmark instead of a switch by default)
+             
+             @{FXFormFieldKey: @"agreedToTerms", FXFormFieldTitle: @"I Agree To These Terms", FXFormFieldType: FXFormFieldTypeOption},
+             
              //this field doesn't correspond to any property of the form
              //it's just an action button. the action will be called on first
              //object in the responder chain that implements the submitForm
              //method, which in this case would be the AppDelegate
              
-             @{FXFormFieldTitle: @"Submit", FXFormFieldHeader: @"", FXFormFieldAction: @"submitRegistrationForm"},
+             @{FXFormFieldTitle: @"Submit", FXFormFieldHeader: @"", FXFormFieldAction: @"submitRegistrationForm:"},
              
              ];
 }

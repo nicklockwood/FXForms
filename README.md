@@ -12,7 +12,7 @@ Supported iOS & SDK Versions
 
 * Supported build target - iOS 7.0 (Xcode 5.0)
 * Earliest supported deployment target - iOS 5.0
-* Earliest compatible deployment target - iOS 4.3
+* Earliest compatible deployment target - iOS 5.0
 
 NOTE: 'Supported' means that the library has been tested with this version. 'Compatible' means that the library should work on this iOS version (i.e. it doesn't rely on any unavailable SDK features) but is no longer being tested for compatibility and may require tweaking or bug fixes to run correctly.
 
@@ -54,7 +54,7 @@ That's literally all you have to do. FXForms is *really* smart; much more so tha
 * Fields will automatically be assigned suitable control types, for example, the rememberMe field will be displayed as a `UISwitch`, the email field will automatically have a keyboard of type `UIKeyboardTypeEmailAddress` and the password field will automatically have `secureTextEntry` enabled. 
 * Field titles are based on the key name, but camelCase is automatically converted to a Title Case, with intelligent handling of ACRONYMS, etc.
 * Modifying values in the form will automatically assign those values back to your model object. You can use custom setter methods or KVO to intercept the changes if you nee to perform additional logic.
-* If your form contains subforms (properties that conform to the `FXForm` protocol), they will automatically be instantiated if they are nil - no need to set default values.
+* If your form contains subforms (properties that conform to the `FXForm` protocol), or view controllers (e.g for terms and conditions pages), they will automatically be instantiated if they are nil - no need to set default values.
 
 These default behaviors are all inferred by inspecting the property type and name using Objective-C's runtime API, but they can also all be overridden if you wish - that's covered later under Tweaking form behavior
 
@@ -219,12 +219,19 @@ static NSString *const FXFormFieldType = @"type";
 ```
     
 This is the field type, which is used to decide how the field will be displayed in the table. The type is used to determine which type of cell to use to represent the field, but it may also be used to configure the cell (a single cell class may support multiple field types). The type is automatically inferred from the field property declaration, but can be overridden. Supported types are listed under Form field types below, however you can supply any string as the type and implement a custom form cell to display and/or edit it.
-    
+
+```objc
+static NSString *const FXFormFieldClass = @"class";
+```
+
+This is the class of the field value. For primitive types, this will be the class used to box the value when accessed via KVC (e.g. `NSNumber` for numeric values, or `NSValue` for `struct` types). This is automatically determined for all properties of the form, so you rarely need to set it yourself. For form properties that you add yourself using the `-fields` or `-extraFields` methods, it is sometimes helpful to specify this explicitly. A good example would be if you are adding view controller or subform fields, where the class cannot usually be inferred automatically. The value provided can be either a `Class` object or a string representing the class name.
+
+
 ```objc
 static NSString *const FXFormFieldCell = @"cell";
 ```
 
-This is the class name of the cell used to represent the field. By default this value is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to cells, which allows you to override the default cells used to reprint a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off cell type, you can use this property to do so. The value provided can be either a `Class` object or a string representing the class name.
+This is the class of the cell used to represent the field. By default this value is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to cells, which allows you to override the default cells used to reprint a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off cell type, you can use this property to do so. The value provided can be either a `Class` object or a string representing the class name.
     
 ```objc
 static NSString *const FXFormFieldTitle = @"title";

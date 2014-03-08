@@ -12,7 +12,7 @@
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+- (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(__unused NSDictionary *)launchOptions
 {
     //set up form
     FXFormViewController *formViewController = [[FXFormViewController alloc] init];
@@ -31,20 +31,26 @@
 //they reach the AppDelegate - normally we'd have put these
 //on a view controller instead though
 
-- (void)submitLoginForm:(UITableViewCell<FXFormFieldCell> *)cell
+- (void)submitLoginForm
 {
-    //we can lookup the form from the cell if we want, like this:
-    LoginForm *form = cell.field.form;
-    
     //now we can display a form value in our alert
-    [[[UIAlertView alloc] initWithTitle:@"Login Form Submitted"
-                                message:[NSString stringWithFormat:@"User: %@", form.email]
-                               delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil] show];
+    [[[UIAlertView alloc] initWithTitle:@"Login Form Submitted" message:nil delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil] show];
 }
 
-- (void)submitRegistrationForm
+- (void)submitRegistrationForm:(UITableViewCell<FXFormFieldCell> *)cell
 {
-    [[[UIAlertView alloc] initWithTitle:@"Login Form Submitted" message:nil delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil] show];
+    //we can lookup the form from the cell if we want, like this:
+    RegistrationForm *form = cell.field.form;
+    
+    //we can then perform validation, etc
+    if (form.agreedToTerms)
+    {
+        [[[UIAlertView alloc] initWithTitle:@"Login Form Submitted" message:nil delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil] show];
+    }
+    else
+    {
+        [[[UIAlertView alloc] initWithTitle:@"User Error" message:@"Please agree to the terms and conditions before proceeding" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"Yes Sir!", nil] show];
+    }
 }
 
 @end

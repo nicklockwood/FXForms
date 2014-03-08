@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0 beta 5
+//  Version 1.0
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -34,6 +34,14 @@
 #import <objc/runtime.h>
 
 
+#pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
+#pragma GCC diagnostic ignored "-Wdirect-ivar-access"
+#pragma GCC diagnostic ignored "-Warc-repeated-use-of-weak"
+#pragma GCC diagnostic ignored "-Wreceiver-is-weak"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wgnu"
+
+
 static const CGFloat FXFormFieldLabelSpacing = 5;
 static const CGFloat FXFormFieldMinLabelWidth = 97;
 static const CGFloat FXFormFieldMaxLabelWidth = 240;
@@ -43,10 +51,7 @@ static const CGFloat FXFormFieldPaddingLeft = 10;
 static const CGFloat FXFormFieldPaddingRight = 10;
 
 
-static NSString *const FXFormFieldClass = @"class";
-
-
-UIView *FXFormsFirstResponder(UIView *view)
+static UIView *FXFormsFirstResponder(UIView *view)
 {
     if ([view isFirstResponder])
     {
@@ -257,7 +262,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 @implementation FXFormField
 
-+ (NSArray *)fieldsWithForm:(id<FXForm>)form;
++ (NSArray *)fieldsWithForm:(id<FXForm>)form
 {
     //get fields
     NSMutableArray *fields = [[form fields] mutableCopy];
@@ -311,12 +316,12 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             if (!dictionary[FXFormFieldTitle])
             {
                 BOOL wasCapital = YES;
-                NSString *key = dictionary[FXFormFieldKey] ?: dictionary[FXFormFieldAction];
+                NSString *keyOrAction = dictionary[FXFormFieldKey] ?: dictionary[FXFormFieldAction];
                 NSMutableString *output = [NSMutableString string];
-                [output appendString:[[key substringToIndex:1] uppercaseString]];
-                for (NSUInteger i = 1; i < [key length]; i++)
+                [output appendString:[[keyOrAction substringToIndex:1] uppercaseString]];
+                for (NSUInteger j = 1; j < [keyOrAction length]; j++)
                 {
-                    unichar character = [key characterAtIndex:i];
+                    unichar character = [keyOrAction characterAtIndex:j];
                     BOOL isCapital = ([[NSCharacterSet uppercaseLetterCharacterSet] characterIsMember:character]);
                     if (isCapital && !wasCapital) [output appendString:@" "];
                     wasCapital = isCapital;
@@ -348,7 +353,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     {
         _form = form;
         _cellConfig = [NSMutableDictionary dictionary];
-        [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+        [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, __unused BOOL *stop) {
             [self setValue:value forKey:key];
         }];
     }
@@ -399,7 +404,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     if (self.key)
     {
         id value = [(NSObject *)self.form valueForKey:self.key];
-        if (!value && [self.valueClass conformsToProtocol:@protocol(FXForm)])
+        if (!value && ([self.valueClass conformsToProtocol:@protocol(FXForm)] ||
+                       [self.valueClass isSubclassOfClass:[UIViewController class]]))
         {
             value = [[self.valueClass alloc] init];
             [(NSObject *)self.form setValue:value forKey:self.key];
@@ -606,11 +612,14 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (NSString *)fieldDescription
 {
-    if ([self conformsToProtocol:@protocol(FXForm)])
+    for (Class fieldClass in @[[NSString class], [NSNumber class], [NSDate class]])
     {
-        return nil;
+        if ([self isKindOfClass:fieldClass])
+        {
+            return [self description];
+        }
     }
-    return [self description];
+    return nil;
 }
 
 - (NSArray *)fields
@@ -732,7 +741,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return nil;
 }
 
-- (void)setForm:(id)form
+- (void)setForm:(id<FXForm>)form
 {
     _form = form;
     self.sections = [FXFormSection sectionsWithForm:form];
@@ -776,27 +785,27 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 #pragma mark -
 #pragma mark Datasource methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+- (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView
 {
     return [self numberOfSections];
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)index
+- (NSString *)tableView:(__unused UITableView *)tableView titleForHeaderInSection:(NSInteger)index
 {
     return [self sectionAtIndex:index].header;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)index
+- (NSString *)tableView:(__unused UITableView *)tableView titleForFooterInSection:(NSInteger)index
 {
     return [self sectionAtIndex:index].footer;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)index
+- (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)index
 {
     return [self numberOfFieldsInSection:index];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
     Class cellClass = field.cell ?: [self cellClassForFieldType:field.type];
@@ -807,7 +816,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return self.tableView.rowHeight;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(__unused UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
 
@@ -827,15 +836,15 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 #pragma mark -
 #pragma mark Delegate methods
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell<FXFormFieldCell> *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
 
     //set form field
-    cell.field = field;
+    ((id<FXFormFieldCell>)cell).field = field;
     
     //configure cell
-    [field.cellConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, BOOL *stop) {
+    [field.cellConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, __unused BOOL *stop) {
         [cell setValue:value forKeyPath:keyPath];
     }];
     
@@ -990,6 +999,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+    
     NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
     if (selected)
     {
@@ -1091,7 +1102,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return view;
 }
 
-- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
     if (self.field.action)
     {
@@ -1170,7 +1181,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     self.textField.delegate = self;
     [self.contentView addSubview:self.textField];
     
-    [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textField action:@selector(becomeFirstResponder)]];
+    [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textField action:NSSelectorFromString(@"becomeFirstResponder")]];
 }
 
 - (void)layoutSubviews
@@ -1240,13 +1251,13 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
+- (BOOL)textFieldShouldReturn:(__unused UITextField *)textField
 {
     [self.textField resignFirstResponder];
     return NO;
 }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField
+- (void)textFieldDidEndEditing:(__unused UITextField *)textField
 {
     if ([self.field.type isEqualToString:FXFormFieldTypeNumber])
     {
@@ -1267,7 +1278,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     [self.field performActionWithResponder:self sender:self];
 }
 
-- (void)textFieldDidBeginEditing:(UITextField *)textField
+- (void)textFieldDidBeginEditing:(__unused UITextField *)textField
 {
     [self.textField selectAll:nil];
 }
@@ -1479,7 +1490,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     [self.field performActionWithResponder:self sender:self];
 }
 
-- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
 {
     [self becomeFirstResponder];
     [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
