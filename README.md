@@ -269,7 +269,7 @@ This property provides an optional section footer string to display after the fi
 static NSString *const FXFormFieldInline = @"inline";
 ```
 
-Fields whose values is another FXForm, or which have a supplied options array, will normally be displayed in a new form, which is pushed onto the navigation stack when you tap the field. You may wish to display such fields inline within same tableView instead. You can do this by setting the `FXFormFieldInline` property to `@YES`.
+Fields whose values is another FXForm, or which have a supplied options array, will normally be displayed in a new FXFormViewController, which is pushed onto the navigation stack when you tap the field. You may wish to display such fields inline within same tableView instead. You can do this by setting the `FXFormFieldInline` property to `@YES`.
 
 
 Form field types
@@ -397,9 +397,13 @@ Once you have created your custom cell, you can use it as follows:
 * If you want to completely replace all cells with your own classes, use the `-registerDefaultFieldCellClass:` method of FXFormController. This replaces all default cell associations for all field types with your new cell class. You can then use `-registerCellClass:forFieldType:` to add additional cell classes for specific types.
 
 
-Release Notes
+Release notes
 --------------
 
-Version 1.0 beta
+Version 1.0.1
+
+- Subform FXFormController instances now correctly inherit registered cells from the parent controller
+
+Version 1.0
 
 - Initial release

@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0
+//  Version 1.0.1
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -46,7 +46,6 @@ static const CGFloat FXFormFieldLabelSpacing = 5;
 static const CGFloat FXFormFieldMinLabelWidth = 97;
 static const CGFloat FXFormFieldMaxLabelWidth = 240;
 static const CGFloat FXFormFieldMinFontSize = 12;
-static const CGFloat FXFormFieldMinValueWidth = 35;
 static const CGFloat FXFormFieldPaddingLeft = 10;
 static const CGFloat FXFormFieldPaddingRight = 10;
 
@@ -1102,6 +1101,20 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return view;
 }
 
+- (FXFormController *)formController
+{
+    id responder = [self nextResponder];
+    while (responder)
+    {
+        if ([responder respondsToSelector:@selector(formController)])
+        {
+            return [responder formController];
+        }
+        responder = [responder nextResponder];
+    }
+    return nil;
+}
+
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
     if (self.field.action)
@@ -1110,8 +1123,25 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         [self.field performActionWithResponder:controller sender:self];
         [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
     }
+    else if ([self.field.options count] || [self.field.valueClass conformsToProtocol:@protocol(FXForm)])
+    {
+        id<FXForm> form = self.field.value;
+        if ([self.field.options count])
+        {
+            form = [[FXOptionsForm alloc] initWithField:self.field];
+        }
+        
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
+        FXFormViewController *subcontroller = [[FXFormViewController alloc] init];
+        subcontroller.title = self.field.title;
+        FXFormController *formController = [self formController];
+        if (formController) subcontroller.formController.cellClassesForFieldTypes = [formController.cellClassesForFieldTypes mutableCopy];
+        subcontroller.formController.form = form;
+        [controller.navigationController pushViewController:subcontroller animated:YES];
+    }
     else if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
     {
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
         self.field.value = @(![self.field.value boolValue]);
         self.accessoryType = [self.field.value boolValue]? UITableViewCellAccessoryCheckmark: UITableViewCellAccessoryNone;
         if ([self.field.type isEqualToString:FXFormFieldTypeOption])
@@ -1128,24 +1158,6 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             //deselect the cell
             [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
-    }
-    else if ([self.field.options count])
-    {
-        [FXFormsFirstResponder(tableView) resignFirstResponder];
-        FXFormViewController *subcontroller = [[FXFormViewController alloc] init];
-        subcontroller.title = self.field.title;
-        subcontroller.formController.cellClassesForFieldTypes = [subcontroller.formController.cellClassesForFieldTypes mutableCopy];
-        subcontroller.formController.form = [[FXOptionsForm alloc] initWithField:self.field];
-        [controller.navigationController pushViewController:subcontroller animated:YES];
-    }
-    else if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)])
-    {
-        [FXFormsFirstResponder(tableView) resignFirstResponder];
-        FXFormViewController *subcontroller = [[FXFormViewController alloc] init];
-        subcontroller.title = self.field.title;
-        subcontroller.formController.cellClassesForFieldTypes = [subcontroller.formController.cellClassesForFieldTypes mutableCopy];
-        subcontroller.formController.form = self.field.value;
-        [controller.navigationController pushViewController:subcontroller animated:YES];
     }
     else if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])
     {
