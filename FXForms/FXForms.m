@@ -385,6 +385,9 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         }
         return nil;
     }
+    if (self.valueTransformer) {
+        return [self.valueTransformer transformedValue:[self.value fieldDescription]];
+    }
     return [self.value fieldDescription];
 }
 
@@ -442,6 +445,11 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     _options = [options copy];
 }
 
+- (void)setValueTransformer:(NSValueTransformer *)valueTransformer
+{
+    _valueTransformer = valueTransformer;
+}
+
 - (void)performActionWithResponder:(UIResponder *)responder sender:(id)sender
 {
     if (self.action)
@@ -491,7 +499,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         for (id option in field.options)
         {
             [fields addObject:@{FXFormFieldKey: [@(index) description],
-                                FXFormFieldTitle: [option fieldDescription],
+                                FXFormFieldTitle: [field.valueTransformer transformedValue:option] ?: [option fieldDescription],
                                 FXFormFieldType: FXFormFieldTypeOption}];
             index ++;
         }
