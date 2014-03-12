@@ -47,6 +47,9 @@
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
              
+             // this is a multiline text view that grows to fit its contents
+             @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeTextMultiline},
+             
              //we want to add a section header here, so we use another config dictionary
              
              @{FXFormFieldKey: @"termsAndConditions", FXFormFieldHeader: @"Legal"},
