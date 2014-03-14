@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0.1
+//  Version 1.0.2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -1196,6 +1196,33 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textField action:NSSelectorFromString(@"becomeFirstResponder")]];
 }
 
+- (void)setValue:(id)value forKeyPath:(NSString *)keyPath
+{
+    //TODO: is there a less hacky fix for this?
+    static NSDictionary *specialCases = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        specialCases = @{@"textField.autocapitalizationType": ^(UITextField *f, NSInteger v){ f.autocapitalizationType = v; },
+                         @"textField.autocorrectionType": ^(UITextField *f, NSInteger v){ f.autocorrectionType = v; },
+                         @"textField.spellCheckingType": ^(UITextField *f, NSInteger v){ f.spellCheckingType = v; },
+                         @"textField.keyboardType": ^(UITextField *f, NSInteger v){ f.keyboardType = v; },
+                         @"textField.keyboardAppearance": ^(UITextField *f, NSInteger v){ f.keyboardAppearance = v; },
+                         @"textField.returnKeyType": ^(UITextField *f, NSInteger v){ f.returnKeyType = v; },
+                         @"textField.enablesReturnKeyAutomatically": ^(UITextField *f, NSInteger v){ f.enablesReturnKeyAutomatically = !!v; },
+                         @"textField.secureTextEntry": ^(UITextField *f, NSInteger v){ f.secureTextEntry = !!v; }};
+    });
+
+    void (^block)(UITextField *f, NSInteger v) = specialCases[keyPath];
+    if (block)
+    {
+        block(self.textField, [value integerValue]);
+    }
+    else
+    {
+        [super setValue:value forKeyPath:keyPath];
+    }
+}
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
@@ -1271,22 +1298,27 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (void)textFieldDidEndEditing:(__unused UITextField *)textField
 {
+    id value = self.textField.text;
     if ([self.field.type isEqualToString:FXFormFieldTypeNumber])
     {
-        self.field.value = @([self.textField.text doubleValue]);
+        value = @([self.textField.text doubleValue]);
     }
     else if ([self.field.type isEqualToString:FXFormFieldTypeInteger])
     {
-        self.field.value = @([self.textField.text integerValue]);
+        value = @([self.textField.text longLongValue]);
     }
     else if ([self.field.valueClass isSubclassOfClass:[NSURL class]])
     {
-        self.field.value = [self.field.valueClass URLWithString:self.textField.text];
+        value = [self.field.valueClass URLWithString:self.textField.text];
     }
-    else
+    
+    //handle case where value is numeric but value class is string
+    if (![value isKindOfClass:[NSString class]] && [self.field.valueClass isSubclassOfClass:[NSString class]])
     {
-        self.field.value = self.textField.text;
+        value = [self.field.valueClass stringWithString:[value description]];
     }
+
+    self.field.value = value;
     [self.field performActionWithResponder:self sender:self];
 }
 

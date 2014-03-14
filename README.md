@@ -10,7 +10,7 @@ Unlike other solutions, FXForms works directly with strongly-typed data models t
 Supported iOS & SDK Versions
 -----------------------------
 
-* Supported build target - iOS 7.0 (Xcode 5.0)
+* Supported build target - iOS 7.1 (Xcode 5.1)
 * Earliest supported deployment target - iOS 5.0
 * Earliest compatible deployment target - iOS 5.0
 
@@ -375,8 +375,17 @@ If you want to tweak some properties of the field cells, without subclassing the
     return @{@"textLabel.color": [UIColor redColor]};
 }
 ```
+
+This code would disable auto-capitalisation for the name field:
+
+```objc
+- (NSDictionary *)nameField
+{
+    return @{@"textField.autocapitalizationType": @(UITextAutocapitalizationTypeNone)};
+}
+```
     
-Cells are not recycled in the FXForm controller, so you don't need to worry about cleaning up any properties that you set in this way.
+Cells are not recycled in the FXForm controller, so you don't need to worry about cleaning up any properties that you set in this way. Be careful of overusing "stringly typed" code such as this however as errors can't be caught at compile time. For heavy customisation, it is better to create cell subclasses and override properties in the `-setField:` method.
     
 
 Custom cells
@@ -386,7 +395,7 @@ FXForms provides default cell implementations for all supported fields. You may 
 
 There are two levels of customisation possible for cells. The simplest option is to subclass one of the existing `FXFormCell` classes, which all inherit from `FXFormBaseCell`. These cell classes contain a lot of logic for handling the various different field types, but expose the views and controls used, for easy customisation.
 
-If you already have a base cell class and don't want to base your cells on `FXFormBaseCell`, you can create an FXForms-compatible cell from scratch by subclass `UITableViewCell` and adopting the `FXFormFieldCell` protocol.
+If you already have a base cell class and don't want to base your cells on `FXFormBaseCell`, you can create an FXForms-compatible cell from scratch by subclassing `UITableViewCell` and adopting the `FXFormFieldCell` protocol.
 
 Your custom cell must have a property called field, of type `FXFormField`. `FXFormField` is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate `FXFormField` wrappers directly, however the can be accessed and enumerated via methods on the `FXFormController`. `FXFormField` also provides the `-performActionWithResponder:sender:` that you can use to replicate the cascading action selector behavior of the default cells.
 
@@ -400,9 +409,15 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.0.2
+
+- Fixed crash when attempting to set UITextInputTraits properties on a FXFormTextFieldCell
+- Fixed potential crash when numeric field type is used with string properties
+
 Version 1.0.1
 
 - Subform FXFormController instances now correctly inherit registered cells from the parent controller
+- Fields of type FXFormFieldOption with associated actions will now still be toggled before action fires
 
 Version 1.0
 
