@@ -62,7 +62,7 @@ These default behaviors are all inferred by inspecting the property type and nam
 Displaying a form (basic)
 ----------------------------
 
-To display your form in a view controller, you have two options: `FXForms` provides a `UIViewController` subclass called `FXFormViewController` that is designed to make getting started as simple as possible. To set up `FXFormViewController`, just create it as normal and set your foam as follows:
+To display your form in a view controller, you have two options: `FXForms` provides a `UIViewController` subclass called `FXFormViewController` that is designed to make getting started as simple as possible. To set up `FXFormViewController`, just create it as normal and set your form as follows:
 
 ```objc
 FXFormViewController *controller = [[FXFormViewController alloc] init];
