@@ -695,7 +695,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     {
         _cellClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormBaseCell class],
                                        FXFormFieldTypeText: [FXFormTextFieldCell class],
-                                       FXFormFieldTypeTextMultiline: [FXFormTextViewCell class],
+                                       FXFormFieldTypeLongText: [FXFormTextViewCell class],
                                        FXFormFieldTypeURL: [FXFormTextFieldCell class],
                                        FXFormFieldTypeEmail: [FXFormTextFieldCell class],
                                        FXFormFieldTypePassword: [FXFormTextFieldCell class],
@@ -1551,7 +1551,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     [self.field performActionWithResponder:self sender:self];
 }
 
-- (void)updateFieldValue {
+- (void)updateFieldValue
+{
     if ([self.field.type isEqualToString:FXFormFieldTypeNumber])
     {
         self.field.value = @([self.textView.text doubleValue]);
