@@ -231,7 +231,7 @@ This is the class of the field value. For primitive types, this will be the clas
 static NSString *const FXFormFieldCell = @"cell";
 ```
 
-This is the class of the cell used to represent the field. By default this value is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to cells, which allows you to override the default cells used to reprint a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off cell type, you can use this property to do so. The value provided can be either a `Class` object or a string representing the class name.
+This is the class of the cell used to represent the field. By default this value is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to cell classes, which allows you to override the default cells used to display a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off cell type, you can use this property to do so. The value provided can be either a `Class` object or a string representing the class name.
     
 ```objc
 static NSString *const FXFormFieldTitle = @"title";
@@ -270,6 +270,12 @@ static NSString *const FXFormFieldInline = @"inline";
 ```
 
 Fields whose values is another FXForm, or which have a supplied options array, will normally be displayed in a new FXFormViewController, which is pushed onto the navigation stack when you tap the field. You may wish to display such fields inline within same tableView instead. You can do this by setting the `FXFormFieldInline` property to `@YES`.
+
+```objc
+static NSString *const FXFormFieldViewController = @"controller";
+```
+
+Some types of field may be displayed in another view controller, which will be pushed onto the navigation stack when the field is selected. By default this class is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to controller classes, which allows you to override the default controller used to display a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off controller type, the FXFormFieldViewController property lets you specify the controller to be used on a per-field basis. The controller specified must conform to the `FXFormFieldViewController` protocol. By default, such fields will be displayed using the `FXFormViewController` class.
 
 
 Form field types
@@ -408,6 +414,10 @@ Once you have created your custom cell, you can use it as follows:
 
 Release notes
 --------------
+
+Version 1.1 beta
+
+- Added FXFormFieldViewController property for specifying custom form field view controllers
 
 Version 1.0.2
 

@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.0.2
+//  Version 1.1 beta
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -40,6 +40,9 @@
 #pragma GCC diagnostic ignored "-Wreceiver-is-weak"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wgnu"
+
+
+static NSString *const FXFormsException = @"FXFormsException";
 
 
 static const CGFloat FXFormFieldLabelSpacing = 5;
@@ -251,17 +254,18 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 @property (nonatomic, copy) NSString *footer;
 @property (nonatomic, assign) BOOL isInline;
 
+@property (nonatomic, weak) FXFormController *formController;
 @property (nonatomic, strong) NSMutableDictionary *cellConfig;
 
-+ (NSArray *)fieldsWithForm:(id<FXForm>)form;
-- (instancetype)initWithForm:(id<FXForm>)form attributes:(NSDictionary *)attributes;
++ (NSArray *)fieldsWithForm:(id<FXForm>)form controller:(FXFormController *)formController;
+- (instancetype)initWithForm:(id<FXForm>)form controller:(FXFormController *)formController attributes:(NSDictionary *)attributes;
 
 @end
 
 
 @implementation FXFormField
 
-+ (NSArray *)fieldsWithForm:(id<FXForm>)form
++ (NSArray *)fieldsWithForm:(id<FXForm>)form controller:(FXFormController *)formController
 {
     //get fields
     NSMutableArray *fields = [[form fields] mutableCopy];
@@ -308,6 +312,10 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             {
                 dictionary[FXFormFieldCell] = NSClassFromString(dictionary[FXFormFieldCell]);
             }
+            if ([dictionary[FXFormFieldViewController] isKindOfClass:[NSString class]])
+            {
+                dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
+            }
             if ([(NSArray *)dictionary[FXFormFieldOptions] count])
             {
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
@@ -331,9 +339,9 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         }
         else
         {
-            [NSException raise:@"FXFormsException" format:@"Unsupported field type: %@", [dictionaryOrKey class]];
+            [NSException raise:FXFormsException format:@"Unsupported field type: %@", [dictionaryOrKey class]];
         }
-        fields[i] = [[self alloc] initWithForm:form attributes:dictionary];
+        fields[i] = [[self alloc] initWithForm:form controller:formController attributes:dictionary];
     }
     
     return fields;
@@ -346,11 +354,12 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return nil;
 }
 
-- (instancetype)initWithForm:(id<FXForm>)form attributes:(NSDictionary *)attributes
+- (instancetype)initWithForm:(id<FXForm>)form controller:(FXFormController *)formController attributes:(NSDictionary *)attributes
 {
     if ((self = [super init]))
     {
         _form = form;
+        _formController = formController;
         _cellConfig = [NSMutableDictionary dictionary];
         [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, __unused BOOL *stop) {
             [self setValue:value forKey:key];
@@ -442,6 +451,11 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     _options = [options copy];
 }
 
+- (void)setController:(Class)controller
+{
+    _viewController = controller;
+}
+
 - (void)performActionWithResponder:(UIResponder *)responder sender:(id)sender
 {
     if (self.action)
@@ -463,7 +477,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             responder = [responder nextResponder];
         }
         
-        [NSException raise:@"FXFormsException" format:@"No object in the responder chain responds to the selector %@", NSStringFromSelector(self.action)];
+        [NSException raise:FXFormsException format:@"No object in the responder chain responds to the selector %@", NSStringFromSelector(self.action)];
     }
 }
 
@@ -541,7 +555,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 @interface FXFormSection : NSObject
 
-+ (NSArray *)sectionsWithForm:(id<FXForm>)form;
++ (NSArray *)sectionsWithForm:(id<FXForm>)form controller:(FXFormController *)formController;
 
 @property (nonatomic, strong) id<FXForm> form;
 @property (nonatomic, strong) NSString *header;
@@ -553,16 +567,16 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 @implementation FXFormSection
 
-+ (NSArray *)sectionsWithForm:(id<FXForm>)form
++ (NSArray *)sectionsWithForm:(id<FXForm>)form controller:(FXFormController *)formController
 {
     NSMutableArray *sections = [NSMutableArray array];
     FXFormSection *section = nil;
-    for (FXFormField *field in [FXFormField fieldsWithForm:form])
+    for (FXFormField *field in [FXFormField fieldsWithForm:form controller:formController])
     {
         if ([field.options count] && field.isInline)
         {
             id<FXForm> subform = [[FXOptionsForm alloc] initWithField:field];
-            NSArray *subsections = [FXFormSection sectionsWithForm:subform];
+            NSArray *subsections = [FXFormSection sectionsWithForm:subform controller:formController];
             if (![[subsections firstObject] header]) [[subsections firstObject] setHeader:field.header ?: field.title];
             [sections addObjectsFromArray:subsections];
             section = nil;
@@ -570,7 +584,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         else if ([field.valueClass conformsToProtocol:@protocol(FXForm)] && field.isInline)
         {
             id<FXForm> subform = field.value;
-            NSArray *subsections = [FXFormSection sectionsWithForm:subform];
+            NSArray *subsections = [FXFormSection sectionsWithForm:subform controller:formController];
             if (![[subsections firstObject] header]) [[subsections firstObject] setHeader:field.header ?: field.title];
             [sections addObjectsFromArray:subsections];
             section = nil;
@@ -642,6 +656,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 @property (nonatomic, copy) NSArray *sections;
 @property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldTypes;
+@property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
 
 @end
 
@@ -664,6 +679,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                        FXFormFieldTypeTime: [FXFormDatePickerCell class],
                                        FXFormFieldTypeDateTime: [FXFormDatePickerCell class]} mutableCopy];
         
+        _controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
+                
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillShow:)
                                                      name:UIKeyboardWillShowNotification
@@ -697,6 +714,23 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 {
     NSParameterAssert([cellClass conformsToProtocol:@protocol(FXFormFieldCell)]);
     self.cellClassesForFieldTypes[fieldType] = cellClass;
+}
+
+- (Class)viewControllerClassForFieldType:(NSString *)fieldType
+{
+    return self.controllerClassesForFieldTypes[fieldType] ?: self.controllerClassesForFieldTypes[FXFormFieldTypeDefault];
+}
+
+- (void)registerDefaultViewControllerClass:(Class)controllerClass
+{
+    NSParameterAssert([controllerClass conformsToProtocol:@protocol(FXFormFieldViewController)]);
+    [self.controllerClassesForFieldTypes setDictionary:@{FXFormFieldTypeDefault: controllerClass}];
+}
+
+- (void)registerViewControllerClass:(Class)controllerClass forFieldType:(NSString *)fieldType
+{
+    NSParameterAssert([controllerClass conformsToProtocol:@protocol(FXFormFieldViewController)]);
+    self.controllerClassesForFieldTypes[fieldType] = controllerClass;
 }
 
 - (void)setDelegate:(id<FXFormControllerDelegate>)delegate
@@ -743,7 +777,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)setForm:(id<FXForm>)form
 {
     _form = form;
-    self.sections = [FXFormSection sectionsWithForm:form];
+    self.sections = [FXFormSection sectionsWithForm:form controller:self];
 }
 
 - (NSUInteger)numberOfSections
@@ -957,6 +991,35 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 @implementation FXFormViewController
 
+@synthesize field = _field;
+
+- (void)setField:(FXFormField *)field
+{
+    _field = field;
+    
+    id<FXForm> form = self.field.value;
+    if ([field.options count])
+    {
+        form = [[FXOptionsForm alloc] initWithField:field];
+    }
+    else if ([field.valueClass conformsToProtocol:@protocol(FXForm)])
+    {
+        form = field.value;
+    }
+    else
+    {
+        [NSException raise:FXFormsException format:@"FXFormViewController field value must conform to FXForm protocol"];
+    }
+    
+    self.title = field.title;
+    self.formController.form = field.value;
+    
+    //TODO: find a way to do this can doesn't rely on FXFormField having a private reference to formController
+    //so that custom implementations can also benefit from this behavior
+    self.formController.cellClassesForFieldTypes = [NSMutableDictionary dictionaryWithDictionary:field.formController.cellClassesForFieldTypes];
+    self.formController.controllerClassesForFieldTypes = [NSMutableDictionary dictionaryWithDictionary:field.formController.controllerClassesForFieldTypes];
+}
+
 - (FXFormController *)formController
 {
     if (!_formController)
@@ -1024,6 +1087,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 
 @implementation FXFormBaseCell
+
+@synthesize field = _field;
 
 - (id)init
 {
@@ -1101,20 +1166,6 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return view;
 }
 
-- (FXFormController *)formController
-{
-    id responder = [self nextResponder];
-    while (responder)
-    {
-        if ([responder respondsToSelector:@selector(formController)])
-        {
-            return [responder formController];
-        }
-        responder = [responder nextResponder];
-    }
-    return nil;
-}
-
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
     if (self.field.action)
@@ -1123,25 +1174,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         [self.field performActionWithResponder:controller sender:self];
         [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
     }
-    else if ([self.field.options count] || [self.field.valueClass conformsToProtocol:@protocol(FXForm)])
-    {
-        id<FXForm> form = self.field.value;
-        if ([self.field.options count])
-        {
-            form = [[FXOptionsForm alloc] initWithField:self.field];
-        }
-        
-        [FXFormsFirstResponder(tableView) resignFirstResponder];
-        FXFormViewController *subcontroller = [[FXFormViewController alloc] init];
-        subcontroller.title = self.field.title;
-        FXFormController *formController = [self formController];
-        if (formController) subcontroller.formController.cellClassesForFieldTypes = [formController.cellClassesForFieldTypes mutableCopy];
-        subcontroller.formController.form = form;
-        [controller.navigationController pushViewController:subcontroller animated:YES];
-    }
     else if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
     {
-        [FXFormsFirstResponder(tableView) resignFirstResponder];
         self.field.value = @(![self.field.value boolValue]);
         self.accessoryType = [self.field.value boolValue]? UITableViewCellAccessoryCheckmark: UITableViewCellAccessoryNone;
         if ([self.field.type isEqualToString:FXFormFieldTypeOption])
@@ -1158,6 +1192,13 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
             //deselect the cell
             [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
+    }
+    else if (self.field.viewController || [self.field.options count] || [self.field.valueClass conformsToProtocol:@protocol(FXForm)])
+    {
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
+        UIViewController <FXFormFieldViewController> *subcontroller = [[self.field.viewController ?: [FXFormViewController class] alloc] init];
+        subcontroller.field = self.field;
+        [controller.navigationController pushViewController:subcontroller animated:YES];
     }
     else if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])
     {

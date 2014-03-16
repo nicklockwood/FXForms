@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.0.2
+//  Version 1.1 beta
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -47,6 +47,7 @@ static NSString *const FXFormFieldOptions = @"options";
 static NSString *const FXFormFieldHeader = @"header";
 static NSString *const FXFormFieldFooter = @"footer";
 static NSString *const FXFormFieldInline = @"inline";
+static NSString *const FXFormFieldViewController = @"controller";
 
 static NSString *const FXFormFieldTypeDefault = @"default";
 static NSString *const FXFormFieldTypeLabel = @"label";
@@ -92,6 +93,7 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) NSArray *options;
+@property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) SEL action;
 @property (nonatomic, strong) id value;
 
@@ -124,10 +126,21 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 - (void)registerDefaultFieldCellClass:(Class)cellClass;
 - (void)registerCellClass:(Class)cellClass forFieldType:(NSString *)fieldType;
 
+- (Class)viewControllerClassForFieldType:(NSString *)fieldType;
+- (void)registerDefaultViewControllerClass:(Class)controllerClass;
+- (void)registerViewControllerClass:(Class)controllerClass forFieldType:(NSString *)fieldType;
+
 @end
 
 
-@interface FXFormViewController : UIViewController <FXFormControllerDelegate>
+@protocol FXFormFieldViewController <NSObject>
+
+@property (nonatomic, strong) FXFormField *field;
+
+@end
+
+
+@interface FXFormViewController : UIViewController <FXFormFieldViewController, FXFormControllerDelegate>
 
 @property (nonatomic, readonly) FXFormController *formController;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
@@ -152,8 +165,6 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 
 
 @interface FXFormBaseCell : UITableViewCell <FXFormFieldCell>
-
-@property (nonatomic, strong) FXFormField *field;
 
 @end
 
