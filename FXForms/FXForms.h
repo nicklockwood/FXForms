@@ -44,6 +44,7 @@ static NSString *const FXFormFieldCell = @"cell";
 static NSString *const FXFormFieldTitle = @"title";
 static NSString *const FXFormFieldAction = @"action";
 static NSString *const FXFormFieldOptions = @"options";
+static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 static NSString *const FXFormFieldHeader = @"header";
 static NSString *const FXFormFieldFooter = @"footer";
 static NSString *const FXFormFieldInline = @"inline";
@@ -92,6 +93,7 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) NSArray *options;
+@property (nonatomic, readonly) NSValueTransformer *valueTransformer;
 @property (nonatomic, readonly) SEL action;
 @property (nonatomic, strong) id value;
 
