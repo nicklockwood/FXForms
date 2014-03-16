@@ -30,6 +30,7 @@ typedef NS_OPTIONS(NSInteger, Gender)
 @property (nonatomic, assign) Gender gender;
 @property (nonatomic, assign) NSUInteger age;
 @property (nonatomic, strong) NSDate *dateOfBirth;
+@property (nonatomic, strong) NSString *about;
 
 @property (nonatomic, readonly) TermsViewController *termsAndConditions;
 @property (nonatomic, readonly) PrivacyPolicyViewController *privacyPolicy;
