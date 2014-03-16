@@ -250,6 +250,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 @property (nonatomic, strong) Class cell;
 @property (nonatomic, readwrite) NSString *key;
 @property (nonatomic, readwrite) NSArray *options;
+@property (nonatomic, readwrite) NSValueTransformer *valueTransformer;
 @property (nonatomic, copy) NSString *header;
 @property (nonatomic, copy) NSString *footer;
 @property (nonatomic, assign) BOOL isInline;
@@ -390,9 +391,37 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         NSUInteger index = [self.value integerValue];
         if (index != NSNotFound && index < [self.options count])
         {
+            if (self.valueTransformer)
+            {
+                return [self.valueTransformer transformedValue:self.options[index]];
+            }
             return [self.options[index] fieldDescription];
         }
         return nil;
+    }
+    else if (self.valueTransformer)
+    {
+        return [self.valueTransformer transformedValue:self.value];
+    }
+    else if ([self.valueClass isSubclassOfClass:[NSDate class]])
+    {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        if ([self.type isEqualToString:FXFormFieldTypeDate])
+        {
+            formatter.dateStyle = NSDateFormatterMediumStyle;
+            formatter.timeStyle = NSDateFormatterNoStyle;
+        }
+        else if ([self.type isEqualToString:FXFormFieldTypeTime])
+        {
+            formatter.dateStyle = NSDateFormatterNoStyle;
+            formatter.timeStyle = NSDateFormatterMediumStyle;
+        }
+        else
+        {
+            formatter.dateStyle = NSDateFormatterShortStyle;
+            formatter.timeStyle = NSDateFormatterShortStyle;
+        }
+        return [formatter stringFromDate:self.value];
     }
     return [self.value fieldDescription];
 }
@@ -451,11 +480,6 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     _options = [options copy];
 }
 
-- (void)setController:(Class)controller
-{
-    _viewController = controller;
-}
-
 - (void)performActionWithResponder:(UIResponder *)responder sender:(id)sender
 {
     if (self.action)
@@ -505,7 +529,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         for (id option in field.options)
         {
             [fields addObject:@{FXFormFieldKey: [@(index) description],
-                                FXFormFieldTitle: [option fieldDescription],
+                                FXFormFieldTitle: [field.valueTransformer transformedValue:option] ?: [option fieldDescription],
                                 FXFormFieldType: FXFormFieldTypeOption}];
             index ++;
         }
@@ -1517,7 +1541,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self formattedDate];
+    self.detailTextLabel.text = [self.field fieldDescription];
     
     if ([self.field.type isEqualToString:FXFormFieldTypeDate])
     {
@@ -1535,27 +1559,6 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     [self setNeedsLayout];
 }
 
-- (NSString *)formattedDate
-{
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    if ([self.field.type isEqualToString:FXFormFieldTypeDate])
-    {
-        formatter.dateStyle = NSDateFormatterMediumStyle;
-        formatter.timeStyle = NSDateFormatterNoStyle;
-    }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeTime])
-    {
-        formatter.dateStyle = NSDateFormatterNoStyle;
-        formatter.timeStyle = NSDateFormatterMediumStyle;
-    }
-    else
-    {
-        formatter.dateStyle = NSDateFormatterShortStyle;
-        formatter.timeStyle = NSDateFormatterShortStyle;
-    }
-    return [formatter stringFromDate:self.field.value];
-}
-
 - (BOOL)canBecomeFirstResponder
 {
     return YES;
@@ -1569,7 +1572,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)valueChanged
 {
     self.field.value = self.datePicker.date;
-    self.detailTextLabel.text = [self formattedDate];
+    self.detailTextLabel.text = [self.field fieldDescription];
     [self setNeedsLayout];
     
     [self.field performActionWithResponder:self sender:self];
