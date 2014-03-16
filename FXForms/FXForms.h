@@ -53,6 +53,7 @@ static NSString *const FXFormFieldViewController = @"viewController";
 static NSString *const FXFormFieldTypeDefault = @"default";
 static NSString *const FXFormFieldTypeLabel = @"label";
 static NSString *const FXFormFieldTypeText = @"text";
+static NSString *const FXFormFieldTypeTextMultiline = @"textmultiline";
 static NSString *const FXFormFieldTypeURL = @"url";
 static NSString *const FXFormFieldTypeEmail = @"email";
 static NSString *const FXFormFieldTypePassword = @"password";
@@ -161,6 +162,7 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 @optional
 
 + (CGFloat)heightForField:(FXFormField *)field;
++ (CGFloat)heightForField:(FXFormField *)field width:(CGFloat)width;
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
 
 @end
@@ -174,6 +176,13 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 @interface FXFormTextFieldCell : FXFormBaseCell
 
 @property (nonatomic, readonly) UITextField *textField;
+
+@end
+
+
+@interface FXFormTextViewCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UITextView *textView;
 
 @end
 

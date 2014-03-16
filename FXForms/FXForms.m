@@ -51,6 +51,8 @@ static const CGFloat FXFormFieldMaxLabelWidth = 240;
 static const CGFloat FXFormFieldMinFontSize = 12;
 static const CGFloat FXFormFieldPaddingLeft = 10;
 static const CGFloat FXFormFieldPaddingRight = 10;
+static const CGFloat FXFormFieldPaddingTop = 12;
+static const CGFloat FXFormFieldPaddingBottom = 12;
 
 
 static UIView *FXFormsFirstResponder(UIView *view)
@@ -693,6 +695,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     {
         _cellClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormBaseCell class],
                                        FXFormFieldTypeText: [FXFormTextFieldCell class],
+                                       FXFormFieldTypeTextMultiline: [FXFormTextViewCell class],
                                        FXFormFieldTypeURL: [FXFormTextFieldCell class],
                                        FXFormFieldTypeEmail: [FXFormTextFieldCell class],
                                        FXFormFieldTypePassword: [FXFormTextFieldCell class],
@@ -869,6 +872,10 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     if ([cellClass respondsToSelector:@selector(heightForField:)])
     {
         return [cellClass heightForField:field];
+    }
+    if ([cellClass respondsToSelector:@selector(heightForField:width:)])
+    {
+        return [cellClass heightForField:field width:self.tableView.frame.size.width];
     }
     return self.tableView.rowHeight;
 }
@@ -1390,6 +1397,177 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 - (void)textFieldDidBeginEditing:(__unused UITextField *)textField
 {
     [self.textField selectAll:nil];
+}
+
+@end
+
+
+@interface FXFormTextViewCell () <UITextViewDelegate>
+
+@property (nonatomic, strong) UITextView *textView;
+
+@end
+
+
+@implementation FXFormTextViewCell
+
++ (CGFloat)heightForField:(FXFormField *)field width:(CGFloat)width
+{
+    static UITextView *textView;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        textView = [[UITextView alloc] init];
+        textView.font = [UIFont systemFontOfSize:17];
+    });
+    
+    textView.text = [field fieldDescription] ?: @" ";
+    CGSize textViewSize = [textView sizeThatFits:CGSizeMake(width - FXFormFieldPaddingLeft - FXFormFieldPaddingRight, FLT_MAX)];
+    
+    CGFloat height = 0;
+    height += FXFormFieldPaddingTop;
+    if ([field.title length]) {
+        height += 21; // textLabel height
+    }
+    height += ceilf(textViewSize.height);
+    height += FXFormFieldPaddingBottom;
+    
+    return height;
+}
+
+- (void)setUp
+{
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+    
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 320, 21)];
+    self.textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+    self.textView.font = [UIFont systemFontOfSize:17];
+    self.textView.textColor = [UIColor colorWithRed:0.275f green:0.376f blue:0.522f alpha:1.000f];
+    self.textView.delegate = self;
+    self.textView.scrollEnabled = NO;
+    [self.contentView addSubview:self.textView];
+    
+    [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textView action:NSSelectorFromString(@"becomeFirstResponder")]];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    CGRect labelFrame = self.textLabel.frame;
+    labelFrame.origin.y = FXFormFieldPaddingTop;
+    labelFrame.size.width = MIN(MAX([self.textLabel sizeThatFits:CGSizeZero].width, FXFormFieldMinLabelWidth), FXFormFieldMaxLabelWidth);
+    self.textLabel.frame = labelFrame;
+    
+	CGRect textViewFrame = self.textView.frame;
+    textViewFrame.origin.x = FXFormFieldPaddingLeft;
+    textViewFrame.origin.y = self.textLabel.frame.origin.y + self.textLabel.frame.size.height;
+    textViewFrame.size.width = self.contentView.bounds.size.width - FXFormFieldPaddingLeft - FXFormFieldPaddingRight;
+    CGSize textViewSize = [self.textView sizeThatFits:CGSizeMake(self.textView.frame.size.width, FLT_MAX)];
+    textViewFrame.size.height = ceilf(textViewSize.height);
+	if (![self.textLabel.text length])
+    {
+		textViewFrame.origin.y = self.textLabel.frame.origin.y;
+	}
+    
+	self.textView.frame = textViewFrame;
+    
+    CGRect contentViewFrame = self.contentView.frame;
+    contentViewFrame.size.height = self.textView.frame.origin.y + self.textView.frame.size.height + FXFormFieldPaddingBottom;
+    self.contentView.frame = contentViewFrame;
+}
+
+- (void)update
+{
+    self.textLabel.text = self.field.title;
+    self.textView.text = [self.field fieldDescription];
+    
+    self.textView.returnKeyType = UIReturnKeyDefault;
+    self.textView.textAlignment = UITextAlignmentLeft;
+    self.textView.secureTextEntry = NO;
+    
+    if ([self.field.type isEqualToString:FXFormFieldTypeText])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeDefault;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeSentences;
+        self.textView.keyboardType = UIKeyboardTypeAlphabet;
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeNumber] || [self.field.type isEqualToString:FXFormFieldTypeInteger])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textView.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypePassword])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textView.keyboardType = UIKeyboardTypeAlphabet;
+        self.textView.secureTextEntry = YES;
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeEmail])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textView.keyboardType = UIKeyboardTypeEmailAddress;
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeURL])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textView.keyboardType = UIKeyboardTypeURL;
+    }
+}
+
+- (void)textViewDidBeginEditing:(__unused UITextView *)textView
+{
+    [self.textView selectAll:nil];
+}
+
+- (void)textViewDidChange:(__unused UITextView *)textView
+{
+    [self updateFieldValue];
+    // resize the tableview if required
+    id responder = [self nextResponder];
+    while (responder)
+    {
+        if ([responder respondsToSelector:@selector(beginUpdates)] &&
+            [responder respondsToSelector:@selector(endUpdates)])
+        {
+            [responder beginUpdates];
+            [responder endUpdates];
+            
+            CGRect caretRect = [self.textView caretRectForPosition:self.textView.selectedTextRange.end];
+            [responder scrollRectToVisible:[responder convertRect:caretRect fromView:self.textView] animated:YES];
+            break;
+        }
+        responder = [responder nextResponder];
+    }
+}
+
+- (void)textViewDidEndEditing:(__unused UITextView *)textView
+{
+    [self updateFieldValue];
+    [self.field performActionWithResponder:self sender:self];
+}
+
+- (void)updateFieldValue {
+    if ([self.field.type isEqualToString:FXFormFieldTypeNumber])
+    {
+        self.field.value = @([self.textView.text doubleValue]);
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeInteger])
+    {
+        self.field.value = @([self.textView.text integerValue]);
+    }
+    else if ([self.field.valueClass isSubclassOfClass:[NSURL class]])
+    {
+        self.field.value = [self.field.valueClass URLWithString:self.textView.text];
+    }
+    else
+    {
+        self.field.value = self.textView.text;
+    }
 }
 
 @end
