@@ -1043,7 +1043,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     }
     
     self.title = field.title;
-    self.formController.form = field.value;
+    self.formController.form = form;
     
     //TODO: find a way to do this can doesn't rely on FXFormField having a private reference to formController
     //so that custom implementations can also benefit from this behavior
