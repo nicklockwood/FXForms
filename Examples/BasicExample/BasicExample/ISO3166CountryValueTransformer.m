@@ -10,19 +10,19 @@
 
 @implementation ISO3166CountryValueTransformer
 
-+ (Class)transformedValueClass {
++ (Class)transformedValueClass
+{
     return [NSString class];
 }
 
-+ (BOOL)allowsReverseTransformation {
++ (BOOL)allowsReverseTransformation
+{
     return NO;
 }
 
-- (id)transformedValue:(id)value {
-    if (value) {
-        return [[NSLocale currentLocale] displayNameForKey:NSLocaleCountryCode value:value];
-    }
-    return nil;
+- (id)transformedValue:(id)value
+{
+    return value? [[NSLocale currentLocale] displayNameForKey:NSLocaleCountryCode value:value]: nil;
 }
 
 @end

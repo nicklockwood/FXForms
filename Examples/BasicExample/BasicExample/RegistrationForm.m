@@ -7,8 +7,8 @@
 //
 
 #import "RegistrationForm.h"
-
 #import "ISO3166CountryValueTransformer.h"
+
 
 @implementation RegistrationForm
 
@@ -50,13 +50,12 @@
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
              
-             //example of how you could use an NSValueTransformer
+             //the country value in our form is a locale code, which isn't human readable
+             //so we've used the FXFormFieldValueTransformer option to supply a value transformer
              
-             @{
-                 FXFormFieldKey: @"country",
-                 FXFormFieldOptions: @[@"us", @"ca", @"uk", @"sa", @"be"],
-                 FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]
-                 },
+             @{FXFormFieldKey: @"country",
+               FXFormFieldOptions: @[@"us", @"ca", @"uk", @"sa", @"be"],
+               FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]},
              
              //this is a multiline text view that grows to fit its contents
              

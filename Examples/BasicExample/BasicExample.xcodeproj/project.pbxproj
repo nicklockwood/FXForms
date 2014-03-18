@@ -102,12 +102,11 @@
 		0169994F18A1663700E7085F /* BasicExample */ = {
 			isa = PBXGroup;
 			children = (
+				016C1C9118D8C7F10086BFC1 /* Transformers */,
 				01CB2DDE18CBB2990069FC4A /* Models */,
 				01CB2DDF18CBB2A60069FC4A /* Controllers */,
 				0169995B18A1663700E7085F /* Images.xcassets */,
 				0169995018A1663700E7085F /* Supporting Files */,
-				CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */,
-				CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */,
 			);
 			path = BasicExample;
 			sourceTree = "<group>";
@@ -131,6 +130,15 @@
 			);
 			name = FXForms;
 			path = ../../FXForms;
+			sourceTree = "<group>";
+		};
+		016C1C9118D8C7F10086BFC1 /* Transformers */ = {
+			isa = PBXGroup;
+			children = (
+				CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */,
+				CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */,
+			);
+			name = Transformers;
 			sourceTree = "<group>";
 		};
 		01CB2DDE18CBB2990069FC4A /* Models */ = {
