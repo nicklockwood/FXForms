@@ -8,6 +8,8 @@
 
 #import "RegistrationForm.h"
 
+#import "ISO3166CountryValueTransformer.h"
+
 @implementation RegistrationForm
 
 //because we want to rearrange how this form
@@ -48,7 +50,16 @@
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
              
+             //example of how you could use an NSValueTransformer
+             
+             @{
+                 FXFormFieldKey: @"country",
+                 FXFormFieldOptions: @[@"us", @"ca", @"uk", @"sa", @"be"],
+                 FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]
+                 },
+             
              //this is a multiline text view that grows to fit its contents
+             
              @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText},
              
              //we want to add a section header here, so we use another config dictionary
