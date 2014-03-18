@@ -274,6 +274,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         return YES;
     }
     
+    //is there a setter method for this key?
+    if ([form respondsToSelector:NSSelectorFromString([NSString stringWithFormat:@"set%@%@:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]])])
+    {
+        return YES;
+    }
+    
     //does it override setValueForKey?
     if (FXFormOverridesSelector(form, @selector(setValue:forKey:)))
     {
