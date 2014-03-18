@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta
+//  Version 1.1 beta 2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -245,6 +245,51 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return properties;
 }
 
+static BOOL *FXFormOverridesSelector(id<FXForm> form, SEL selector)
+{
+    Class formClass = [form class];
+    while (formClass && formClass != [NSObject class])
+    {
+        unsigned int numberOfMethods;
+        Method *methods = class_copyMethodList(formClass, &numberOfMethods);
+        for (unsigned int i = 0; i < numberOfMethods; i++)
+        {
+            if (method_getName(methods[i]) == selector)
+            {
+                free(methods);
+                return YES;
+            }
+        }
+        if (methods) free(methods);
+        formClass = [formClass superclass];
+    }
+    return NO;
+}
+
+static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
+{
+    //does a property exist for it?
+    if ([[FXFormProperties(form) valueForKey:FXFormFieldKey] containsObject:key])
+    {
+        return YES;
+    }
+    
+    //does it override setValueForKey?
+    if (FXFormOverridesSelector(form, @selector(setValue:forKey:)))
+    {
+        return YES;
+    }
+    
+    //does it override setValue:forUndefinedKey?
+    if (FXFormOverridesSelector(form, @selector(setValue:forUndefinedKey:)))
+    {
+        return YES;
+    }
+    
+    //it will probably crash
+    return NO;
+}
+
 
 @interface FXFormField ()
 
@@ -456,7 +501,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 
 - (void)setValue:(id)value
 {
-    if (self.key && [self.form respondsToSelector:NSSelectorFromString([NSString stringWithFormat:@"set%@%@:", [[self.key substringToIndex:1] uppercaseString], [self.key substringFromIndex:1]])])
+    if (self.key && FXFormCanSetValueForKey(self.form, self.key))
     {
         [(NSObject *)self.form setValue:value forKey:self.key];
     }

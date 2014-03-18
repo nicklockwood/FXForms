@@ -423,7 +423,10 @@ Release notes
 
 Version 1.1 beta
 
+- Added FXFormFieldTypeLongText for multiline text
+- Added FXFormFieldValueTransformer for adapting field values for display
 - Added FXFormFieldViewController property for specifying custom form field view controllers
+- It is now possible to create completely virtual form objects by overriding setValue:forKey: to set properties
 
 Version 1.0.2
 
