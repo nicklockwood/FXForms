@@ -58,9 +58,14 @@
                FXFormFieldOptions: @[@"us", @"ca", @"uk", @"sa", @"be"],
                FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]},
              
-             // this is a option field shown with a UIPickerView
+             // this is a option field that uses a FXFormOptionPickerCell to display the available
+             // options in a UIPickerView
              
-             @{FXFormFieldKey: @"language", FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"], FXFormFieldType: FXFormFieldTypeOptionPicker},
+             @{
+                 FXFormFieldKey: @"language",
+                 FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"],
+                 FXFormFieldCell: [FXFormOptionPickerCell class]
+                 },
              
              //this is a multiline text view that grows to fit its contents
              

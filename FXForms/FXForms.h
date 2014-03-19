@@ -61,7 +61,6 @@ static NSString *const FXFormFieldTypeNumber = @"number";
 static NSString *const FXFormFieldTypeInteger = @"integer";
 static NSString *const FXFormFieldTypeBoolean = @"boolean";
 static NSString *const FXFormFieldTypeOption = @"option";
-static NSString *const FXFormFieldTypeOptionPicker = @"optionpicker";
 static NSString *const FXFormFieldTypeDate = @"date";
 static NSString *const FXFormFieldTypeTime = @"time";
 static NSString *const FXFormFieldTypeDateTime = @"datetime";

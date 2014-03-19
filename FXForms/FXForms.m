@@ -757,7 +757,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                                        FXFormFieldTypeNumber: [FXFormTextFieldCell class],
                                        FXFormFieldTypeInteger: [FXFormTextFieldCell class],
                                        FXFormFieldTypeBoolean: [FXFormSwitchCell class],
-                                       FXFormFieldTypeOptionPicker: [FXFormOptionPickerCell class],
                                        FXFormFieldTypeDate: [FXFormDatePickerCell class],
                                        FXFormFieldTypeTime: [FXFormDatePickerCell class],
                                        FXFormFieldTypeDateTime: [FXFormDatePickerCell class],
