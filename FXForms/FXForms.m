@@ -1988,7 +1988,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 @interface FXFormOptionPickerCell () <UIPickerViewDataSource, UIPickerViewDelegate>
 
-@property (nonatomic, strong) UIPickerView *optionPicker;
+@property (nonatomic, strong) UIPickerView *pickerView;
 
 @end
 
@@ -1999,9 +1999,9 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     [super setUp];
     
-    self.optionPicker = [[UIPickerView alloc] init];
-    self.optionPicker.dataSource = self;
-    self.optionPicker.delegate = self;
+    self.pickerView = [[UIPickerView alloc] init];
+    self.pickerView.dataSource = self;
+    self.pickerView.delegate = self;
 }
 
 - (void)update
@@ -2017,7 +2017,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (UIView *)inputView
 {
-    return self.optionPicker;
+    return self.pickerView;
 }
 
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
@@ -2036,7 +2036,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (NSInteger)pickerView:(__unused UIPickerView *)pickerView numberOfRowsInComponent:(__unused NSInteger)component
 {
-    return self.field.options.count;
+    return [self.field.options count];
 }
 
 #pragma mark -

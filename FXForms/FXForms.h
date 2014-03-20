@@ -226,7 +226,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 
 @interface FXFormOptionPickerCell : FXFormBaseCell
 
-@property (nonatomic, readonly) UIPickerView *optionPicker;
+@property (nonatomic, readonly) UIPickerView *pickerView;
 
 @end
 
