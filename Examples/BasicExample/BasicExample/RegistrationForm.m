@@ -47,6 +47,7 @@
              //we want to use a stepper control for this value, so let's specify that
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
+             @"profilePhoto",
              
              //we want to add a section header here, so we use another config dictionary
              
