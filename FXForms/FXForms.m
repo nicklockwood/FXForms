@@ -374,7 +374,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             {
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
-            if ([(NSArray *)dictionary[FXFormFieldOptions] count] && !dictionary[FXFormFieldType])
+            if ([(NSArray *)dictionary[FXFormFieldOptions] count])
             {
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
             }
