@@ -64,6 +64,7 @@ static NSString *const FXFormFieldTypeOption = @"option";
 static NSString *const FXFormFieldTypeDate = @"date";
 static NSString *const FXFormFieldTypeTime = @"time";
 static NSString *const FXFormFieldTypeDateTime = @"datetime";
+static NSString *const FXFormFieldTypeImage = @"image";
 
 #endif
 
@@ -211,6 +212,13 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 @interface FXFormDatePickerCell : FXFormBaseCell
 
 @property (nonatomic, readonly) UIDatePicker *datePicker;
+
+@end
+
+
+@interface FXFormImageCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UIImage *image;
 
 @end
 

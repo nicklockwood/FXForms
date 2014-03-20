@@ -33,6 +33,8 @@ typedef NS_OPTIONS(NSInteger, Gender)
 @property (nonatomic, strong) NSString *country;
 @property (nonatomic, strong) NSString *about;
 
+@property (nonatomic, strong) UIImage *profilePhoto;
+
 @property (nonatomic, readonly) TermsViewController *termsAndConditions;
 @property (nonatomic, readonly) PrivacyPolicyViewController *privacyPolicy;
 @property (nonatomic, assign) BOOL agreedToTerms;

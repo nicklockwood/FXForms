@@ -49,6 +49,7 @@
              //we want to use a stepper control for this value, so let's specify that
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
+             @"profilePhoto",
              
              //the country value in our form is a locale code, which isn't human readable
              //so we've used the FXFormFieldValueTransformer option to supply a value transformer
