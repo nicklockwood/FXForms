@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.0.2
+//  Version 1.1 beta 2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -42,15 +42,18 @@ static NSString *const FXFormFieldType = @"type";
 static NSString *const FXFormFieldClass = @"class";
 static NSString *const FXFormFieldCell = @"cell";
 static NSString *const FXFormFieldTitle = @"title";
-static NSString *const FXFormFieldAction = @"action";
 static NSString *const FXFormFieldOptions = @"options";
+static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
+static NSString *const FXFormFieldAction = @"action";
 static NSString *const FXFormFieldHeader = @"header";
 static NSString *const FXFormFieldFooter = @"footer";
 static NSString *const FXFormFieldInline = @"inline";
+static NSString *const FXFormFieldViewController = @"viewController";
 
 static NSString *const FXFormFieldTypeDefault = @"default";
 static NSString *const FXFormFieldTypeLabel = @"label";
 static NSString *const FXFormFieldTypeText = @"text";
+static NSString *const FXFormFieldTypeLongText = @"longText";
 static NSString *const FXFormFieldTypeURL = @"url";
 static NSString *const FXFormFieldTypeEmail = @"email";
 static NSString *const FXFormFieldTypePassword = @"password";
@@ -93,6 +96,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) NSArray *options;
+@property (nonatomic, readonly) Class viewController;
+@property (nonatomic, readonly) NSValueTransformer *valueTransformer;
 @property (nonatomic, readonly) SEL action;
 @property (nonatomic, strong) id value;
 
@@ -125,10 +130,21 @@ static NSString *const FXFormFieldTypeImage = @"image";
 - (void)registerDefaultFieldCellClass:(Class)cellClass;
 - (void)registerCellClass:(Class)cellClass forFieldType:(NSString *)fieldType;
 
+- (Class)viewControllerClassForFieldType:(NSString *)fieldType;
+- (void)registerDefaultViewControllerClass:(Class)controllerClass;
+- (void)registerViewControllerClass:(Class)controllerClass forFieldType:(NSString *)fieldType;
+
 @end
 
 
-@interface FXFormViewController : UIViewController <FXFormControllerDelegate>
+@protocol FXFormFieldViewController <NSObject>
+
+@property (nonatomic, strong) FXFormField *field;
+
+@end
+
+
+@interface FXFormViewController : UIViewController <FXFormFieldViewController, FXFormControllerDelegate>
 
 @property (nonatomic, readonly) FXFormController *formController;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
@@ -147,6 +163,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @optional
 
 + (CGFloat)heightForField:(FXFormField *)field;
++ (CGFloat)heightForField:(FXFormField *)field width:(CGFloat)width;
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
 
 @end
@@ -154,14 +171,19 @@ static NSString *const FXFormFieldTypeImage = @"image";
 
 @interface FXFormBaseCell : UITableViewCell <FXFormFieldCell>
 
-@property (nonatomic, strong) FXFormField *field;
-
 @end
 
 
 @interface FXFormTextFieldCell : FXFormBaseCell
 
 @property (nonatomic, readonly) UITextField *textField;
+
+@end
+
+
+@interface FXFormTextViewCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UITextView *textView;
 
 @end
 

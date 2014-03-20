@@ -22,6 +22,7 @@
 		01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DD618CBAA010069FC4A /* TermsViewController.xib */; };
 		01CB2DDC18CBB28C0069FC4A /* PrivacyPolicyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */; };
 		01CB2DDD18CBB28C0069FC4A /* PrivacyPolicyViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */; };
+		CC566AAC18D76956002F2751 /* ISO3166CountryValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +52,8 @@
 		01CB2DD918CBB28C0069FC4A /* PrivacyPolicyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrivacyPolicyViewController.h; sourceTree = "<group>"; };
 		01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrivacyPolicyViewController.m; sourceTree = "<group>"; };
 		01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PrivacyPolicyViewController.xib; sourceTree = "<group>"; };
+		CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISO3166CountryValueTransformer.h; sourceTree = "<group>"; };
+		CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISO3166CountryValueTransformer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +102,7 @@
 		0169994F18A1663700E7085F /* BasicExample */ = {
 			isa = PBXGroup;
 			children = (
+				016C1C9118D8C7F10086BFC1 /* Transformers */,
 				01CB2DDE18CBB2990069FC4A /* Models */,
 				01CB2DDF18CBB2A60069FC4A /* Controllers */,
 				0169995B18A1663700E7085F /* Images.xcassets */,
@@ -126,6 +130,15 @@
 			);
 			name = FXForms;
 			path = ../../FXForms;
+			sourceTree = "<group>";
+		};
+		016C1C9118D8C7F10086BFC1 /* Transformers */ = {
+			isa = PBXGroup;
+			children = (
+				CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */,
+				CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */,
+			);
+			name = Transformers;
 			sourceTree = "<group>";
 		};
 		01CB2DDE18CBB2990069FC4A /* Models */ = {
@@ -182,7 +195,7 @@
 		0169993E18A1663700E7085F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Charcoal Design";
 			};
 			buildConfigurationList = 0169994118A1663700E7085F /* Build configuration list for PBXProject "BasicExample" */;
@@ -221,6 +234,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC566AAC18D76956002F2751 /* ISO3166CountryValueTransformer.m in Sources */,
 				0169995A18A1663700E7085F /* AppDelegate.m in Sources */,
 				0169997B18A1664800E7085F /* FXForms.m in Sources */,
 				0169995618A1663700E7085F /* main.m in Sources */,
@@ -250,7 +264,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -323,7 +336,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
