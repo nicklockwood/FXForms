@@ -238,6 +238,12 @@ static NSString *const FXFormFieldTitle = @"title";
 ```
     
 This is the display title for the field. This is automatically generated from the key by converting from camelCase to Title Case, and then localised by running it through the `NSLocalizedString()` macro. That means that instead of overriding the title using this key, you can do so in your strings file instead if you prefer.
+
+```objc
+static NSString *const FXFormFieldPlaceholder = @"placeholder";
+```
+
+This is the placeholder value to display when the field value is nil or empty. This is typically a string, but doesn't have to be, for example it could be an NSDate for a date field, or a UIImage for an image field.
     
 ```objc
 static NSString *const FXFormFieldOptions = @"options";
@@ -304,6 +310,12 @@ static NSString *const FXFormFieldTypeText = @"text";
 ```
     
 By default, this field type will be represented by an ordinary `UITextField` with default autocorrection.
+    
+```objc
+static NSString *const FXFormFieldTypeLongText = @"longtext";
+```
+
+This type represents multiline text. By default, this field type will be represented by an expanding `UITextView`.
     
 ```objc
 static NSString *const FXFormFieldTypeURL = @"url";
@@ -430,8 +442,10 @@ Release notes
 Version 1.1 beta
 
 - FXFormField action property is now a block instead a of a selector
+- Added FXFormFieldPlaceholder value
 - Keyboard will now display "next" in cases where next cell acceptsFirstResponder
 - Added FXFormFieldTypeImage and FXFormImagePickerCell
+- Added FXFormFieldOptionPickerCell
 - Added FXFormFieldTypeLongText for multiline text
 - Added FXFormFieldValueTransformer for adapting field values for display
 - It is now possible to create completely virtual form objects by overriding setValue:forKey: to set properties

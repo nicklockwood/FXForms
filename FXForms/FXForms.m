@@ -378,6 +378,10 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             {
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
             }
+            else if (dictionary[FXFormFieldType])
+            {
+                dictionary[FXFormFieldType] = [dictionary[FXFormFieldType] fieldDescription];
+            }
             if (!dictionary[FXFormFieldTitle])
             {
                 BOOL wasCapital = YES;
@@ -1217,7 +1221,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 7.0)
     {
         self.selectionStyle = UITableViewCellSelectionStyleDefault;
@@ -1423,6 +1427,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textField.placeholder = [self.field.placeholder fieldDescription];
     self.textField.text = [self.field fieldDescription];
     
     self.textField.returnKeyType = UIReturnKeyDone;
@@ -1854,7 +1859,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
     
     if ([self.field.type isEqualToString:FXFormFieldTypeDate])
     {
@@ -1868,6 +1873,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
         self.datePicker.datePickerMode = UIDatePickerModeDateAndTime;
     }
+    
+    self.datePicker.date = self.field.value ?: ([self.field.placeholder isKindOfClass:[NSDate class]]? self.field.placeholder: [NSDate date]);
     
     [self setNeedsLayout];
 }
@@ -1937,7 +1944,25 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     [super update];
     
-    self.imagePickerView.image = self.field.value;
+    self.imagePickerView.image = [self imageValue];
+}
+
+- (UIImage *)imageValue
+{
+    if (self.field.value)
+    {
+        return self.field.value;
+    }
+    else if (self.field.placeholder)
+    {
+        UIImage *placeholderImage = self.field.placeholder;
+        if ([placeholderImage isKindOfClass:[NSString class]])
+        {
+            placeholderImage = [UIImage imageNamed:self.field.placeholder];
+        }
+        return placeholderImage;
+    }
+    return nil;
 }
 
 - (UIImagePickerController *)imagePickerController
@@ -1983,7 +2008,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.field.value = info[UIImagePickerControllerEditedImage] ?: info[UIImagePickerControllerOriginalImage];
     [picker dismissViewControllerAnimated:YES completion:NULL];
     
-    self.imagePickerView.image = self.field.value;
+    self.imagePickerView.image = [self imageValue];
     [self setNeedsLayout];
     
     if (self.field.action) self.field.action(self);
@@ -2010,12 +2035,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.pickerView.delegate = self;
 }
 
-- (void)update
-{
-    self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self.field fieldDescription];
-}
-
 - (BOOL)canBecomeFirstResponder
 {
     return YES;
@@ -2029,6 +2048,13 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
 {
     [self becomeFirstResponder];
+    
+    NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
+    if (index != NSNotFound)
+    {
+        [self.pickerView selectRow:index inComponent:0 animated:NO];
+    }
+    
     [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
 }
 
@@ -2056,7 +2082,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)pickerView:(__unused UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(__unused NSInteger)component
 {
     self.field.value = self.field.options[row];
-    self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
     
     [self setNeedsLayout];
     

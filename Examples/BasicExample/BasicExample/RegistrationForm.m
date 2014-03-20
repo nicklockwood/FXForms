@@ -66,6 +66,7 @@
              
              @{FXFormFieldKey: @"language",
                FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"],
+               FXFormFieldPlaceholder: @"Select…",
                FXFormFieldCell: [FXFormOptionPickerCell class]},
              
              //this is a multiline text view that grows to fit its contents
