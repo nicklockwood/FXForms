@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 3
+//  Version 1.1 beta 4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -381,7 +381,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             if (!dictionary[FXFormFieldTitle])
             {
                 BOOL wasCapital = YES;
-                NSString *keyOrAction = dictionary[FXFormFieldKey] ?: dictionary[FXFormFieldAction];
+                NSString *keyOrAction = dictionary[FXFormFieldKey];
+                if (!keyOrAction && [dictionary[FXFormFieldAction] isKindOfClass:[NSString class]])
+                {
+                    keyOrAction = dictionary[FXFormFieldAction];
+                }
                 NSMutableString *output = [NSMutableString string];
                 [output appendString:[[keyOrAction substringToIndex:1] uppercaseString]];
                 for (NSUInteger j = 1; j < [keyOrAction length]; j++)
@@ -517,9 +521,37 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
 }
 
-- (void)setAction:(NSString *)action
+- (void)setAction:(id)action
 {
-    _action = NSSelectorFromString(action);
+    if ([action isKindOfClass:[NSString class]])
+    {
+        SEL selector = NSSelectorFromString(action);
+        __weak FXFormField *weakSelf = self;
+        action = ^(id sender)
+        {
+            id responder = weakSelf.formController.tableView;
+            while (responder)
+            {
+                if ([responder respondsToSelector:selector])
+                {
+                    
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warc-performSelector-leaks"
+                    
+                    [responder performSelector:selector withObject:sender];
+                    
+#pragma GCC diagnostic pop
+                    
+                    return;
+                }
+                responder = [responder nextResponder];
+            }
+            
+            [NSException raise:FXFormsException format:@"No object in the responder chain responds to the selector %@", NSStringFromSelector(selector)];
+        };
+    }
+    
+    _action = action;
 }
 
 - (void)setClass:(Class)valueClass
@@ -536,32 +568,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     _options = [options copy];
 }
-
-- (void)performActionWithResponder:(UIResponder *)responder sender:(id)sender
-{
-    if (self.action)
-    {
-        while (responder)
-        {
-            if ([responder respondsToSelector:self.action])
-            {
-                
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warc-performSelector-leaks"
-                
-                [responder performSelector:self.action withObject:sender];
-                
-#pragma GCC diagnostic pop
-                
-                return;
-            }
-            responder = [responder nextResponder];
-        }
-        
-        [NSException raise:FXFormsException format:@"No object in the responder chain responds to the selector %@", NSStringFromSelector(self.action)];
-    }
-}
-
 
 @end
 
@@ -1289,7 +1295,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     if (self.field.action)
     {
         [FXFormsFirstResponder(tableView) resignFirstResponder];
-        [self.field performActionWithResponder:controller sender:self];
+        if (self.field.action) self.field.action(self);
         [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
     }
     else if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
@@ -1492,7 +1498,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
 
     self.field.value = value;
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 - (BOOL)textFieldShouldBeginEditing:(__unused UITextField *)textField
@@ -1671,7 +1677,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)textViewDidEndEditing:(__unused UITextView *)textView
 {
     [self updateFieldValue];
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 - (void)updateFieldValue
@@ -1722,7 +1728,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     self.textLabel.text = self.field.title;
     self.switchControl.on = [self.field.value boolValue];
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 - (UISwitch *)switchControl
@@ -1733,7 +1739,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)valueChanged
 {
     self.field.value = @(self.switchControl.on);
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 @end
@@ -1776,7 +1782,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     self.field.value = @(self.stepper.value);
     self.detailTextLabel.text = [self.field fieldDescription];
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 @end
@@ -1822,7 +1828,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)valueChanged
 {
     self.field.value = @(self.slider.value);
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 @end
@@ -1882,7 +1888,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.detailTextLabel.text = [self.field fieldDescription];
     [self setNeedsLayout];
     
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
@@ -1980,7 +1986,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.imagePickerView.image = self.field.value;
     [self setNeedsLayout];
     
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 @end
@@ -2054,7 +2060,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     
     [self setNeedsLayout];
     
-    [self.field performActionWithResponder:self sender:self];
+    if (self.field.action) self.field.action(self);
 }
 
 @end

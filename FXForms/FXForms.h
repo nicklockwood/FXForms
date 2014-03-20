@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.1 beta 3
+//  Version 1.1 beta 4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -98,10 +98,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) NSArray *options;
 @property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) NSValueTransformer *valueTransformer;
-@property (nonatomic, readonly) SEL action;
+@property (nonatomic, readonly) void (^action)(id sender);
 @property (nonatomic, strong) id value;
-
-- (void)performActionWithResponder:(UIResponder *)responder sender:(id)sender;
 
 @end
 

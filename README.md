@@ -255,9 +255,9 @@ Sometimes the value you wish to display for a field may not match the value you 
 static NSString *const FXFormFieldAction = @"action";
 ```
     
-This is an optional action to be performed when by the field. The value represents the name of a selector that will be called when the field is activated. The target is determined by cascading up the responder chain from the cell upwards until an object is encountered that responds to the selector. That means that you could choose to implement this action method on the cell, or on the tableview, or it's superview, or the view controller, or the app delegate, or even then window.
+This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell upwards until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, or it's superview, or the view controller, or the app delegate, or even the window.
 
-For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. The action method can accept either zero or one argument. The argument supplied will be the form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the `FXFormField` model.
+For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the `FXFormField` model.
 
 ```objc
 static NSString *const FXFormFieldHeader = @"header";
@@ -429,6 +429,7 @@ Release notes
 
 Version 1.1 beta
 
+- FXFormField action property is now a block instead a of a selector
 - Keyboard will now display "next" in cases where next cell acceptsFirstResponder
 - Added FXFormFieldTypeImage and FXFormImagePickerCell
 - Added FXFormFieldTypeLongText for multiline text
