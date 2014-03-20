@@ -1253,6 +1253,37 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return view;
 }
 
+- (NSIndexPath *)indexPathForNextCell
+{
+    UITableView *tableView = [self tableView];
+    NSIndexPath *indexPath = [tableView indexPathForCell:self];
+    if (indexPath)
+    {
+        //get next indexpath
+        if ([tableView numberOfRowsInSection:indexPath.section] > indexPath.row + 1)
+        {
+            return [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:indexPath.section];
+        }
+        else if ([tableView numberOfSections] > indexPath.section + 1)
+        {
+            return [NSIndexPath indexPathForRow:0 inSection:indexPath.section + 1];
+        }
+    }
+    return nil;
+}
+
+- (UITableViewCell <FXFormFieldCell> *)nextCell
+{
+    UITableView *tableView = [self tableView];
+    NSIndexPath *indexPath = [self indexPathForNextCell];
+    if (indexPath)
+    {
+        //get next cell
+        return (UITableViewCell <FXFormFieldCell> *)[tableView cellForRowAtIndexPath:indexPath];
+    }
+    return nil;
+}
+
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
     if (self.field.action)
@@ -1302,6 +1333,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 @interface FXFormTextFieldCell () <UITextFieldDelegate>
 
 @property (nonatomic, strong) UITextField *textField;
+@property (nonatomic, assign, getter = isReturnKeyOverriden) BOOL returnKeyOverridden;
 
 @end
 
@@ -1340,6 +1372,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                          @"textField.secureTextEntry": ^(UITextField *f, NSInteger v){ f.secureTextEntry = !!v; }};
     });
 
+    if ([keyPath isEqualToString:@"textField.returnKeyType"])
+    {
+        //oh god, the hack, it burns
+        self.returnKeyOverridden = YES;
+    }
+    
     void (^block)(UITextField *f, NSInteger v) = specialCases[keyPath];
     if (block)
     {
@@ -1420,7 +1458,14 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (BOOL)textFieldShouldReturn:(__unused UITextField *)textField
 {
-    [self.textField resignFirstResponder];
+    if (self.textField.returnKeyType == UIReturnKeyNext)
+    {
+        [[self nextCell] becomeFirstResponder];
+    }
+    else
+    {
+        [self.textField resignFirstResponder];
+    }
     return NO;
 }
 
@@ -1450,9 +1495,37 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [self.field performActionWithResponder:self sender:self];
 }
 
+- (BOOL)textFieldShouldBeginEditing:(__unused UITextField *)textField
+{
+    //welcome to hacksville, population: you
+    if (!self.returnKeyOverridden)
+    {
+        //get return key type
+        UIReturnKeyType returnKeyType = UIReturnKeyDone;
+        UITableViewCell <FXFormFieldCell> *nextCell = [self nextCell];
+        if ([nextCell canBecomeFirstResponder])
+        {
+            returnKeyType = UIReturnKeyNext;
+        }
+        
+        self.textField.returnKeyType = returnKeyType;
+    }
+    return YES;
+}
+
 - (void)textFieldDidBeginEditing:(__unused UITextField *)textField
 {
     [self.textField selectAll:nil];
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (BOOL)becomeFirstResponder
+{
+    return [self.textField becomeFirstResponder];
 }
 
 @end
@@ -1619,6 +1692,16 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
         self.field.value = self.textView.text;
     }
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (BOOL)becomeFirstResponder
+{
+    return [self.textField becomeFirstResponder];
 }
 
 @end

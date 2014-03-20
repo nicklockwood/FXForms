@@ -365,6 +365,12 @@ static NSString *const FXFormFieldTypeDateTime = @"datetime";
 
 A date and time, selected using a `UIDatePicker`.
 
+```objc
+static NSString *const FXFormFieldTypeImage = @"image"
+```
+
+A UIImage, selected using a UIImagePickerController
+
 
 Form field options
 ----------------------
@@ -423,6 +429,7 @@ Release notes
 
 Version 1.1 beta
 
+- Keyboard will now display "next" in cases where next cell acceptsFirstResponder
 - Added FXFormFieldTypeImage and FXFormImagePickerCell
 - Added FXFormFieldTypeLongText for multiline text
 - Added FXFormFieldValueTransformer for adapting field values for display
