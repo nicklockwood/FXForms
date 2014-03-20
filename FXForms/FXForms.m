@@ -1877,8 +1877,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    self.image = info[UIImagePickerControllerEditedImage];
-    self.image = self.image ? self.image : info[UIImagePickerControllerOriginalImage];
+    self.image = info[UIImagePickerControllerEditedImage] ?: info[UIImagePickerControllerOriginalImage];
     [picker dismissViewControllerAnimated:YES completion:NULL];
     [self valueChanged];
 }
