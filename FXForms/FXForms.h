@@ -224,5 +224,12 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @end
 
 
+@interface FXFormOptionPickerCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UIPickerView *optionPicker;
+
+@end
+
+
 #pragma GCC diagnostic pop
 

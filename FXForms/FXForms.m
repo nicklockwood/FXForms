@@ -374,7 +374,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             {
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
-            if ([(NSArray *)dictionary[FXFormFieldOptions] count])
+            if ([(NSArray *)dictionary[FXFormFieldOptions] count] && !dictionary[FXFormFieldType])
             {
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
             }
@@ -1978,6 +1978,80 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [picker dismissViewControllerAnimated:YES completion:NULL];
     
     self.imagePickerView.image = self.field.value;
+    [self setNeedsLayout];
+    
+    [self.field performActionWithResponder:self sender:self];
+}
+
+@end
+
+
+@interface FXFormOptionPickerCell () <UIPickerViewDataSource, UIPickerViewDelegate>
+
+@property (nonatomic, strong) UIPickerView *optionPicker;
+
+@end
+
+
+@implementation FXFormOptionPickerCell
+
+- (void)setUp
+{
+    [super setUp];
+    
+    self.optionPicker = [[UIPickerView alloc] init];
+    self.optionPicker.dataSource = self;
+    self.optionPicker.delegate = self;
+}
+
+- (void)update
+{
+    self.textLabel.text = self.field.title;
+    self.detailTextLabel.text = [self.field fieldDescription];
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (UIView *)inputView
+{
+    return self.optionPicker;
+}
+
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
+{
+    [self becomeFirstResponder];
+    [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+}
+
+#pragma mark -
+#pragma mark UIPickerViewDataSource
+
+- (NSInteger)numberOfComponentsInPickerView:(__unused UIPickerView *)pickerView
+{
+    return 1;
+}
+
+- (NSInteger)pickerView:(__unused UIPickerView *)pickerView numberOfRowsInComponent:(__unused NSInteger)component
+{
+    return self.field.options.count;
+}
+
+#pragma mark -
+#pragma mark UIPickerViewDelegate
+
+- (NSString *)pickerView:(__unused UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(__unused NSInteger)component
+{
+    return self.field.options[row];
+}
+
+- (void)pickerView:(__unused UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(__unused NSInteger)component
+{
+    self.field.value = self.field.options[row];
+    self.detailTextLabel.text = [self.field fieldDescription];
+    
     [self setNeedsLayout];
     
     [self.field performActionWithResponder:self sender:self];
