@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.1 beta 2
+//  Version 1.1 beta 3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -216,9 +216,10 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @end
 
 
-@interface FXFormImageCell : FXFormBaseCell
+@interface FXFormImagePickerCell : FXFormBaseCell
 
-@property (nonatomic, readonly) UIImage *image;
+@property (nonatomic, readonly) UIImageView *imagePickerView;
+@property (nonatomic, readonly) UIImagePickerController *imagePickerController;
 
 @end
 

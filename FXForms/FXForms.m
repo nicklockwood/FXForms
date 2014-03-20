@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 2
+//  Version 1.1 beta 3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -760,7 +760,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                                        FXFormFieldTypeDate: [FXFormDatePickerCell class],
                                        FXFormFieldTypeTime: [FXFormDatePickerCell class],
                                        FXFormFieldTypeDateTime: [FXFormDatePickerCell class],
-                                       FXFormFieldTypeImage: [FXFormImageCell class]} mutableCopy];
+                                       FXFormFieldTypeImage: [FXFormImagePickerCell class]} mutableCopy];
         
         _controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
                 
@@ -925,13 +925,13 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
     Class cellClass = field.cell ?: [self cellClassForFieldType:field.type];
-    if ([cellClass respondsToSelector:@selector(heightForField:)])
-    {
-        return [cellClass heightForField:field];
-    }
     if ([cellClass respondsToSelector:@selector(heightForField:width:)])
     {
         return [cellClass heightForField:field width:self.tableView.frame.size.width];
+    }
+    if ([cellClass respondsToSelector:@selector(heightForField:)])
+    {
+        return [cellClass heightForField:field];
     }
     return self.tableView.rowHeight;
 }
@@ -1479,14 +1479,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     textView.text = [field fieldDescription] ?: @" ";
     CGSize textViewSize = [textView sizeThatFits:CGSizeMake(width - FXFormFieldPaddingLeft - FXFormFieldPaddingRight, FLT_MAX)];
     
-    CGFloat height = 0;
-    height += FXFormFieldPaddingTop;
-    if ([field.title length]) {
-        height += 21; // textLabel height
-    }
-    height += ceilf(textViewSize.height);
-    height += FXFormFieldPaddingBottom;
-    
+    CGFloat height = [field.title length]? 21: 0; // label height
+    height += FXFormFieldPaddingTop + ceilf(textViewSize.height) + FXFormFieldPaddingBottom;
     return height;
 }
 
@@ -1742,11 +1736,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.slider.value = [self.field.value doubleValue];
 }
 
-- (UIStepper *)stepper
-{
-    return (UIStepper *)[self.accessoryView.subviews firstObject];
-}
-
 - (void)valueChanged
 {
     self.field.value = @(self.slider.value);
@@ -1822,14 +1811,14 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 @end
 
 
-@interface FXFormImageCell () <UIImagePickerControllerDelegate>
+@interface FXFormImagePickerCell () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
-@property (nonatomic, strong) UIImage *image;
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
 
 @end
 
-@implementation FXFormImageCell
+
+@implementation FXFormImagePickerCell
 
 - (void)setUp
 {
@@ -1837,28 +1826,55 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    self.imagePickerController = [[UIImagePickerController alloc] init];
-    self.imagePickerController.delegate = (id) self;
-    [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    UIImageView *imageView = [[UIImageView alloc] init];
+    imageView.contentMode = UIViewContentModeScaleAspectFill;
+    imageView.clipsToBounds = YES;
+    self.accessoryView = imageView;
+    [self layoutSubviews];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    CGRect frame = self.imagePickerView.frame;
+    frame.size.height = self.bounds.size.height - 10;
+    frame.size.width = self.imagePickerView.image? self.imagePickerView.image.size.width / self.imagePickerView.image.size.height: 0;
+    frame.size.width = MIN(self.bounds.size.width - self.textLabel.frame.origin.x - self.textField.frame.size.width - FXFormFieldPaddingLeft, MAX(frame.size.height, frame.size.width));
+    self.imagePickerView.frame = frame;
+}
+
+- (void)update
+{
+    [super update];
+    
+    self.imagePickerView.image = self.field.value;
+}
+
+- (UIImagePickerController *)imagePickerController
+{
+    if (!_imagePickerController)
+    {
+        _imagePickerController = [[UIImagePickerController alloc] init];
+        _imagePickerController.delegate = self;
+        [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    }
+    return _imagePickerController;
+}
+
+- (UIImageView *)imagePickerView
+{
+    return (UIImageView *)self.accessoryView;
 }
 
 - (BOOL)setSourceType:(UIImagePickerControllerSourceType)sourceType
 {
-    if ([UIImagePickerController isSourceTypeAvailable:sourceType]) {
+    if ([UIImagePickerController isSourceTypeAvailable:sourceType])
+    {
         self.imagePickerController.sourceType = sourceType;
         return YES;
     }
-    
     return NO;
-}
-
-- (void)valueChanged
-{
-    self.field.value = self.image;
-    self.imageView.image = self.image;
-    [self setNeedsLayout];
-    
-    [self.field performActionWithResponder:self sender:self];
 }
 
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
@@ -1868,8 +1884,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [controller presentViewController:self.imagePickerController animated:YES completion:NULL];
 }
 
-#pragma mark UIImagePickerControllerDelegate
-
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [picker dismissViewControllerAnimated:YES completion:NULL];
@@ -1877,9 +1891,13 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    self.image = info[UIImagePickerControllerEditedImage] ?: info[UIImagePickerControllerOriginalImage];
+    self.field.value = info[UIImagePickerControllerEditedImage] ?: info[UIImagePickerControllerOriginalImage];
     [picker dismissViewControllerAnimated:YES completion:NULL];
-    [self valueChanged];
+    
+    self.imagePickerView.image = self.field.value;
+    [self setNeedsLayout];
+    
+    [self.field performActionWithResponder:self sender:self];
 }
 
 @end
