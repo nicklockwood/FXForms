@@ -174,6 +174,10 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                             {
                                 valueType = FXFormFieldTypeDate;
                             }
+                            else if ([valueClass isSubclassOfClass:[UIImage class]])
+                            {
+                                valueType = FXFormFieldTypeImage;
+                            }
                             else
                             {
                                 valueType = FXFormFieldTypeDefault;
@@ -662,7 +666,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                        FXFormFieldTypeBoolean: [FXFormSwitchCell class],
                                        FXFormFieldTypeDate: [FXFormDatePickerCell class],
                                        FXFormFieldTypeTime: [FXFormDatePickerCell class],
-                                       FXFormFieldTypeDateTime: [FXFormDatePickerCell class]} mutableCopy];
+                                       FXFormFieldTypeDateTime: [FXFormDatePickerCell class],
+                                       FXFormFieldTypeImage: [FXFormImageCell class]} mutableCopy];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillShow:)
@@ -1538,6 +1543,70 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
 {
     [self becomeFirstResponder];
     [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+}
+
+@end
+
+
+@interface FXFormImageCell () <UIImagePickerControllerDelegate>
+
+@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, strong) UIImagePickerController *imagePickerController;
+
+@end
+
+@implementation FXFormImageCell
+
+- (void)setUp
+{
+    [super setUp];
+    
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    self.imagePickerController = [[UIImagePickerController alloc] init];
+    self.imagePickerController.delegate = (id) self;
+    [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+}
+
+- (BOOL)setSourceType:(UIImagePickerControllerSourceType)sourceType
+{
+    if ([UIImagePickerController isSourceTypeAvailable:sourceType]) {
+        self.imagePickerController.sourceType = sourceType;
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void)valueChanged
+{
+    self.field.value = self.image;
+    self.imageView.image = self.image;
+    [self setNeedsLayout];
+    
+    [self.field performActionWithResponder:self sender:self];
+}
+
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
+{
+    [self becomeFirstResponder];
+    [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+    [controller presentViewController:self.imagePickerController animated:YES completion:NULL];
+}
+
+#pragma mark UIImagePickerControllerDelegate
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    self.image = info[UIImagePickerControllerEditedImage];
+    self.image = self.image ? self.image : info[UIImagePickerControllerOriginalImage];
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+    [self valueChanged];
 }
 
 @end
