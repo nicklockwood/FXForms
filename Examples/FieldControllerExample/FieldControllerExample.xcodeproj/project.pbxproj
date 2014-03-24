@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0168186818C5E7AF00273F1C /* RootForm.m in Sources */ = {isa = PBXBuildFile; fileRef = 0168186718C5E7AF00273F1C /* RootForm.m */; };
-		0168186B18C5E7F400273F1C /* RegistrationForm.m in Sources */ = {isa = PBXBuildFile; fileRef = 0168186A18C5E7F400273F1C /* RegistrationForm.m */; };
+		0168186818C5E7AF00273F1C /* LocationForm.m in Sources */ = {isa = PBXBuildFile; fileRef = 0168186718C5E7AF00273F1C /* LocationForm.m */; };
 		0169994A18A1663700E7085F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0169994918A1663700E7085F /* Foundation.framework */; };
 		0169994C18A1663700E7085F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0169994B18A1663700E7085F /* CoreGraphics.framework */; };
 		0169994E18A1663700E7085F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0169994D18A1663700E7085F /* UIKit.framework */; };
@@ -17,43 +16,32 @@
 		0169995A18A1663700E7085F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0169995918A1663700E7085F /* AppDelegate.m */; };
 		0169995C18A1663700E7085F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0169995B18A1663700E7085F /* Images.xcassets */; };
 		0169997B18A1664800E7085F /* FXForms.m in Sources */ = {isa = PBXBuildFile; fileRef = 0169997A18A1664800E7085F /* FXForms.m */; };
-		01C0532518A27F4F00EEA858 /* LoginForm.m in Sources */ = {isa = PBXBuildFile; fileRef = 01C0532418A27F4F00EEA858 /* LoginForm.m */; };
-		01CB2DD718CBAA010069FC4A /* TermsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01CB2DD518CBAA010069FC4A /* TermsViewController.m */; };
-		01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DD618CBAA010069FC4A /* TermsViewController.xib */; };
-		01CB2DDC18CBB28C0069FC4A /* PrivacyPolicyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */; };
-		01CB2DDD18CBB28C0069FC4A /* PrivacyPolicyViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */; };
-		CC566AAC18D76956002F2751 /* ISO3166CountryValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */; };
+		0178250018E0E402004C3815 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017824FF18E0E402004C3815 /* MapKit.framework */; };
+		0178250418E0E99E004C3815 /* LocationMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0178250218E0E99E004C3815 /* LocationMapViewController.m */; };
+		0178250518E0E99E004C3815 /* LocationMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0178250318E0E99E004C3815 /* LocationMapViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0168186618C5E7AF00273F1C /* RootForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootForm.h; sourceTree = "<group>"; };
-		0168186718C5E7AF00273F1C /* RootForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootForm.m; sourceTree = "<group>"; };
-		0168186918C5E7F400273F1C /* RegistrationForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistrationForm.h; sourceTree = "<group>"; };
-		0168186A18C5E7F400273F1C /* RegistrationForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistrationForm.m; sourceTree = "<group>"; };
-		0169994618A1663700E7085F /* BasicExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BasicExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0168186618C5E7AF00273F1C /* LocationForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationForm.h; sourceTree = "<group>"; };
+		0168186718C5E7AF00273F1C /* LocationForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationForm.m; sourceTree = "<group>"; };
+		0169994618A1663700E7085F /* FieldControllerExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FieldControllerExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0169994918A1663700E7085F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		0169994B18A1663700E7085F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		0169994D18A1663700E7085F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		0169995118A1663700E7085F /* BasicExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BasicExample-Info.plist"; sourceTree = "<group>"; };
+		0169995118A1663700E7085F /* FieldControllerExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FieldControllerExample-Info.plist"; sourceTree = "<group>"; };
 		0169995318A1663700E7085F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0169995518A1663700E7085F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		0169995718A1663700E7085F /* BasicExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BasicExample-Prefix.pch"; sourceTree = "<group>"; };
+		0169995718A1663700E7085F /* FieldControllerExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FieldControllerExample-Prefix.pch"; sourceTree = "<group>"; };
 		0169995818A1663700E7085F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		0169995918A1663700E7085F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		0169995B18A1663700E7085F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		0169996218A1663700E7085F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		0169997918A1664800E7085F /* FXForms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXForms.h; sourceTree = "<group>"; };
 		0169997A18A1664800E7085F /* FXForms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXForms.m; sourceTree = "<group>"; };
-		01C0532318A27F4F00EEA858 /* LoginForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginForm.h; sourceTree = "<group>"; };
-		01C0532418A27F4F00EEA858 /* LoginForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginForm.m; sourceTree = "<group>"; };
-		01CB2DD418CBAA010069FC4A /* TermsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TermsViewController.h; sourceTree = "<group>"; };
-		01CB2DD518CBAA010069FC4A /* TermsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TermsViewController.m; sourceTree = "<group>"; };
-		01CB2DD618CBAA010069FC4A /* TermsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TermsViewController.xib; sourceTree = "<group>"; };
-		01CB2DD918CBB28C0069FC4A /* PrivacyPolicyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrivacyPolicyViewController.h; sourceTree = "<group>"; };
-		01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrivacyPolicyViewController.m; sourceTree = "<group>"; };
-		01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PrivacyPolicyViewController.xib; sourceTree = "<group>"; };
-		CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISO3166CountryValueTransformer.h; sourceTree = "<group>"; };
-		CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISO3166CountryValueTransformer.m; sourceTree = "<group>"; };
+		017824FF18E0E402004C3815 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		0178250118E0E99E004C3815 /* LocationMapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationMapViewController.h; sourceTree = "<group>"; };
+		0178250218E0E99E004C3815 /* LocationMapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationMapViewController.m; sourceTree = "<group>"; };
+		0178250318E0E99E004C3815 /* LocationMapViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LocationMapViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0178250018E0E402004C3815 /* MapKit.framework in Frameworks */,
 				0169994C18A1663700E7085F /* CoreGraphics.framework in Frameworks */,
 				0169994E18A1663700E7085F /* UIKit.framework in Frameworks */,
 				0169994A18A1663700E7085F /* Foundation.framework in Frameworks */,
@@ -83,7 +72,7 @@
 		0169994718A1663700E7085F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0169994618A1663700E7085F /* BasicExample.app */,
+				0169994618A1663700E7085F /* FieldControllerExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -91,6 +80,7 @@
 		0169994818A1663700E7085F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				017824FF18E0E402004C3815 /* MapKit.framework */,
 				0169994918A1663700E7085F /* Foundation.framework */,
 				0169994B18A1663700E7085F /* CoreGraphics.framework */,
 				0169994D18A1663700E7085F /* UIKit.framework */,
@@ -102,7 +92,6 @@
 		0169994F18A1663700E7085F /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				016C1C9118D8C7F10086BFC1 /* Transformers */,
 				01CB2DDE18CBB2990069FC4A /* Models */,
 				01CB2DDF18CBB2A60069FC4A /* Controllers */,
 				0169995B18A1663700E7085F /* Images.xcassets */,
@@ -114,10 +103,10 @@
 		0169995018A1663700E7085F /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				0169995118A1663700E7085F /* BasicExample-Info.plist */,
+				0169995118A1663700E7085F /* FieldControllerExample-Info.plist */,
 				0169995218A1663700E7085F /* InfoPlist.strings */,
 				0169995518A1663700E7085F /* main.m */,
-				0169995718A1663700E7085F /* BasicExample-Prefix.pch */,
+				0169995718A1663700E7085F /* FieldControllerExample-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -132,24 +121,11 @@
 			path = ../../FXForms;
 			sourceTree = "<group>";
 		};
-		016C1C9118D8C7F10086BFC1 /* Transformers */ = {
-			isa = PBXGroup;
-			children = (
-				CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */,
-				CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */,
-			);
-			name = Transformers;
-			sourceTree = "<group>";
-		};
 		01CB2DDE18CBB2990069FC4A /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				0168186618C5E7AF00273F1C /* RootForm.h */,
-				0168186718C5E7AF00273F1C /* RootForm.m */,
-				01C0532318A27F4F00EEA858 /* LoginForm.h */,
-				01C0532418A27F4F00EEA858 /* LoginForm.m */,
-				0168186918C5E7F400273F1C /* RegistrationForm.h */,
-				0168186A18C5E7F400273F1C /* RegistrationForm.m */,
+				0168186618C5E7AF00273F1C /* LocationForm.h */,
+				0168186718C5E7AF00273F1C /* LocationForm.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -159,12 +135,9 @@
 			children = (
 				0169995818A1663700E7085F /* AppDelegate.h */,
 				0169995918A1663700E7085F /* AppDelegate.m */,
-				01CB2DD418CBAA010069FC4A /* TermsViewController.h */,
-				01CB2DD518CBAA010069FC4A /* TermsViewController.m */,
-				01CB2DD618CBAA010069FC4A /* TermsViewController.xib */,
-				01CB2DD918CBB28C0069FC4A /* PrivacyPolicyViewController.h */,
-				01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */,
-				01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */,
+				0178250118E0E99E004C3815 /* LocationMapViewController.h */,
+				0178250218E0E99E004C3815 /* LocationMapViewController.m */,
+				0178250318E0E99E004C3815 /* LocationMapViewController.xib */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -172,9 +145,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0169994518A1663700E7085F /* BasicExample */ = {
+		0169994518A1663700E7085F /* FieldControllerExample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "BasicExample" */;
+			buildConfigurationList = 0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "FieldControllerExample" */;
 			buildPhases = (
 				0169994218A1663700E7085F /* Sources */,
 				0169994318A1663700E7085F /* Frameworks */,
@@ -184,9 +157,9 @@
 			);
 			dependencies = (
 			);
-			name = BasicExample;
+			name = FieldControllerExample;
 			productName = BasicExample;
-			productReference = 0169994618A1663700E7085F /* BasicExample.app */;
+			productReference = 0169994618A1663700E7085F /* FieldControllerExample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -198,7 +171,7 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Charcoal Design";
 			};
-			buildConfigurationList = 0169994118A1663700E7085F /* Build configuration list for PBXProject "BasicExample" */;
+			buildConfigurationList = 0169994118A1663700E7085F /* Build configuration list for PBXProject "FieldControllerExample" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -210,7 +183,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0169994518A1663700E7085F /* BasicExample */,
+				0169994518A1663700E7085F /* FieldControllerExample */,
 			);
 		};
 /* End PBXProject section */
@@ -221,8 +194,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0169995418A1663700E7085F /* InfoPlist.strings in Resources */,
-				01CB2DDD18CBB28C0069FC4A /* PrivacyPolicyViewController.xib in Resources */,
-				01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */,
+				0178250518E0E99E004C3815 /* LocationMapViewController.xib in Resources */,
 				0169995C18A1663700E7085F /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -234,15 +206,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC566AAC18D76956002F2751 /* ISO3166CountryValueTransformer.m in Sources */,
 				0169995A18A1663700E7085F /* AppDelegate.m in Sources */,
+				0178250418E0E99E004C3815 /* LocationMapViewController.m in Sources */,
 				0169997B18A1664800E7085F /* FXForms.m in Sources */,
 				0169995618A1663700E7085F /* main.m in Sources */,
-				01CB2DD718CBAA010069FC4A /* TermsViewController.m in Sources */,
-				01C0532518A27F4F00EEA858 /* LoginForm.m in Sources */,
-				01CB2DDC18CBB28C0069FC4A /* PrivacyPolicyViewController.m in Sources */,
-				0168186B18C5E7F400273F1C /* RegistrationForm.m in Sources */,
-				0168186818C5E7AF00273F1C /* RootForm.m in Sources */,
+				0168186818C5E7AF00273F1C /* LocationForm.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,9 +372,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Classes/BasicExample-Prefix.pch";
-				INFOPLIST_FILE = "Classes/BasicExample-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "Classes/FieldControllerExample-Prefix.pch";
+				INFOPLIST_FILE = "Classes/FieldControllerExample-Info.plist";
+				PRODUCT_NAME = FieldControllerExample;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -417,9 +385,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Classes/BasicExample-Prefix.pch";
-				INFOPLIST_FILE = "Classes/BasicExample-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "Classes/FieldControllerExample-Prefix.pch";
+				INFOPLIST_FILE = "Classes/FieldControllerExample-Info.plist";
+				PRODUCT_NAME = FieldControllerExample;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -427,7 +395,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0169994118A1663700E7085F /* Build configuration list for PBXProject "BasicExample" */ = {
+		0169994118A1663700E7085F /* Build configuration list for PBXProject "FieldControllerExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0169997018A1663700E7085F /* Debug */,
@@ -436,7 +404,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "BasicExample" */ = {
+		0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "FieldControllerExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0169997318A1663700E7085F /* Debug */,

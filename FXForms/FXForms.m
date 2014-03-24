@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 4
+//  Version 1.1 beta 5
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -307,7 +307,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 @property (nonatomic, strong) Class cell;
 @property (nonatomic, readwrite) NSString *key;
 @property (nonatomic, readwrite) NSArray *options;
-@property (nonatomic, readwrite) NSValueTransformer *valueTransformer;
+@property (nonatomic, readonly) id (^valueTransformer)(id input);
 @property (nonatomic, copy) NSString *header;
 @property (nonatomic, copy) NSString *footer;
 @property (nonatomic, assign) BOOL isInline;
@@ -458,17 +458,25 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         {
             if (self.valueTransformer)
             {
-                return [self.valueTransformer transformedValue:self.options[index]];
+                return [self.valueTransformer(self.options[index]) fieldDescription];
             }
             return [self.options[index] fieldDescription];
         }
         return nil;
     }
-    else if (self.valueTransformer)
+    
+    if (self.valueTransformer)
     {
-        return [self.valueTransformer transformedValue:self.value];
+        return [self.valueTransformer(self.value) fieldDescription];
     }
-    else if ([self.valueClass isSubclassOfClass:[NSDate class]])
+    
+    NSString *descriptionKey = [self.key stringByAppendingString:@"FieldDescription"];
+    if ([self.form respondsToSelector:NSSelectorFromString(descriptionKey)])
+    {
+        return [(NSObject *)self.form valueForKey:descriptionKey];
+    }
+    
+    if ([self.valueClass isSubclassOfClass:[NSDate class]])
     {
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         if ([self.type isEqualToString:FXFormFieldTypeDate])
@@ -488,6 +496,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         }
         return [formatter stringFromDate:self.value];
     }
+    
     return [self.value fieldDescription];
 }
 
@@ -525,6 +534,28 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
 }
 
+- (void)setValueTransformer:(id)valueTransformer
+{
+    if ([valueTransformer isKindOfClass:[NSString class]])
+    {
+        valueTransformer = NSClassFromString(valueTransformer);
+    }
+    if ([valueTransformer respondsToSelector:@selector(alloc)])
+    {
+        valueTransformer = [[valueTransformer alloc] init];
+    }
+    if ([valueTransformer isKindOfClass:[NSValueTransformer class]])
+    {
+        NSValueTransformer *transformer = valueTransformer;
+        valueTransformer = ^(id input)
+        {
+            return [transformer transformedValue:input];
+        };
+    }
+    
+    _valueTransformer = [valueTransformer copy];
+}
+
 - (void)setAction:(id)action
 {
     if ([action isKindOfClass:[NSString class]])
@@ -555,7 +586,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         };
     }
     
-    _action = action;
+    _action = [action copy];
 }
 
 - (void)setClass:(Class)valueClass
@@ -596,7 +627,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         for (id option in field.options)
         {
             [fields addObject:@{FXFormFieldKey: [@(index) description],
-                                FXFormFieldTitle: [field.valueTransformer transformedValue:option] ?: [option fieldDescription],
+                                FXFormFieldTitle: [field.valueTransformer? field.valueTransformer(option): option fieldDescription],
                                 FXFormFieldType: FXFormFieldTypeOption}];
             index ++;
         }
@@ -1108,7 +1139,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         [NSException raise:FXFormsException format:@"FXFormViewController field value must conform to FXForm protocol"];
     }
     
-    self.title = field.title;
     self.formController.form = form;
     
     //TODO: find a way to do this can doesn't rely on FXFormField having a private reference to formController
@@ -1233,7 +1263,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     
     if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)] ||
         [self.field.valueClass isSubclassOfClass:[UIViewController class]] ||
-        [self.field.options count])
+        [self.field.options count] || self.field.viewController)
     {
         self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
@@ -1326,6 +1356,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         [FXFormsFirstResponder(tableView) resignFirstResponder];
         UIViewController <FXFormFieldViewController> *subcontroller = [[self.field.viewController ?: [FXFormViewController class] alloc] init];
         subcontroller.field = self.field;
+        if (!subcontroller.title) subcontroller.title = self.field.title;
         [controller.navigationController pushViewController:subcontroller animated:YES];
     }
     else if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])

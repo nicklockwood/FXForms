@@ -255,7 +255,7 @@ For any field type, you can supply an array of supported values, which will over
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 ```
 
-Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The FXFormFieldValueTransformer property lets you specify an NSValueTransformer to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object.
+Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The FXFormFieldValueTransformer property lets you specify either a conversion block or an NSValueTransformer to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance or NSValueTransformer or the name of an NSValueTransformer subclass.
 
 ```objc
 static NSString *const FXFormFieldAction = @"action";
@@ -450,6 +450,7 @@ Version 1.1 beta
 - Added FXFormFieldValueTransformer for adapting field values for display
 - It is now possible to create completely virtual form objects by overriding setValue:forKey: to set properties
 - Added FXFormFieldViewController property for specifying custom form field view controllers
+- Added FieldControllerExample project to demonstrate the FXFormFieldViewController property
 
 Version 1.0.2
 
