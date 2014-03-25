@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 5
+//  Version 1.1 beta 6
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -301,6 +301,17 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 }
 
 
+@interface FXFormController () <UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, copy) NSArray *sections;
+@property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldTypes;
+@property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
+
+- (void)performAction:(SEL)selector withSender:(id)sender;
+
+@end
+
+
 @interface FXFormField ()
 
 @property (nonatomic, strong) Class valueClass;
@@ -374,8 +385,10 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             {
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
-            if ([(NSArray *)dictionary[FXFormFieldOptions] count] || dictionary[FXFormFieldViewController])
+            if (([(NSArray *)dictionary[FXFormFieldOptions] count] || dictionary[FXFormFieldViewController])
+                && ![dictionary[FXFormFieldInline] boolValue])
             {
+                //TODO: is there a better way to force non-inline cells to use base cell?
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
             }
             if (!dictionary[FXFormFieldTitle])
@@ -485,7 +498,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             formatter.dateStyle = NSDateFormatterNoStyle;
             formatter.timeStyle = NSDateFormatterMediumStyle;
         }
-        else
+        else //datetime
         {
             formatter.dateStyle = NSDateFormatterShortStyle;
             formatter.timeStyle = NSDateFormatterShortStyle;
@@ -560,25 +573,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         __weak FXFormField *weakSelf = self;
         action = ^(id sender)
         {
-            id responder = weakSelf.formController.tableView;
-            while (responder)
-            {
-                if ([responder respondsToSelector:selector])
-                {
-                    
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warc-performSelector-leaks"
-                    
-                    [responder performSelector:selector withObject:sender];
-                    
-#pragma GCC diagnostic pop
-                    
-                    return;
-                }
-                responder = [responder nextResponder];
-            }
-            
-            [NSException raise:FXFormsException format:@"No object in the responder chain responds to the selector %@", NSStringFromSelector(selector)];
+            [weakSelf.formController performAction:selector withSender:sender];
         };
     }
     
@@ -770,15 +765,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 #pragma mark Controllers
 
 
-@interface FXFormController () <UITableViewDataSource, UITableViewDelegate>
-
-@property (nonatomic, copy) NSArray *sections;
-@property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldTypes;
-@property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
-
-@end
-
-
 @implementation FXFormController
 
 - (instancetype)init
@@ -821,7 +807,9 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (Class)cellClassForFieldType:(NSString *)fieldType
 {
-    return self.cellClassesForFieldTypes[fieldType] ?: self.cellClassesForFieldTypes[FXFormFieldTypeDefault];
+    return self.cellClassesForFieldTypes[fieldType] ?:
+    self.parentFormController.cellClassesForFieldTypes[fieldType] ?:
+    self.cellClassesForFieldTypes[FXFormFieldTypeDefault];
 }
 
 - (void)registerDefaultFieldCellClass:(Class)cellClass
@@ -838,7 +826,9 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (Class)viewControllerClassForFieldType:(NSString *)fieldType
 {
-    return self.controllerClassesForFieldTypes[fieldType] ?: self.controllerClassesForFieldTypes[FXFormFieldTypeDefault];
+    return self.controllerClassesForFieldTypes[fieldType] ?:
+    self.parentFormController.controllerClassesForFieldTypes[fieldType] ?:
+    self.controllerClassesForFieldTypes[FXFormFieldTypeDefault];
 }
 
 - (void)registerDefaultViewControllerClass:(Class)controllerClass
@@ -932,6 +922,41 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             fieldIndex ++;
         }
         sectionIndex ++;
+    }
+}
+
+#pragma mark -
+#pragma mark Action handler
+
+- (void)performAction:(SEL)selector withSender:(id)sender
+{
+    //walk up responder chain
+    id responder = self.tableView;
+    while (responder)
+    {
+        if ([responder respondsToSelector:selector])
+        {
+            
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warc-performSelector-leaks"
+            
+            [responder performSelector:selector withObject:sender];
+            
+#pragma GCC diagnostic pop
+            
+            return;
+        }
+        responder = [responder nextResponder];
+    }
+    
+    //trye parent controller
+    if (self.parentFormController)
+    {
+        [self.parentFormController performAction:selector withSender:sender];
+    }
+    else
+    {
+        [NSException raise:FXFormsException format:@"No object in the responder chain responds to the selector %@", NSStringFromSelector(selector)];
     }
 }
 
@@ -1135,12 +1160,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         [NSException raise:FXFormsException format:@"FXFormViewController field value must conform to FXForm protocol"];
     }
     
+    self.formController.parentFormController = field.formController;
     self.formController.form = form;
-    
-    //TODO: find a way to do this can doesn't rely on FXFormField having a private reference to formController
-    //so that custom implementations can also benefit from this behavior
-    self.formController.cellClassesForFieldTypes = [NSMutableDictionary dictionaryWithDictionary:field.formController.cellClassesForFieldTypes];
-    self.formController.controllerClassesForFieldTypes = [NSMutableDictionary dictionaryWithDictionary:field.formController.controllerClassesForFieldTypes];
 }
 
 - (FXFormController *)formController

@@ -18,6 +18,7 @@
 		0169995C18A1663700E7085F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0169995B18A1663700E7085F /* Images.xcassets */; };
 		0169997B18A1664800E7085F /* FXForms.m in Sources */ = {isa = PBXBuildFile; fileRef = 0169997A18A1664800E7085F /* FXForms.m */; };
 		0178250818E1A0AE004C3815 /* RootFormViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0178250718E1A0AE004C3815 /* RootFormViewController.m */; };
+		0178250A18E1A945004C3815 /* RootFormViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0178250918E1A945004C3815 /* RootFormViewController.xib */; };
 		01C0532518A27F4F00EEA858 /* LoginForm.m in Sources */ = {isa = PBXBuildFile; fileRef = 01C0532418A27F4F00EEA858 /* LoginForm.m */; };
 		01CB2DD718CBAA010069FC4A /* TermsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01CB2DD518CBAA010069FC4A /* TermsViewController.m */; };
 		01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DD618CBAA010069FC4A /* TermsViewController.xib */; };
@@ -31,14 +32,14 @@
 		0168186718C5E7AF00273F1C /* RootForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootForm.m; sourceTree = "<group>"; };
 		0168186918C5E7F400273F1C /* RegistrationForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistrationForm.h; sourceTree = "<group>"; };
 		0168186A18C5E7F400273F1C /* RegistrationForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistrationForm.m; sourceTree = "<group>"; };
-		0169994618A1663700E7085F /* BasicExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BasicExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0169994618A1663700E7085F /* CustomFormControllerExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomFormControllerExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0169994918A1663700E7085F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		0169994B18A1663700E7085F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		0169994D18A1663700E7085F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		0169995118A1663700E7085F /* BasicExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BasicExample-Info.plist"; sourceTree = "<group>"; };
+		0169995118A1663700E7085F /* CustomFormControllerExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CustomFormControllerExample-Info.plist"; sourceTree = "<group>"; };
 		0169995318A1663700E7085F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0169995518A1663700E7085F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		0169995718A1663700E7085F /* BasicExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BasicExample-Prefix.pch"; sourceTree = "<group>"; };
+		0169995718A1663700E7085F /* CustomFormControllerExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CustomFormControllerExample-Prefix.pch"; sourceTree = "<group>"; };
 		0169995818A1663700E7085F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		0169995918A1663700E7085F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		0169995B18A1663700E7085F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -47,6 +48,7 @@
 		0169997A18A1664800E7085F /* FXForms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXForms.m; sourceTree = "<group>"; };
 		0178250618E1A0AE004C3815 /* RootFormViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootFormViewController.h; sourceTree = "<group>"; };
 		0178250718E1A0AE004C3815 /* RootFormViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootFormViewController.m; sourceTree = "<group>"; };
+		0178250918E1A945004C3815 /* RootFormViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RootFormViewController.xib; sourceTree = "<group>"; };
 		01C0532318A27F4F00EEA858 /* LoginForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginForm.h; sourceTree = "<group>"; };
 		01C0532418A27F4F00EEA858 /* LoginForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginForm.m; sourceTree = "<group>"; };
 		01CB2DD418CBAA010069FC4A /* TermsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TermsViewController.h; sourceTree = "<group>"; };
@@ -86,7 +88,7 @@
 		0169994718A1663700E7085F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0169994618A1663700E7085F /* BasicExample.app */,
+				0169994618A1663700E7085F /* CustomFormControllerExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,10 +119,10 @@
 		0169995018A1663700E7085F /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				0169995118A1663700E7085F /* BasicExample-Info.plist */,
+				0169995118A1663700E7085F /* CustomFormControllerExample-Info.plist */,
 				0169995218A1663700E7085F /* InfoPlist.strings */,
 				0169995518A1663700E7085F /* main.m */,
-				0169995718A1663700E7085F /* BasicExample-Prefix.pch */,
+				0169995718A1663700E7085F /* CustomFormControllerExample-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -164,6 +166,7 @@
 				0169995918A1663700E7085F /* AppDelegate.m */,
 				0178250618E1A0AE004C3815 /* RootFormViewController.h */,
 				0178250718E1A0AE004C3815 /* RootFormViewController.m */,
+				0178250918E1A945004C3815 /* RootFormViewController.xib */,
 				01CB2DD418CBAA010069FC4A /* TermsViewController.h */,
 				01CB2DD518CBAA010069FC4A /* TermsViewController.m */,
 				01CB2DD618CBAA010069FC4A /* TermsViewController.xib */,
@@ -177,9 +180,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0169994518A1663700E7085F /* BasicExample */ = {
+		0169994518A1663700E7085F /* CustomFormControllerExample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "BasicExample" */;
+			buildConfigurationList = 0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "CustomFormControllerExample" */;
 			buildPhases = (
 				0169994218A1663700E7085F /* Sources */,
 				0169994318A1663700E7085F /* Frameworks */,
@@ -189,9 +192,9 @@
 			);
 			dependencies = (
 			);
-			name = BasicExample;
+			name = CustomFormControllerExample;
 			productName = BasicExample;
-			productReference = 0169994618A1663700E7085F /* BasicExample.app */;
+			productReference = 0169994618A1663700E7085F /* CustomFormControllerExample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -203,7 +206,7 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Charcoal Design";
 			};
-			buildConfigurationList = 0169994118A1663700E7085F /* Build configuration list for PBXProject "BasicExample" */;
+			buildConfigurationList = 0169994118A1663700E7085F /* Build configuration list for PBXProject "CustomFormControllerExample" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -215,7 +218,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0169994518A1663700E7085F /* BasicExample */,
+				0169994518A1663700E7085F /* CustomFormControllerExample */,
 			);
 		};
 /* End PBXProject section */
@@ -226,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0169995418A1663700E7085F /* InfoPlist.strings in Resources */,
+				0178250A18E1A945004C3815 /* RootFormViewController.xib in Resources */,
 				01CB2DDD18CBB28C0069FC4A /* PrivacyPolicyViewController.xib in Resources */,
 				01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */,
 				0169995C18A1663700E7085F /* Images.xcassets in Resources */,
@@ -410,9 +414,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Classes/BasicExample-Prefix.pch";
-				INFOPLIST_FILE = "Classes/BasicExample-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "Classes/CustomFormControllerExample-Prefix.pch";
+				INFOPLIST_FILE = "Classes/CustomFormControllerExample-Info.plist";
+				PRODUCT_NAME = CustomFormControllerExample;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -423,9 +427,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Classes/BasicExample-Prefix.pch";
-				INFOPLIST_FILE = "Classes/BasicExample-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "Classes/CustomFormControllerExample-Prefix.pch";
+				INFOPLIST_FILE = "Classes/CustomFormControllerExample-Info.plist";
+				PRODUCT_NAME = CustomFormControllerExample;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -433,7 +437,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0169994118A1663700E7085F /* Build configuration list for PBXProject "BasicExample" */ = {
+		0169994118A1663700E7085F /* Build configuration list for PBXProject "CustomFormControllerExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0169997018A1663700E7085F /* Debug */,
@@ -442,7 +446,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "BasicExample" */ = {
+		0169997218A1663700E7085F /* Build configuration list for PBXNativeTarget "CustomFormControllerExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0169997318A1663700E7085F /* Debug */,

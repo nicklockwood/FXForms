@@ -71,7 +71,9 @@ controller.formController.form = [[MyForm alloc] init];
 
 You can then display the form controller just as you would do any ordinary view controller. `FXFormViewController` contains a `UITableView`, which it will create automatically as needed. If you prefer however, you can assign your own `UITableView` to the `tableView` property and use that instead. You can even initialize the `FXFormViewController` with a nib file that creates the tableView.
 
-It is a good idea to place the `FXFormViewController` inside a `UINavigationController`. This is not mandatory, but if the form contains subforms, these will be pushed onto its navigationController, and if that does not exist, the forms will not be displayed.
+`FXFormViewController` is designed to be subclassed, just like a regular `UIViewController` or `UITableViewController`. In most cases, you'll want to subclass `FXFormViewController` so you can add your form setup logic and action handlers. 
+
+It is a good idea to place the `FXFormViewController` (or subclass) inside a `UINavigationController`. This is not mandatory, but if the form contains subforms, these will be pushed onto its navigationController, and if that does not exist, the forms will not be displayed.
 
 Like `UITableViewController`, `FXFormViewController` will normally assign the tableView as the main view of the controller. Unlike `UITableViewController`, it doesn't *have* to be - you can make your tableView a subview of your main view if you prefer.
 
@@ -86,6 +88,8 @@ Displaying a form (advanced)
 The `FXFormViewController` is pretty flexible, but sometimes it's inconvenient to be forced to use a particular base controller class. For example, you may wish to use a common base class for all your view controllers, or display a form inside a view that does not have an associated controller.
 
 In the former case, you could add an `FXFormViewController` as a child controller, but in the latter case that wouldn't work. To use FXForms without using `FXFormViewController`, you can use the `FXFormController` directly. To display a form using `FXFormController`, you just need to set the form and tableView properties, and it will do the rest. You can optionally bind the `FXFormController`'s delegate property to be notified of `UITableView` events.
+
+When using a custom form view controller in this way, some interactions are still handled for you (e.g. adjusting the tableview content when the keyboard is presented), but you will need to add other view logic yourself, such as reloading the table when the UIViewController appears on screen.
 
 Here is example code for a custom form view controller:
 
@@ -108,6 +112,14 @@ Here is example code for a custom form view controller:
     self.formController.tableView = self.tableView;
     self.formController.delegate = self;
     self.formController.form = [[MyForm alloc] init];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    //reload the table
+    [self.tableView reloadData];
 }
 
 @end
@@ -261,9 +273,9 @@ Sometimes the value you wish to display for a field may not match the value you 
 static NSString *const FXFormFieldAction = @"action";
 ```
     
-This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell upwards until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, or it's superview, or the view controller, or the app delegate, or even the window.
+This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell upwards until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, or it's superview, or the view controller, or the app delegate, or even the window. If your form is presented as a subform of another form, yu can also implement actions methods for subforms in the view controller for their parent form.
 
-For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the `FXFormField` model.
+For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the `FXFormField` model, and from that the form itself.
 
 ```objc
 static NSString *const FXFormFieldHeader = @"header";
@@ -441,16 +453,18 @@ Release notes
 
 Version 1.1 beta
 
-- FXFormField action property is now a block instead a of a selector
-- Added FXFormFieldPlaceholder value
+- Nested forms now propagate form actions back to their parent form view controller as well as up to the app delegate
+- Added parentFormController property to FXFormController
+- FXFormField action property is now a block instead a of a selector (can be specified as either in form dictionary)
+- Added FXFormFieldPlaceholder value to be displayed when value is nil / empty
 - Keyboard will now display "next" in cases where next cell acceptsFirstResponder
 - Added FXFormFieldTypeImage and FXFormImagePickerCell
-- Added FXFormFieldOptionPickerCell
+- Added FXFormFieldOptionPickerCell as an alternative way to display options fields
 - Added FXFormFieldTypeLongText for multiline text
 - Added FXFormFieldValueTransformer for adapting field values for display
 - It is now possible to create completely virtual form objects by overriding setValue:forKey: to set properties
 - Added FXFormFieldViewController property for specifying custom form field view controllers
-- Added FieldControllerExample project to demonstrate the FXFormFieldViewController property
+- Added additional example projects to demonstrate the new features
 
 Version 1.0.2
 

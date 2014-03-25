@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.1 beta 5
+//  Version 1.1 beta 6
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -117,6 +117,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @interface FXFormController : NSObject
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
+@property (nonatomic, strong) FXFormController *parentFormController;
 @property (nonatomic, weak) id<FXFormControllerDelegate> delegate;
 @property (nonatomic, strong) id<FXForm> form;
 
