@@ -401,9 +401,9 @@ Form field options
 
 When you provide an options array for a form field, the field input will be presented as a list of options to tick. How this list of options is converted to the form value depends on the type of field:
 
-If the field type matches the values in the options array, selecting the option will set the selected value directly, but that may not be what you want. For example, if you have a list of string, you may be more interested in the selected index than the value (which may have been localised and formatted for human consumption, not machine interpretation).
+If the field type matches the values in the options array, selecting the option will set the selected value directly, but that may not be what you want. For example, if you have a list of strings, you may be more interested in the selected index than the value (which may have been localised and formatted for human consumption, not machine interpretation). If the field type is numeric, and the options values are not numeric, it will be assumed that the field value should be set to the *index* of the selected item, instead of the value.
 
-If the field type is numeric, and the options values are not numeric, it will be assumed that the field value should be set to the *index* of the selected item, instead of the value.
+If the field is a collection type (such as NSArray, NSSet, etc.), the form will allow the user to select multiple options instead of one. Collections are handled as followed, depending on the class of the property: If you use `NSArray`, `NSSet` and `NSOrderedSet`, the selected values will be stored directly in the collection; If you use an `NSIndexSet`, the indexes of the values will be stored; If you use `NSDictionary`, both the values *and* their indexes will be stored. For ordered collection types, the order of the selected values is guaranteed to match the order in the options array.
 
 
 Cell configuration
@@ -453,13 +453,14 @@ Release notes
 
 Version 1.1 beta
 
+- Added support for multi-select option fields - just use a collection type such NSArray, NSSet or NSIndexSet for your options field
+- Added FXFormFieldOptionPickerCell as an alternative way to display options fields (does not support multi-select)
 - Nested forms now propagate form actions back to their parent form view controller as well as up to the app delegate
 - Added parentFormController property to FXFormController
 - FXFormField action property is now a block instead a of a selector (can be specified as either in form dictionary)
 - Added FXFormFieldPlaceholder value to be displayed when value is nil / empty
 - Keyboard will now display "next" in cases where next cell acceptsFirstResponder
 - Added FXFormFieldTypeImage and FXFormImagePickerCell
-- Added FXFormFieldOptionPickerCell as an alternative way to display options fields
 - Added FXFormFieldTypeLongText for multiline text
 - Added FXFormFieldValueTransformer for adapting field values for display
 - It is now possible to create completely virtual form objects by overriding setValue:forKey: to set properties

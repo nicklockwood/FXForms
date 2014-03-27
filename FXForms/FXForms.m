@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 6
+//  Version 1.1 beta 7
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -445,15 +445,21 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (BOOL)isIndexedType
 {
-    if (![self.options count])
-    {
-        return NO;
-    }
+    //return YES if value should be set as index of option, not value of option
     if ([self.type isEqualToString:FXFormFieldTypeInteger] ||
         [self.type isEqualToString:FXFormFieldTypeNumber] ||
         [self.valueClass isSubclassOfClass:[NSNumber class]])
     {
         return ![[self.options firstObject] isKindOfClass:[NSNumber class]];
+    }
+    return NO;
+}
+
+- (BOOL)isCollectionType
+{
+    for (Class valueClass in @[[NSArray class], [NSSet class], [NSOrderedSet class], [NSIndexSet class], [NSDictionary class]])
+    {
+        if ([self.valueClass isSubclassOfClass:valueClass]) return YES;
     }
     return NO;
 }
@@ -629,28 +635,95 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (id)valueForKey:(NSString *)key
 {
-    NSInteger index = NSNotFound;
-    if ([self.field isIndexedType])
+    if ([self.field isCollectionType])
     {
-        index = [self.field.value integerValue];
+        NSInteger index = [key integerValue];
+        if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
+        {
+            return @([self.field.value containsIndex:index]);
+        }
+        else
+        {
+            id value = self.field.options[index];
+            return @([self.field.value containsObject:value]);
+        }
     }
     else
     {
-        index = [self.field.options indexOfObject:self.field.value];
+        NSInteger index = NSNotFound;
+        if ([self.field isIndexedType])
+        {
+            index = [self.field.value integerValue];
+        }
+        else
+        {
+            index = [self.field.options indexOfObject:self.field.value];
+        }
+        return @([key integerValue] == index);
     }
-    return @([key integerValue] == index);
 }
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    value = self.field.options[[key integerValue]];
-    if ([self.field isIndexedType])
+    NSUInteger index = [key integerValue];
+    if ([self.field isCollectionType])
     {
-        self.field.value = @([self.field.options indexOfObject:value]);
+        BOOL addValue = [value boolValue];
+        BOOL copyNeeded = ([NSStringFromClass(self.field.valueClass) rangeOfString:@"Mutable"].location == NSNotFound);
+        
+        id collection = self.field.value ?: [[self.field.valueClass alloc] init];
+        if (copyNeeded) collection = [collection mutableCopy];
+        
+        if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
+        {
+            if (addValue)
+            {
+                [collection addIndex:index];
+            }
+            else
+            {
+                [collection removeIndex:index];
+            }
+        }
+        else if ([self.field.valueClass isSubclassOfClass:[NSDictionary class]])
+        {
+            if (addValue)
+            {
+                collection[@(index)] = self.field.options[index];
+            }
+            else
+            {
+                [(NSMutableDictionary *)collection removeObjectForKey:@(index)];
+            }
+        }
+        else
+        {
+            //need to preserve order for ordered collections
+            [collection removeAllObjects];
+            [self.field.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
+                
+                if (i == index)
+                {
+                    if (addValue) [collection addObject:option];
+                }
+                else if ([self.field.value containsObject:option])
+                {
+                    [collection addObject:option];
+                }
+            }];
+            self.field.value = collection;
+        }
+        
+        if (copyNeeded) collection = [collection copy];
+        self.field.value = collection;
+    }
+    else if ([self.field isIndexedType])
+    {
+        self.field.value = @(index);
     }
     else
     {
-        self.field.value = value;
+        self.field.value = self.field.options[index];
     }
 }
 

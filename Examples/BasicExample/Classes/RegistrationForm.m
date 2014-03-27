@@ -69,6 +69,11 @@
                FXFormFieldPlaceholder: @"Select…",
                FXFormFieldCell: [FXFormOptionPickerCell class]},
              
+             //this is a multi-select options field - FXForms knows this because the
+             //class of the field property is a collection (in this case, NSArray)
+             
+             @{FXFormFieldKey: @"interests", FXFormFieldOptions: @[@"Computers", @"Socializing", @"Sports"]},
+
              //this is a multiline text view that grows to fit its contents
              
              @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText},

@@ -22,18 +22,19 @@ typedef NS_OPTIONS(NSInteger, Gender)
 
 @interface RegistrationForm : NSObject <FXForm>
 
-@property (nonatomic, strong) NSString *email;
-@property (nonatomic, strong) NSString *password;
-@property (nonatomic, strong) NSString *repeatPassword;
+@property (nonatomic, copy) NSString *email;
+@property (nonatomic, copy) NSString *password;
+@property (nonatomic, copy) NSString *repeatPassword;
 
-@property (nonatomic, strong) NSString *name;
+@property (nonatomic, copy) NSString *name;
 @property (nonatomic, assign) Gender gender;
 @property (nonatomic, assign) NSUInteger age;
 @property (nonatomic, strong) NSDate *dateOfBirth;
 @property (nonatomic, strong) UIImage *profilePhoto;
-@property (nonatomic, strong) NSString *country;
-@property (nonatomic, strong) NSString *language;
-@property (nonatomic, strong) NSString *about;
+@property (nonatomic, copy) NSString *country;
+@property (nonatomic, copy) NSString *language;
+@property (nonatomic, copy) NSArray *interests;
+@property (nonatomic, copy) NSString *about;
 
 @property (nonatomic, readonly) TermsViewController *termsAndConditions;
 @property (nonatomic, readonly) PrivacyPolicyViewController *privacyPolicy;
