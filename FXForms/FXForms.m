@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 7
+//  Version 1.1 beta 8
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -386,7 +386,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
             if (([(NSArray *)dictionary[FXFormFieldOptions] count] || dictionary[FXFormFieldViewController])
-                && ![dictionary[FXFormFieldInline] boolValue])
+                && ![dictionary[FXFormFieldInline] boolValue] && !dictionaryOrKey[FXFormFieldType])
             {
                 //TODO: is there a better way to force non-inline cells to use base cell?
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
@@ -446,9 +446,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (BOOL)isIndexedType
 {
     //return YES if value should be set as index of option, not value of option
-    if ([self.type isEqualToString:FXFormFieldTypeInteger] ||
-        [self.type isEqualToString:FXFormFieldTypeNumber] ||
-        [self.valueClass isSubclassOfClass:[NSNumber class]])
+    if ([@[FXFormFieldTypeInteger, FXFormFieldTypeNumber] containsObject:self.type])
     {
         return ![[self.options firstObject] isKindOfClass:[NSNumber class]];
     }
@@ -510,6 +508,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             formatter.timeStyle = NSDateFormatterShortStyle;
         }
         return [formatter stringFromDate:self.value];
+    }
+    
+    if ([self.type isEqual:FXFormFieldTypeBitfield])
+    {
+        return nil;
     }
     
     return [self.value fieldDescription];
@@ -635,31 +638,42 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (id)valueForKey:(NSString *)key
 {
+    NSInteger index = [key integerValue];
+    id value = self.field.options[index];
     if ([self.field isCollectionType])
     {
-        NSInteger index = [key integerValue];
         if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
         {
+            if ([value isKindOfClass:[NSNumber class]])
+            {
+                index = [value integerValue];
+            }
             return @([self.field.value containsIndex:index]);
         }
         else
         {
-            id value = self.field.options[index];
             return @([self.field.value containsObject:value]);
         }
     }
-    else
+    else if ([self.field.type isEqualToString:FXFormFieldTypeBitfield])
     {
-        NSInteger index = NSNotFound;
-        if ([self.field isIndexedType])
+        if ([value isKindOfClass:[NSNumber class]])
         {
-            index = [self.field.value integerValue];
+            index = [value integerValue];
         }
         else
         {
-            index = [self.field.options indexOfObject:self.field.value];
+            index = 1 << index;
         }
-        return @([key integerValue] == index);
+        return @(([self.field.value integerValue] & index) != 0);
+    }
+    else if ([self.field isIndexedType])
+    {
+        return @(index == [self.field.value integerValue]);
+    }
+    else
+    {
+        return @([value isEqual:self.field.value]);
     }
 }
 
@@ -716,6 +730,25 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         
         if (copyNeeded) collection = [collection copy];
         self.field.value = collection;
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeBitfield])
+    {
+        if ([self.field.options[index] isKindOfClass:[NSNumber class]])
+        {
+            index = [self.field.options[index] integerValue];
+        }
+        else
+        {
+            index = 1 << index;
+        }
+        if ([value boolValue])
+        {
+            self.field.value = @([self.field.value integerValue] | index);
+        }
+        else
+        {
+            self.field.value = @([self.field.value integerValue] ^ index);
+        }
     }
     else if ([self.field isIndexedType])
     {

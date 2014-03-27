@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0169994518A1663700E7085F"
-               BuildableName = "BasicExample.app"
+               BuildableName = "CustomFormControllerExample.app"
                BlueprintName = "CustomFormControllerExample"
                ReferencedContainer = "container:CustomFormControllerExample.xcodeproj">
             </BuildableReference>
@@ -28,22 +28,12 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0169996018A1663700E7085F"
-               BuildableName = "BasicExampleTests.xctest"
-               BlueprintName = "BasicExampleTests"
-               ReferencedContainer = "container:CustomFormControllerExample.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0169994518A1663700E7085F"
-            BuildableName = "BasicExample.app"
+            BuildableName = "CustomFormControllerExample.app"
             BlueprintName = "CustomFormControllerExample"
             ReferencedContainer = "container:CustomFormControllerExample.xcodeproj">
          </BuildableReference>
@@ -62,7 +52,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0169994518A1663700E7085F"
-            BuildableName = "BasicExample.app"
+            BuildableName = "CustomFormControllerExample.app"
             BlueprintName = "CustomFormControllerExample"
             ReferencedContainer = "container:CustomFormControllerExample.xcodeproj">
          </BuildableReference>
@@ -80,7 +70,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0169994518A1663700E7085F"
-            BuildableName = "BasicExample.app"
+            BuildableName = "CustomFormControllerExample.app"
             BlueprintName = "CustomFormControllerExample"
             ReferencedContainer = "container:CustomFormControllerExample.xcodeproj">
          </BuildableReference>

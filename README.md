@@ -405,6 +405,8 @@ If the field type matches the values in the options array, selecting the option 
 
 If the field is a collection type (such as NSArray, NSSet, etc.), the form will allow the user to select multiple options instead of one. Collections are handled as followed, depending on the class of the property: If you use `NSArray`, `NSSet` and `NSOrderedSet`, the selected values will be stored directly in the collection; If you use an `NSIndexSet`, the indexes of the values will be stored; If you use `NSDictionary`, both the values *and* their indexes will be stored. For ordered collection types, the order of the selected values is guaranteed to match the order in the options array.
 
+Multi-select fields can also be used with `NS_OPTIONS`-style bitfield enum values. Just use an integer as your property type, and then specify a field type of `FXFormFieldTypeBitfield`. You can then either specify explicit bit values in your options by using `NSNumber` values, or let FXForms infer the bit value from the index.
+
 
 Cell configuration
 -------------------
@@ -454,6 +456,7 @@ Release notes
 Version 1.1 beta
 
 - Added support for multi-select option fields - just use a collection type such NSArray, NSSet or NSIndexSet for your options field
+- Added FXFormFieldTypeBitfield for NS_OPTIONS-type multi-select enum values
 - Added FXFormFieldOptionPickerCell as an alternative way to display options fields (does not support multi-select)
 - Nested forms now propagate form actions back to their parent form view controller as well as up to the app delegate
 - Added parentFormController property to FXFormController

@@ -12,8 +12,8 @@
 
 @interface LoginForm : NSObject <FXForm>
 
-@property (nonatomic, strong) NSString *email;
-@property (nonatomic, strong) NSString *password;
+@property (nonatomic, copy) NSString *email;
+@property (nonatomic, copy) NSString *password;
 @property (nonatomic, assign) BOOL rememberMe;
 
 @end

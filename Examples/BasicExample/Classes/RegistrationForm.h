@@ -12,11 +12,19 @@
 #import "FXForms.h"
 
 
-typedef NS_OPTIONS(NSInteger, Gender)
+typedef NS_ENUM(NSInteger, Gender)
 {
     GenderMale = 0,
     GenderFemale,
     GenderOther
+};
+
+
+typedef NS_OPTIONS(NSInteger, Interests)
+{
+    InterestComputers = 1 << 0,
+    InterestSocializing = 1 << 1,
+    InterestSports = 1 << 2
 };
 
 
@@ -34,6 +42,7 @@ typedef NS_OPTIONS(NSInteger, Gender)
 @property (nonatomic, copy) NSString *country;
 @property (nonatomic, copy) NSString *language;
 @property (nonatomic, copy) NSArray *interests;
+@property (nonatomic, assign) Interests otherInterests;
 @property (nonatomic, copy) NSString *about;
 
 @property (nonatomic, readonly) TermsViewController *termsAndConditions;
