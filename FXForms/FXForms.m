@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 8
+//  Version 1.1 beta 9
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -462,6 +462,27 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return NO;
 }
 
+- (NSDateFormatter *)dateFormatter
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    if ([self.type isEqualToString:FXFormFieldTypeDate])
+    {
+        formatter.dateStyle = NSDateFormatterMediumStyle;
+        formatter.timeStyle = NSDateFormatterNoStyle;
+    }
+    else if ([self.type isEqualToString:FXFormFieldTypeTime])
+    {
+        formatter.dateStyle = NSDateFormatterNoStyle;
+        formatter.timeStyle = NSDateFormatterMediumStyle;
+    }
+    else //datetime
+    {
+        formatter.dateStyle = NSDateFormatterShortStyle;
+        formatter.timeStyle = NSDateFormatterShortStyle;
+    }
+    return formatter;
+}
+
 - (NSString *)fieldDescription
 {
     if ([self isIndexedType])
@@ -469,11 +490,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         NSUInteger index = [self.value integerValue];
         if (index != NSNotFound && index < [self.options count])
         {
-            if (self.valueTransformer)
-            {
-                return [self.valueTransformer(self.options[index]) fieldDescription];
-            }
-            return [self.options[index] fieldDescription];
+            return [self optionDescriptionAtIndex:index];
         }
         return nil;
     }
@@ -491,31 +508,37 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     
     if ([self.valueClass isSubclassOfClass:[NSDate class]])
     {
-        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-        if ([self.type isEqualToString:FXFormFieldTypeDate])
-        {
-            formatter.dateStyle = NSDateFormatterMediumStyle;
-            formatter.timeStyle = NSDateFormatterNoStyle;
-        }
-        else if ([self.type isEqualToString:FXFormFieldTypeTime])
-        {
-            formatter.dateStyle = NSDateFormatterNoStyle;
-            formatter.timeStyle = NSDateFormatterMediumStyle;
-        }
-        else //datetime
-        {
-            formatter.dateStyle = NSDateFormatterShortStyle;
-            formatter.timeStyle = NSDateFormatterShortStyle;
-        }
-        return [formatter stringFromDate:self.value];
+        return [[self dateFormatter] stringFromDate:self.value];
     }
     
     if ([self.type isEqual:FXFormFieldTypeBitfield])
     {
-        return nil;
+        return [self.value integerValue]? @"": nil;
+    }
+    
+    if ([self isCollectionType])
+    {
+        return self.value? @"": nil;
     }
     
     return [self.value fieldDescription];
+}
+
+- (NSString *)optionDescriptionAtIndex:(NSUInteger)index
+{
+    id value = self.options[index];
+    
+    if (self.valueTransformer)
+    {
+        return [self.valueTransformer(value) fieldDescription];
+    }
+    
+    if ([self.valueClass isSubclassOfClass:[NSDate class]])
+    {
+        return [[self dateFormatter] stringFromDate:value];
+    }
+    
+    return [value fieldDescription];
 }
 
 - (id)valueForUndefinedKey:(NSString *)key
@@ -604,6 +627,34 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     _options = [options copy];
 }
 
+#pragma mark -
+#pragma mark Option cell Helpers
+
+- (NSUInteger)indexOfOption:(id)option
+{
+    NSUInteger index = [self.options indexOfObject:option];
+    if (index == NSNotFound)
+    {
+        return self.placeholder? 0: NSNotFound;
+    }
+    else
+    {
+        return index + (self.placeholder? 1: 0);
+    }
+}
+
+- (id)optionAtIndex:(NSUInteger)index
+{
+    if (index == 0)
+    {
+        return self.placeholder ?: self.options[0];
+    }
+    else
+    {
+        return self.options[index - (self.placeholder? 1: 0)];
+    }
+}
+
 @end
 
 
@@ -623,14 +674,18 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
         _field = field;
         NSMutableArray *fields = [NSMutableArray array];
-        NSInteger index = 0;
-        for (id option in field.options)
+        if (field.placeholder)
         {
-            [fields addObject:@{FXFormFieldKey: [@(index) description],
-                                FXFormFieldTitle: [field.valueTransformer? field.valueTransformer(option): option fieldDescription],
+            [fields addObject:@{FXFormFieldKey: [@(NSNotFound) description],
+                                FXFormFieldTitle: [field.placeholder fieldDescription],
                                 FXFormFieldType: FXFormFieldTypeOption}];
-            index ++;
         }
+        [field.options enumerateObjectsUsingBlock:^(__unused id option, NSUInteger index, __unused BOOL *stop) {
+            
+            [fields addObject:@{FXFormFieldKey: [@(index) description],
+                                FXFormFieldTitle: [field optionDescriptionAtIndex:index],
+                                FXFormFieldType: FXFormFieldTypeOption}];
+        }];
         _fields = fields;
     }
     return self;
@@ -639,10 +694,14 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (id)valueForKey:(NSString *)key
 {
     NSInteger index = [key integerValue];
-    id value = self.field.options[index];
+    id value = (index == NSNotFound)? nil: self.field.options[index];
     if ([self.field isCollectionType])
     {
-        if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
+        if (index == NSNotFound)
+        {
+            return @(![self.field.value count]);
+        }
+        else if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
         {
             if ([value isKindOfClass:[NSNumber class]])
             {
@@ -657,7 +716,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
     else if ([self.field.type isEqualToString:FXFormFieldTypeBitfield])
     {
-        if ([value isKindOfClass:[NSNumber class]])
+        if (index == NSNotFound)
+        {
+            return @(![self.field.value integerValue]);
+        }
+        else if ([value isKindOfClass:[NSNumber class]])
         {
             index = [value integerValue];
         }
@@ -673,7 +736,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
     else
     {
-        return @([value isEqual:self.field.value]);
+        return @(value == self.field.value || [value isEqual:self.field.value]);
     }
 }
 
@@ -688,7 +751,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         id collection = self.field.value ?: [[self.field.valueClass alloc] init];
         if (copyNeeded) collection = [collection mutableCopy];
         
-        if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
+        if (index == NSNotFound)
+        {
+            collection = nil;
+        }
+        else if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
         {
             if (addValue)
             {
@@ -733,21 +800,28 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
     else if ([self.field.type isEqualToString:FXFormFieldTypeBitfield])
     {
-        if ([self.field.options[index] isKindOfClass:[NSNumber class]])
+        if (index == NSNotFound)
         {
-            index = [self.field.options[index] integerValue];
+            self.field.value = @0;
         }
         else
         {
-            index = 1 << index;
-        }
-        if ([value boolValue])
-        {
-            self.field.value = @([self.field.value integerValue] | index);
-        }
-        else
-        {
-            self.field.value = @([self.field.value integerValue] ^ index);
+            if ([self.field.options[index] isKindOfClass:[NSNumber class]])
+            {
+                index = [self.field.options[index] integerValue];
+            }
+            else
+            {
+                index = 1 << index;
+            }
+            if ([value boolValue])
+            {
+                self.field.value = @([self.field.value integerValue] | index);
+            }
+            else
+            {
+                self.field.value = @([self.field.value integerValue] ^ index);
+            }
         }
     }
     else if ([self.field isIndexedType])
@@ -756,7 +830,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
     else
     {
-        self.field.value = self.field.options[index];
+        self.field.value = (index != NSNotFound)? self.field.options[index]: nil;
     }
 }
 
@@ -851,7 +925,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             return [self description];
         }
     }
-    return nil;
+    return @"";
 }
 
 - (NSArray *)fields
@@ -2204,6 +2278,10 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [self becomeFirstResponder];
     
     NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
+    if (self.field.placeholder)
+    {
+        index = (index == NSNotFound)? 0: index + 1;
+    }
     if (index != NSNotFound)
     {
         [self.pickerView selectRow:index inComponent:0 animated:NO];
@@ -2222,7 +2300,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (NSInteger)pickerView:(__unused UIPickerView *)pickerView numberOfRowsInComponent:(__unused NSInteger)component
 {
-    return [self.field.options count];
+    return [self.field.options count] + (self.field.placeholder? 1: 0);
 }
 
 #pragma mark -
@@ -2230,12 +2308,24 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (NSString *)pickerView:(__unused UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(__unused NSInteger)component
 {
-    return self.field.options[row];
+    if (row == 0)
+    {
+        return [self.field.placeholder fieldDescription] ?: [self.field optionDescriptionAtIndex:0];
+    }
+    else
+    {
+        return [self.field optionDescriptionAtIndex:row - (self.field.placeholder? 1: 0)];
+    }
 }
 
 - (void)pickerView:(__unused UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(__unused NSInteger)component
 {
-    self.field.value = self.field.options[row];
+    id value = nil;
+    if (!self.field.placeholder || row > 0)
+    {
+        value = self.field.options[row - (self.field.placeholder? 1: 0)];
+    }
+    self.field.value = value;
     self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
     
     [self setNeedsLayout];

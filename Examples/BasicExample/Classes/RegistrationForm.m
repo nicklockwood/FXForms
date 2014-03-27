@@ -59,6 +59,7 @@
              
              @{FXFormFieldKey: @"country",
                FXFormFieldOptions: @[@"us", @"ca", @"uk", @"sa", @"be"],
+               FXFormFieldPlaceholder: @"None",
                FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]},
              
              // this is a option field that uses a FXFormOptionPickerCell to display the available
@@ -66,13 +67,13 @@
              
              @{FXFormFieldKey: @"language",
                FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"],
-               FXFormFieldPlaceholder: @"Select…",
+               FXFormFieldPlaceholder: @"None",
                FXFormFieldCell: [FXFormOptionPickerCell class]},
              
              //this is a multi-select options field - FXForms knows this because the
              //class of the field property is a collection (in this case, NSArray)
              
-             @{FXFormFieldKey: @"interests", FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
+             @{FXFormFieldKey: @"interests", FXFormFieldPlaceholder: @"None", FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
              
              //this is another multi-select options field, but in this case it's represented
              //as a bitfield. FXForms can't infer this from the property (which is just an integer), so
@@ -80,6 +81,7 @@
              
              @{FXFormFieldKey: @"otherInterests",
                FXFormFieldType: FXFormFieldTypeBitfield,
+               FXFormFieldPlaceholder: @"None",
                FXFormFieldOptions: @[@"Computers", @"Socializing", @"Sports"]},
 
              //this is a multiline text view that grows to fit its contents

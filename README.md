@@ -255,7 +255,7 @@ This is the display title for the field. This is automatically generated from th
 static NSString *const FXFormFieldPlaceholder = @"placeholder";
 ```
 
-This is the placeholder value to display when the field value is nil or empty. This is typically a string, but doesn't have to be, for example it could be an NSDate for a date field, or a UIImage for an image field.
+This is the placeholder value to display when the field value is nil or empty. This is typically a string, but doesn't have to be, for example it could be an NSDate for a date field, or a UIImage for an image field. When used with an options or multi-select field, the placeholder will appear as the first item in the options list, and can be used to reset the field to nil / no value.
     
 ```objc
 static NSString *const FXFormFieldOptions = @"options";
