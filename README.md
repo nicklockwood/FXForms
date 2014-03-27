@@ -393,7 +393,7 @@ A date and time, selected using a `UIDatePicker`.
 static NSString *const FXFormFieldTypeImage = @"image"
 ```
 
-A UIImage, selected using a UIImagePickerController
+An image, selected using a `UIImagePickerController`.
 
 
 Form field options
