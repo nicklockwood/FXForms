@@ -462,92 +462,114 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return NO;
 }
 
-- (NSDateFormatter *)dateFormatter
+- (NSString *)valueDescription:(id)value
 {
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    if ([self.type isEqualToString:FXFormFieldTypeDate])
+    if (self.valueTransformer)
     {
-        formatter.dateStyle = NSDateFormatterMediumStyle;
-        formatter.timeStyle = NSDateFormatterNoStyle;
+        return [self.valueTransformer(value) fieldDescription];
     }
-    else if ([self.type isEqualToString:FXFormFieldTypeTime])
+    
+    if ([value isKindOfClass:[NSDate class]])
     {
-        formatter.dateStyle = NSDateFormatterNoStyle;
-        formatter.timeStyle = NSDateFormatterMediumStyle;
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        if ([self.type isEqualToString:FXFormFieldTypeDate])
+        {
+            formatter.dateStyle = NSDateFormatterMediumStyle;
+            formatter.timeStyle = NSDateFormatterNoStyle;
+        }
+        else if ([self.type isEqualToString:FXFormFieldTypeTime])
+        {
+            formatter.dateStyle = NSDateFormatterNoStyle;
+            formatter.timeStyle = NSDateFormatterMediumStyle;
+        }
+        else //datetime
+        {
+            formatter.dateStyle = NSDateFormatterShortStyle;
+            formatter.timeStyle = NSDateFormatterShortStyle;
+        }
+        
+        return [formatter stringFromDate:value];
     }
-    else //datetime
+    
+    return [value fieldDescription];
+}
+
+- (NSString *)optionDescriptionAtIndex:(NSUInteger)index
+{
+    if (index != NSNotFound && index < [self.options count])
     {
-        formatter.dateStyle = NSDateFormatterShortStyle;
-        formatter.timeStyle = NSDateFormatterShortStyle;
+        return [self valueDescription:self.options[index]];
     }
-    return formatter;
+    return nil;
 }
 
 - (NSString *)fieldDescription
 {
-    if ([self isIndexedType])
-    {
-        NSUInteger index = [self.value integerValue];
-        if (index != NSNotFound && index < [self.options count])
-        {
-            return [self optionDescriptionAtIndex:index];
-        }
-        return nil;
-    }
-    
-    if ([self.type isEqual:FXFormFieldTypeBitfield])
-    {
-        NSUInteger value = [self.value integerValue];
-        NSMutableArray *options = [NSMutableArray array];
-        [self.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
-            NSUInteger bit = 1 << i;
-            if ([option isKindOfClass:[NSNumber class]])
-            {
-                bit = [option integerValue];
-            }
-            if (value & bit)
-            {
-                [options addObject:[self optionDescriptionAtIndex:i]];
-            }
-        }];
-        
-        return [options count]? [options fieldDescription]: nil;
-    }
-    
-    if (self.valueTransformer)
-    {
-        return [self.valueTransformer(self.value) fieldDescription];
-    }
-    
     NSString *descriptionKey = [self.key stringByAppendingString:@"FieldDescription"];
     if ([self.form respondsToSelector:NSSelectorFromString(descriptionKey)])
     {
         return [(NSObject *)self.form valueForKey:descriptionKey];
     }
     
-    if ([self.valueClass isSubclassOfClass:[NSDate class]])
+    if (self.options)
     {
-        return [[self dateFormatter] stringFromDate:self.value];
+        if ([self isIndexedType])
+        {
+            NSUInteger index = self.value ? [self.value integerValue]: NSNotFound;
+            return [self optionDescriptionAtIndex:index];
+        }
+        
+        //TODO: should we pass the results of these transforms to the
+        //valueTransformer afterwards? seems dangerous since
+        //the type won't match that of the options, and people
+        //probably won't be expecting it
+        
+        if ([self isCollectionType])
+        {
+            id value = self.value;
+            if ([value isKindOfClass:[NSIndexSet class]])
+            {
+                NSMutableArray *options = [NSMutableArray array];
+                [self.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
+                    NSUInteger index = i;
+                    if ([option isKindOfClass:[NSNumber class]])
+                    {
+                        index = [option integerValue];
+                    }
+                    if ([value containsIndex:index])
+                    {
+                        NSString *description = [self optionDescriptionAtIndex:i];
+                        if ([description length]) [options addObject:description];
+                    }
+                }];
+                
+                return value = [options count]? options: nil;
+            }
+            
+            return [value fieldDescription];
+        }
+        else if ([self.type isEqual:FXFormFieldTypeBitfield])
+        {
+            NSUInteger value = [self.value integerValue];
+            NSMutableArray *options = [NSMutableArray array];
+            [self.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
+                NSUInteger bit = 1 << i;
+                if ([option isKindOfClass:[NSNumber class]])
+                {
+                    bit = [option integerValue];
+                }
+                if (value & bit)
+                {
+                    NSString *description = [self optionDescriptionAtIndex:i];
+                    if ([description length]) [options addObject:description];
+                }
+            }];
+            
+            return [options count]? [options fieldDescription]: nil;
+        }
     }
     
-    return [self.value fieldDescription];
-}
-
-- (NSString *)optionDescriptionAtIndex:(NSUInteger)index
-{
-    id value = self.options[index];
-    
-    if (self.valueTransformer)
-    {
-        return [self.valueTransformer(value) fieldDescription];
-    }
-    
-    if ([self.valueClass isSubclassOfClass:[NSDate class]])
-    {
-        return [[self dateFormatter] stringFromDate:value];
-    }
-    
-    return [value fieldDescription];
+    return [self valueDescription:self.value];
 }
 
 - (id)valueForUndefinedKey:(NSString *)key
@@ -946,10 +968,18 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             NSMutableArray *array = [NSMutableArray array];
             for (id object in collection)
             {
-                [array addObject:[object fieldDescription]];
+                NSString *description = [object fieldDescription];
+                if ([description length]) [array addObject:description];
             }
             return [array componentsJoinedByString:@", "];
         }
+    }
+    if ([self isKindOfClass:[NSDate class]])
+    {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateStyle = NSDateFormatterShortStyle;
+        formatter.timeStyle = NSDateFormatterShortStyle;
+        return [formatter stringFromDate:(NSDate *)self];
     }
     return @"";
 }
