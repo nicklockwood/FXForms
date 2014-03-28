@@ -1,7 +1,7 @@
 Purpose
 --------------
 
-FXForms is an Objective-C library for easily creating table-based forms on iOS. It is ideal for settings pages, or data-entry tasks.
+FXForms is an Objective-C library for easily creating table-based forms on iOS. It is ideal for settings pages or data-entry tasks.
 
 Unlike other solutions, FXForms works directly with strongly-typed data models that you supply (instead of dictionaries or complicated dataSource protocols), and infers as much information as possible from your models using introspection, to avoid the need for tedious duplication of type information.
 
@@ -48,12 +48,12 @@ The `FXForm` protocol has no compulsory methods or properties. The FXForms libra
 @end
 ```
 
-That's literally all you have to do. FXForms is *really* smart; much more so than you might expect. For example:
+That's literally all you have to do. FXForms is *really* smart; much more so than you might expect:
 
 * Fields will appear in the same order you declare them in your class
 * Fields will automatically be assigned suitable control types, for example, the rememberMe field will be displayed as a `UISwitch`, the email field will automatically have a keyboard of type `UIKeyboardTypeEmailAddress` and the password field will automatically have `secureTextEntry` enabled. 
 * Field titles are based on the key name, but camelCase is automatically converted to a Title Case, with intelligent handling of ACRONYMS, etc.
-* Modifying values in the form will automatically assign those values back to your model object. You can use custom setter methods or KVO to intercept the changes if you nee to perform additional logic.
+* Modifying values in the form will automatically assign those values back to your model object. You can use custom setter methods and/or KVO to intercept the changes if you need to perform additional logic.
 * If your form contains subforms (properties that conform to the `FXForm` protocol), or view controllers (e.g for terms and conditions pages), they will automatically be instantiated if they are nil - no need to set default values.
 
 These default behaviors are all inferred by inspecting the property type and name using Objective-C's runtime API, but they can also all be overridden if you wish - that's covered later under Tweaking form behavior
@@ -77,7 +77,7 @@ It is a good idea to place the `FXFormViewController` (or subclass) inside a `UI
 
 Like `UITableViewController`, `FXFormViewController` will normally assign the tableView as the main view of the controller. Unlike `UITableViewController`, it doesn't *have* to be - you can make your tableView a subview of your main view if you prefer.
 
-Like `UITableViewController`, `FXFormViewController` implements the `UITableViewDelegate` protocol, so if you subclass it, you can override the `UITableViewDelegate` and `UIScrollViewDelegate` methods to implement custom behaviors. `FXFormViewController` is not actually the direct delegate of the tableView however, it is the delegate of its formController, which is an instance of FXFormController. The formController acts as the tableView's delegate and dataSource, and proxies the `UITableViewDelegate` methods back to the `FXFormViewController` via the `FXFormControllerDelegate` protocol.
+Like `UITableViewController`, `FXFormViewController` implements the `UITableViewDelegate` protocol, so if you subclass it, you can override the `UITableViewDelegate` and `UIScrollViewDelegate` methods to implement custom behaviors. `FXFormViewController` is not actually the direct delegate of the tableView however, it is the delegate of its formController, which is an instance of `FXFormController`. The formController acts as the tableView's delegate and datasource, and proxies the `UITableViewDelegate` methods back to the `FXFormViewController` via the `FXFormControllerDelegate` protocol.
 
 Unlike `UITableViewController`, `FXFormViewController` does not implement `UITableViewDataSource` protocol. This is handled entirely by the `FXFormController`, and it is not recommended that you try to override or intercept any of the datasource methods.
 
@@ -89,7 +89,7 @@ The `FXFormViewController` is pretty flexible, but sometimes it's inconvenient t
 
 In the former case, you could add an `FXFormViewController` as a child controller, but in the latter case that wouldn't work. To use FXForms without using `FXFormViewController`, you can use the `FXFormController` directly. To display a form using `FXFormController`, you just need to set the form and tableView properties, and it will do the rest. You can optionally bind the `FXFormController`'s delegate property to be notified of `UITableView` events.
 
-When using a custom form view controller in this way, some interactions are still handled for you (e.g. adjusting the tableview content when the keyboard is presented), but you will need to add other view logic yourself, such as reloading the table when the UIViewController appears on screen.
+When using a custom form view controller in this way, some interactions are still handled for you (e.g. adjusting the table view content inset when the keyboard is presented), but you will need to add other view logic yourself, such as reloading the table when the `UIViewController` appears on screen.
 
 Here is example code for a custom form view controller:
 
@@ -131,9 +131,9 @@ Tweaking form behavior
 
 FXForm's greatest strength is that it eliminates work by guessing as much as possible. It can't guess everything however, and it sometimes guesses wrong. So how do you correct it?
 
-You may find that you don't want all of your object properties to become form fields; you may have private properties that are used internally by your form model for example, or you may just wish to order the fields differently to how you've laid out your properties in the interface.
+You may find that you don't want all of your object properties to become form fields; you may have private properties that are used internally by your form model for example, or you may just wish to order the fields differently to how you've arranged your properties in the interface.
 
-To override the list of form fields, implement the optional -fields method of your form:
+To override the list of form fields, implement the optional `-fields` method of your form:
 
 ```objc
 - (NSArray *)fields
@@ -261,21 +261,21 @@ This is the placeholder value to display when the field value is nil or empty. T
 static NSString *const FXFormFieldOptions = @"options";
 ```
     
-For any field type, you can supply an array of supported values, which will override the standard field with a checklist of options to be selected instead. The options can be NSStrings, NSNumbers or any other object type. If you use a custom object for the values, you can provide a `-(NSString *)fieldDescription;` method to control how it is displayed in the list. See Form field options below for more details.
+For any field type, you can supply an array of supported values, which will override the standard field with a checklist of options to be selected instead. The options can be NSStrings, NSNumbers or any other object type. You can supply an `FXFormFieldValueTransformer` to control how the option values are displayed in the list. Alternatively, if you use a custom object for the values, you can implement the `-(NSString *)fieldDescription;` method to control how it is displayed. See Form field options below for more details.
 
 ```objc
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 ```
 
-Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The FXFormFieldValueTransformer property lets you specify either a conversion block or an NSValueTransformer to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance or NSValueTransformer or the name of an NSValueTransformer subclass.
+Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The `FXFormFieldValueTransformer` property lets you specify either a conversion block or an `NSValueTransformer` to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance of `NSValueTransformer` or the name of an `NSValueTransformer` subclass. If the form field has an options array, the value transformer will also be used to control how the options are displayed in the list.
 
 ```objc
 static NSString *const FXFormFieldAction = @"action";
 ```
     
-This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell upwards until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, or it's superview, or the view controller, or the app delegate, or even the window. If your form is presented as a subform of another form, yu can also implement actions methods for subforms in the view controller for their parent form.
+This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, it's superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
 
-For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the `FXFormField` model, and from that the form itself.
+For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the field model, and from that the form itself.
 
 ```objc
 static NSString *const FXFormFieldHeader = @"header";
@@ -429,7 +429,7 @@ This code would disable auto-capitalisation for the name field:
 }
 ```
     
-Cells are not recycled in the FXForm controller, so you don't need to worry about cleaning up any properties that you set in this way. Be careful of overusing "stringly typed" code such as this however as errors can't be caught at compile time. For heavy customisation, it is better to create cell subclasses and override properties in the `-setField:` method.
+Cells are not recycled in the FXForm controller, so you don't need to worry about cleaning up any properties that you set in this way. Be careful of overusing "stringly typed" code such as this however, as errors can't be caught at compile time. For heavy customisation, it is better to create cell subclasses and override properties in the `-setField:` method.
     
 
 Custom cells
@@ -447,7 +447,7 @@ Once you have created your custom cell, you can use it as follows:
 
 * If your cell is used only for a few specific fields, you can use the `FXFormFieldCell` property to use it for a particular form field
 * If your cell is designed to handle a particular field type (or types), you can tell the formController to use your custom cell class for a particular type using the `-registerCellClass:forFieldType:` method of FXFormController.
-* If you want to completely replace all cells with your own classes, use the `-registerDefaultFieldCellClass:` method of FXFormController. This replaces all default cell associations for all field types with your new cell class. You can then use `-registerCellClass:forFieldType:` to add additional cell classes for specific types.
+* If you want to completely replace all cells with your own classes, use the `-registerDefaultFieldCellClass:` method of `FXFormController`. This replaces all default cell associations for all field types with your new cell class. You can then use `-registerCellClass:forFieldType:` to add additional cell classes for specific types.
 
 
 Release notes
@@ -469,6 +469,8 @@ Version 1.1 beta
 - It is now possible to create completely virtual form objects by overriding setValue:forKey: to set properties
 - Added FXFormFieldViewController property for specifying custom form field view controllers
 - Added additional example projects to demonstrate the new features
+- Button-type fields (ones with only an action and no key) now have centered text by default
+- It is now possible to override UITableViewCellStyle without subclassing by using "style" key path in field config
 
 Version 1.0.2
 

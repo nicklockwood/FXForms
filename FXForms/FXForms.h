@@ -88,6 +88,11 @@ static NSString *const FXFormFieldTypeImage = @"image";
 - (NSArray *)fields;
 - (NSArray *)extraFields;
 
+// informal protocol:
+
+// - (NSDictionary *)<fieldKey>Field
+// - (NSString *)<fieldKey>FieldDescription
+
 @end
 
 
@@ -163,8 +168,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 
 @optional
 
-+ (CGFloat)heightForField:(FXFormField *)field;
 + (CGFloat)heightForField:(FXFormField *)field width:(CGFloat)width;
++ (CGFloat)heightForField:(FXFormField *)field;
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
 
 @end

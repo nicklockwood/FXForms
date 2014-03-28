@@ -270,8 +270,50 @@ static BOOL *FXFormOverridesSelector(id<FXForm> form, SEL selector)
     return NO;
 }
 
+static BOOL *FXFormCanGetValueForKey(id<FXForm> form, NSString *key)
+{
+    //has key?
+    if (![key length])
+    {
+        return NO;
+    }
+    
+    //does a property exist for it?
+    if ([[FXFormProperties(form) valueForKey:FXFormFieldKey] containsObject:key])
+    {
+        return YES;
+    }
+    
+    //is there a getter method for this key?
+    if ([form respondsToSelector:NSSelectorFromString(key)])
+    {
+        return YES;
+    }
+    
+    //does it override valurForKey?
+    if (FXFormOverridesSelector(form, @selector(valueForKey:)))
+    {
+        return YES;
+    }
+    
+    //does it override valueForUndefinedKey?
+    if (FXFormOverridesSelector(form, @selector(valueForUndefinedKey:)))
+    {
+        return YES;
+    }
+    
+    //it will probably crash
+    return NO;
+}
+
 static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
+    //has key?
+    if (![key length])
+    {
+        return NO;
+    }
+    
     //does a property exist for it?
     if ([[FXFormProperties(form) valueForKey:FXFormFieldKey] containsObject:key])
     {
@@ -584,7 +626,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (id)value
 {
-    if (self.key)
+    if (FXFormCanGetValueForKey(self.form, self.key))
     {
         id value = [(NSObject *)self.form valueForKey:self.key];
         if (!value && ([self.valueClass conformsToProtocol:@protocol(FXForm)] ||
@@ -600,7 +642,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (void)setValue:(id)value
 {
-    if (self.key && FXFormCanSetValueForKey(self.form, self.key))
+    if (FXFormCanSetValueForKey(self.form, self.key))
     {
         [(NSObject *)self.form setValue:value forKey:self.key];
     }
@@ -1238,16 +1280,28 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
 
-    //don't recycle cells - it would make things complicated
     Class cellClass = field.cell ?: [self cellClassForFieldType:field.type];
     NSString *nibName = NSStringFromClass(cellClass);
     if ([[NSBundle mainBundle] pathForResource:nibName ofType:@"nib"])
     {
+        //load cell from nib
         return [[[NSBundle mainBundle] loadNibNamed:nibName owner:nil options:nil] firstObject];
     }
     else
     {
-        return [[cellClass alloc] init];
+        //hackity-hack-hack
+        UITableViewCellStyle style = UITableViewCellStyleDefault;
+        if ([field valueForKeyPath:@"style"])
+        {
+            style = [[field valueForKeyPath:@"style"] integerValue];
+        }
+        else if (FXFormCanGetValueForKey(field.form, field.key))
+        {
+            style = UITableViewCellStyleValue1;
+        }
+
+        //don't recycle cells - it would make things complicated
+        return [[cellClass alloc] initWithStyle:style reuseIdentifier:nil];
     }
 }
 
@@ -1470,11 +1524,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 @synthesize field = _field;
 
-- (id)init
-{
-    return [self initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
-}
-
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     if ((self = [super initWithStyle:style reuseIdentifier:reuseIdentifier ?: NSStringFromClass([self class])]))
@@ -1487,6 +1536,14 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         [self setUp];
     }
     return self;
+}
+
+- (void)setValue:(id)value forKeyPath:(NSString *)keyPath
+{
+    if (![keyPath isEqualToString:@"style"])
+    {
+        [super setValue:value forKeyPath:keyPath];
+    }
 }
 
 - (void)setField:(FXFormField *)field
@@ -1528,6 +1585,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     else if (self.field.action)
     {
         self.accessoryType = UITableViewCellAccessoryNone;
+        self.textLabel.textAlignment = UITextAlignmentCenter;
     }
     else
     {
@@ -1666,15 +1724,15 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                          @"textField.secureTextEntry": ^(UITextField *f, NSInteger v){ f.secureTextEntry = !!v; }};
     });
 
-    if ([keyPath isEqualToString:@"textField.returnKeyType"])
-    {
-        //oh god, the hack, it burns
-        self.returnKeyOverridden = YES;
-    }
-    
     void (^block)(UITextField *f, NSInteger v) = specialCases[keyPath];
     if (block)
     {
+        if ([keyPath isEqualToString:@"textField.returnKeyType"])
+        {
+            //oh god, the hack, it burns
+            self.returnKeyOverridden = YES;
+        }
+        
         block(self.textField, [value integerValue]);
     }
     else
