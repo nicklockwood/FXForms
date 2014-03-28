@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 9
+//  Version 1.1 beta 10
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -495,6 +495,25 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         return nil;
     }
     
+    if ([self.type isEqual:FXFormFieldTypeBitfield])
+    {
+        NSUInteger value = [self.value integerValue];
+        NSMutableArray *options = [NSMutableArray array];
+        [self.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
+            NSUInteger bit = 1 << i;
+            if ([option isKindOfClass:[NSNumber class]])
+            {
+                bit = [option integerValue];
+            }
+            if (value & bit)
+            {
+                [options addObject:[self optionDescriptionAtIndex:i]];
+            }
+        }];
+        
+        return [options count]? [options fieldDescription]: nil;
+    }
+    
     if (self.valueTransformer)
     {
         return [self.valueTransformer(self.value) fieldDescription];
@@ -509,16 +528,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     if ([self.valueClass isSubclassOfClass:[NSDate class]])
     {
         return [[self dateFormatter] stringFromDate:self.value];
-    }
-    
-    if ([self.type isEqual:FXFormFieldTypeBitfield])
-    {
-        return [self.value integerValue]? @"": nil;
-    }
-    
-    if ([self isCollectionType])
-    {
-        return self.value? @"": nil;
     }
     
     return [self.value fieldDescription];
@@ -680,12 +689,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                                 FXFormFieldTitle: [field.placeholder fieldDescription],
                                 FXFormFieldType: FXFormFieldTypeOption}];
         }
-        [field.options enumerateObjectsUsingBlock:^(__unused id option, NSUInteger index, __unused BOOL *stop) {
-            
-            [fields addObject:@{FXFormFieldKey: [@(index) description],
-                                FXFormFieldTitle: [field optionDescriptionAtIndex:index],
+        for (NSUInteger i = 0; i < [field.options count]; i++)
+        {
+            [fields addObject:@{FXFormFieldKey: [@(i) description],
+                                FXFormFieldTitle: [field optionDescriptionAtIndex:i],
                                 FXFormFieldType: FXFormFieldTypeOption}];
-        }];
+        }
         _fields = fields;
     }
     return self;
@@ -923,6 +932,23 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         if ([self isKindOfClass:fieldClass])
         {
             return [self description];
+        }
+    }
+    for (Class fieldClass in @[[NSDictionary class], [NSArray class], [NSSet class], [NSOrderedSet class]])
+    {
+        if ([self isKindOfClass:fieldClass])
+        {
+            id collection = self;
+            if (fieldClass == [NSDictionary class])
+            {
+                collection = [collection allValues];
+            }
+            NSMutableArray *array = [NSMutableArray array];
+            for (id object in collection)
+            {
+                [array addObject:[object fieldDescription]];
+            }
+            return [array componentsJoinedByString:@", "];
         }
     }
     return @"";
