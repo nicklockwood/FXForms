@@ -2075,7 +2075,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     self.textLabel.text = self.field.title;
     self.switchControl.on = [self.field.value boolValue];
-    if (self.field.action) self.field.action(self);
 }
 
 - (UISwitch *)switchControl
