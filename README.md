@@ -453,7 +453,7 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
-Version 1.1 beta
+Version 1.1
 
 - Added support for multi-select option fields - just use a collection type such NSArray, NSSet or NSIndexSet for your options field
 - Added FXFormFieldTypeBitfield for NS_OPTIONS-type multi-select enum values
@@ -470,7 +470,7 @@ Version 1.1 beta
 - Added FXFormFieldViewController property for specifying custom form field view controllers
 - Added additional example projects to demonstrate the new features
 - Button-type fields (ones with only an action and no key) now have centered text by default
-- It is now possible to override UITableViewCellStyle without subclassing by using "style" key path in field config
+- It is now possible to override UITableViewCellStyle without subclassing by using "style" keypath in field config
 
 Version 1.0.2
 

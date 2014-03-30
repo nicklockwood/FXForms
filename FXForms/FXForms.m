@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1 beta 10
+//  Version 1.1
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
