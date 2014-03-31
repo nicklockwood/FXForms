@@ -57,6 +57,7 @@ static NSString *const FXFormFieldTypeText = @"text";
 static NSString *const FXFormFieldTypeLongText = @"longtext";
 static NSString *const FXFormFieldTypeURL = @"url";
 static NSString *const FXFormFieldTypeEmail = @"email";
+static NSString *const FXFormFieldTypePhone = @"phone";
 static NSString *const FXFormFieldTypePassword = @"password";
 static NSString *const FXFormFieldTypeNumber = @"number";
 static NSString *const FXFormFieldTypeInteger = @"integer";
