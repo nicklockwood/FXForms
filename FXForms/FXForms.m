@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1
+//  Version 1.1.1
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -488,7 +488,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (BOOL)isIndexedType
 {
     //return YES if value should be set as index of option, not value of option
-    if ([@[FXFormFieldTypeInteger, FXFormFieldTypeNumber] containsObject:self.type])
+    if ([self.valueClass isSubclassOfClass:[NSNumber class]])
     {
         return ![[self.options firstObject] isKindOfClass:[NSNumber class]];
     }
@@ -2376,13 +2376,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.pickerView.delegate = self;
 }
 
-- (BOOL)canBecomeFirstResponder
+- (void)update
 {
-    return YES;
-}
-
-- (BOOL)becomeFirstResponder
-{
+    self.textLabel.text = self.field.title;
+    self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
+    
     NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
     if (self.field.placeholder)
     {
@@ -2393,7 +2391,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         [self.pickerView selectRow:index inComponent:0 animated:NO];
     }
     
-    return [super becomeFirstResponder];
+    [self setNeedsLayout];
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
 }
 
 - (UIView *)inputView
@@ -2407,9 +2410,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
 }
 
-#pragma mark -
-#pragma mark UIPickerViewDataSource
-
 - (NSInteger)numberOfComponentsInPickerView:(__unused UIPickerView *)pickerView
 {
     return 1;
@@ -2419,9 +2419,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     return [self.field.options count] + (self.field.placeholder? 1: 0);
 }
-
-#pragma mark -
-#pragma mark UIPickerViewDelegate
 
 - (NSString *)pickerView:(__unused UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(__unused NSInteger)component
 {

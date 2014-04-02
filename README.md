@@ -453,6 +453,11 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.1.1
+
+- Fixed bug with indexed options fields
+- FXFormOptionPickerCell selected index is now set correctly when tabbing between fields
+
 Version 1.1
 
 - Added support for multi-select option fields - just use a collection type such NSArray, NSSet or NSIndexSet for your options field
