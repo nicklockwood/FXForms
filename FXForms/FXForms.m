@@ -772,7 +772,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
         if (index == NSNotFound)
         {
-            return @(![self.field.value count]);
+            return @(![(NSArray *)self.field.value count]);
         }
         else if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
         {
