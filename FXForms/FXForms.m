@@ -2381,15 +2381,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return YES;
 }
 
-- (UIView *)inputView
+- (BOOL)becomeFirstResponder
 {
-    return self.pickerView;
-}
-
-- (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
-{
-    [self becomeFirstResponder];
-    
     NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
     if (self.field.placeholder)
     {
@@ -2400,6 +2393,17 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         [self.pickerView selectRow:index inComponent:0 animated:NO];
     }
     
+    return [super becomeFirstResponder];
+}
+
+- (UIView *)inputView
+{
+    return self.pickerView;
+}
+
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
+{
+    [self becomeFirstResponder];
     [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
 }
 
