@@ -347,6 +347,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 @property (nonatomic, copy) NSArray *sections;
 @property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldTypes;
+@property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldClasses;
 @property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
 
 - (void)performAction:(SEL)selector withSender:(id)sender;
@@ -1063,6 +1064,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                                        FXFormFieldTypeDateTime: [FXFormDatePickerCell class],
                                        FXFormFieldTypeImage: [FXFormImagePickerCell class]} mutableCopy];
         
+        _cellClassesForFieldClasses = [@{FXFormFieldTypeDefault: [FXFormBaseCell class]} mutableCopy];
+        
         _controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
                 
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -1083,11 +1086,20 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (Class)cellClassForFieldType:(NSString *)fieldType
+- (Class)cellClassForField:(FXFormField*)field
 {
-    return self.cellClassesForFieldTypes[fieldType] ?:
-    self.parentFormController.cellClassesForFieldTypes[fieldType] ?:
-    self.cellClassesForFieldTypes[FXFormFieldTypeDefault];
+    if (field.type != FXFormFieldTypeDefault) {
+
+        return self.cellClassesForFieldTypes[field.type] ?:
+        self.parentFormController.cellClassesForFieldTypes[field.type] ?:
+        self.cellClassesForFieldTypes[FXFormFieldTypeDefault];
+
+    } else {
+        
+        return self.cellClassesForFieldClasses[NSStringFromClass(field.valueClass)] ?:
+        self.parentFormController.cellClassesForFieldClasses[NSStringFromClass(field.valueClass)] ?:
+         self.cellClassesForFieldClasses[FXFormFieldTypeDefault];
+    }
 }
 
 - (void)registerDefaultFieldCellClass:(Class)cellClass
@@ -1100,6 +1112,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     NSParameterAssert([cellClass conformsToProtocol:@protocol(FXFormFieldCell)]);
     self.cellClassesForFieldTypes[fieldType] = cellClass;
+}
+
+- (void)registerCellClass:(Class)cellClass forClassName:(NSString*)fieldClassName
+{
+    NSParameterAssert([cellClass conformsToProtocol:@protocol(FXFormFieldCell)]);
+    self.cellClassesForFieldClasses[fieldClassName] = cellClass;
 }
 
 - (Class)viewControllerClassForFieldType:(NSString *)fieldType
@@ -1264,7 +1282,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
-    Class cellClass = field.cell ?: [self cellClassForFieldType:field.type];
+    Class cellClass = field.cell ?: [self cellClassForField:field];
     if ([cellClass respondsToSelector:@selector(heightForField:width:)])
     {
         return [cellClass heightForField:field width:self.tableView.frame.size.width];
@@ -1280,7 +1298,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
 
-    Class cellClass = field.cell ?: [self cellClassForFieldType:field.type];
+    //don't recycle cells - it would make things complicated
+    Class cellClass = field.cell ?: [self cellClassForField:field];
     NSString *nibName = NSStringFromClass(cellClass);
     if ([[NSBundle mainBundle] pathForResource:nibName ofType:@"nib"])
     {
