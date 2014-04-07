@@ -453,6 +453,14 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.1.2
+
+- Fixed incorrect forwarding of scrollViewWillBeginDragging event
+- Fields of type FXFormFieldTypeBitfield are now handled correctly again  (broken in 1.1.1)
+- It is now possible to create custom cell classes without inheriting all the standard styling logic
+- Added example of creating a custom form cell subclass using a nib file (CustomButtonExample)
+- FXForms will no longer try to auto-instantiate NSManagedObjects if they are nil (this would crash previously)
+
 Version 1.1.1
 
 - Fixed bug with indexed options fields
