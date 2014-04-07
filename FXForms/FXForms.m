@@ -1351,7 +1351,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     //forward to delegate
     if ([self.delegate respondsToSelector:_cmd])
     {
-        [self.delegate scrollViewDidScroll:scrollView];
+        [self.delegate scrollViewWillBeginDragging:scrollView];
     }
 }
 
