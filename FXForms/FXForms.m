@@ -2459,3 +2459,95 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 }
 
 @end
+
+
+@interface FXFormOptionSegmentsCell ()
+
+@property (nonatomic, strong, readwrite) UISegmentedControl *segmentedControl;
+
+@end
+
+
+@implementation FXFormOptionSegmentsCell
+
+- (void)setUp
+{
+    [super setUp];
+    
+    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[]];
+    [self.segmentedControl addTarget:self action:@selector(valueChanged) forControlEvents:UIControlEventValueChanged];
+    [self.contentView addSubview:self.segmentedControl];
+    
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    CGRect segmentedControlFrame = self.segmentedControl.frame;
+    segmentedControlFrame.origin.x = self.textLabel.frame.origin.x + self.textLabel.frame.size.width + FXFormFieldPaddingLeft;
+    segmentedControlFrame.origin.y = (self.contentView.frame.size.height - segmentedControlFrame.size.height) / 2;
+    segmentedControlFrame.size.width = self.contentView.bounds.size.width - segmentedControlFrame.origin.x - FXFormFieldPaddingRight;
+    self.segmentedControl.frame = segmentedControlFrame;
+}
+
+- (void)update
+{
+    self.textLabel.text = self.field.title;
+    
+    [self updateSegmentedControlOptions];
+    
+    NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
+    if (self.field.placeholder)
+    {
+        index = (index == NSNotFound)? 0: index + 1;
+    }
+    if (index == NSNotFound)
+    {
+        [self.segmentedControl setSelectedSegmentIndex:UISegmentedControlNoSegment];
+    }
+    else
+    {
+        [self.segmentedControl setSelectedSegmentIndex:index];
+    }
+    
+    [self setNeedsLayout];
+}
+
+- (void)updateSegmentedControlOptions {
+    for (NSInteger index=self.segmentedControl.numberOfSegments; index >= 0; index--) {
+        [self.segmentedControl removeSegmentAtIndex:index animated:NO];
+    }
+    
+    NSInteger index = 0;
+    // if there's a placeholder, add it as an option
+    if (self.field.placeholder)
+    {
+        [self.segmentedControl insertSegmentWithTitle:[self.field.placeholder fieldDescription] atIndex:index animated:NO];
+        index++;
+    }
+    
+    // add the rest of the options
+    for (id option in self.field.options) {
+        [self.segmentedControl insertSegmentWithTitle:[self.field valueDescription:option] atIndex:index animated:NO];
+        index++;
+    }
+}
+
+- (void)valueChanged
+{
+    NSInteger selectedSegmentIndex = self.segmentedControl.selectedSegmentIndex;
+    
+    id value = nil;
+    if (!self.field.placeholder || selectedSegmentIndex > 0)
+    {
+        value = self.field.options[selectedSegmentIndex - (self.field.placeholder? 1: 0)];
+    }
+    
+    self.field.value = value;
+    
+    if (self.field.action) self.field.action(self);
+}
+
+@end
