@@ -107,6 +107,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
 @property (nonatomic, strong) id value;
+@property (nonatomic, assign, readonly, getter = isSubform) BOOL subform;
 
 @end
 

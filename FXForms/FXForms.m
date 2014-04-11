@@ -701,6 +701,13 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     _options = [options copy];
 }
 
+- (BOOL)isSubform {
+    return (![self.type isEqualToString:FXFormFieldTypeLabel] &&
+            ([self.valueClass conformsToProtocol:@protocol(FXForm)] ||
+             [self.valueClass isSubclassOfClass:[UIViewController class]] ||
+             [self.options count] || self.viewController));
+}
+
 #pragma mark -
 #pragma mark Option cell Helpers
 
@@ -1577,9 +1584,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         self.textLabel.text = self.field.title;
         self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
         
-        if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)] ||
-            [self.field.valueClass isSubclassOfClass:[UIViewController class]] ||
-            [self.field.options count] || self.field.viewController)
+        if (self.field.isSubform)
         {
             self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
@@ -1669,7 +1674,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
     }
-    else if (self.field.viewController || [self.field.options count] || [self.field.valueClass conformsToProtocol:@protocol(FXForm)])
+    else if (self.field.isSubform)
     {
         [FXFormsFirstResponder(tableView) resignFirstResponder];
         UIViewController <FXFormFieldViewController> *subcontroller = [[self.field.viewController ?: [FXFormViewController class] alloc] init];
