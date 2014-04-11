@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1.2
+//  Version 1.1.3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -409,12 +409,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             dictionary = [NSMutableDictionary dictionary];
             NSString *key = dictionaryOrKey[FXFormFieldKey];
             [dictionary addEntriesFromDictionary:fieldDictionariesByKey[key]];
+            [dictionary addEntriesFromDictionary:dictionaryOrKey];
             NSString *selector = [key stringByAppendingString:@"Field"];
             if ([form respondsToSelector:NSSelectorFromString(selector)])
             {
                 [dictionary addEntriesFromDictionary:[(NSObject *)form valueForKey:selector]];
             }
-            [dictionary addEntriesFromDictionary:dictionaryOrKey];
             if ([dictionary[FXFormFieldClass] isKindOfClass:[NSString class]])
             {
                 dictionary[FXFormFieldClass] = NSClassFromString(dictionary[FXFormFieldClass]);
@@ -1548,6 +1548,15 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if ((self = [super initWithCoder:aDecoder]))
+    {
+        [self setUp];
+    }
+    return self;
+}
+
 - (void)setValue:(id)value forKeyPath:(NSString *)keyPath
 {
     if (![keyPath isEqualToString:@"style"])
@@ -1577,9 +1586,17 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
         self.textLabel.text = self.field.title;
         self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
         
-        if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)] ||
-            [self.field.valueClass isSubclassOfClass:[UIViewController class]] ||
-            [self.field.options count] || self.field.viewController)
+        if ([self.field.type isEqualToString:FXFormFieldTypeLabel])
+        {
+            self.accessoryType = UITableViewCellAccessoryNone;
+            if (!self.field.action)
+            {
+                self.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+        }
+        else if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)] ||
+                 [self.field.valueClass isSubclassOfClass:[UIViewController class]] ||
+                 [self.field.options count] || self.field.viewController)
         {
             self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
@@ -1668,6 +1685,10 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             //deselect the cell
             [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeLabel])
+    {
+        //do nothing
     }
     else if (self.field.viewController || [self.field.options count] || [self.field.valueClass conformsToProtocol:@protocol(FXForm)])
     {
