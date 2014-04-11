@@ -504,6 +504,14 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return NO;
 }
 
+- (BOOL)isSubform
+{
+    return (![self.type isEqualToString:FXFormFieldTypeLabel] &&
+            ([self.valueClass conformsToProtocol:@protocol(FXForm)] ||
+             [self.valueClass isSubclassOfClass:[UIViewController class]] ||
+             [self.options count] || self.viewController));
+}
+
 - (NSString *)valueDescription:(id)value
 {
     if (self.valueTransformer)
@@ -1594,9 +1602,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                 self.selectionStyle = UITableViewCellSelectionStyleNone;
             }
         }
-        else if ([self.field.valueClass conformsToProtocol:@protocol(FXForm)] ||
-                 [self.field.valueClass isSubclassOfClass:[UIViewController class]] ||
-                 [self.field.options count] || self.field.viewController)
+        else if ([self.field isSubform])
         {
             self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
@@ -1686,22 +1692,19 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
     }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeLabel])
-    {
-        //do nothing
-    }
-    else if (self.field.viewController || [self.field.options count] || [self.field.valueClass conformsToProtocol:@protocol(FXForm)])
+    else if ([self.field isSubform])
     {
         [FXFormsFirstResponder(tableView) resignFirstResponder];
-        UIViewController <FXFormFieldViewController> *subcontroller = [[self.field.viewController ?: [FXFormViewController class] alloc] init];
-        subcontroller.field = self.field;
-        if (!subcontroller.title) subcontroller.title = self.field.title;
-        [controller.navigationController pushViewController:subcontroller animated:YES];
-    }
-    else if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])
-    {
-        [FXFormsFirstResponder(tableView) resignFirstResponder];
-        UIViewController *subcontroller = self.field.value;
+        UIViewController *subcontroller = nil;
+        if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])
+        {
+            subcontroller = self.field.value;
+        }
+        else
+        {
+            subcontroller = [[self.field.viewController ?: [FXFormViewController class] alloc] init];
+            ((id <FXFormFieldViewController>)subcontroller).field = self.field;
+        }
         if (!subcontroller.title) subcontroller.title = self.field.title;
         [controller.navigationController pushViewController:subcontroller animated:YES];
     }
