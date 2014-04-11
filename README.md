@@ -453,6 +453,13 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.1.3
+
+- using <propertyName>Field method to set form properties is no longer overridden by defaults
+- Only mess with the content inset/offset when the view controller is not a UITableViewController
+- It should now be easier to use nibs to lay out cell subclasses without losing standard functionality
+- Using FXFormFieldTypeLabel now works more consistently
+
 Version 1.1.2
 
 - Fixed incorrect forwarding of scrollViewWillBeginDragging event

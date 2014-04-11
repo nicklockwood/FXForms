@@ -1,6 +1,6 @@
 FXForms
 
-version 1.1.2, April 7th, 2014
+version 1.1.3, April 11th, 2014
 
 Copyright (C) 2014 Charcoal Design
 
