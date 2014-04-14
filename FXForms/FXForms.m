@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1.3
+//  Version 1.1.4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -1089,6 +1089,9 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (void)dealloc
 {
+    _tableView.dataSource = nil;
+    _tableView.delegate = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -1441,6 +1444,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 @synthesize field = _field;
 
+- (void)dealloc
+{
+    _formController.delegate = nil;
+}
+
 - (void)setField:(FXFormField *)field
 {
     _field = field;
@@ -1520,13 +1528,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 #pragma mark -
 #pragma mark Views
-
-
-@interface FXFormBaseCell ()
-
-@property (nonatomic, strong) UITextField *textField;
-
-@end
 
 
 @implementation FXFormBaseCell
@@ -1737,6 +1738,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [self.contentView addSubview:self.textField];
     
     [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textField action:NSSelectorFromString(@"becomeFirstResponder")]];
+}
+
+- (void)dealloc
+{
+    _textField.delegate = nil;
 }
 
 - (void)setValue:(id)value forKeyPath:(NSString *)keyPath
@@ -1950,11 +1956,20 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
     self.textView.font = [UIFont systemFontOfSize:17];
     self.textView.textColor = [UIColor colorWithRed:0.275f green:0.376f blue:0.522f alpha:1.000f];
+    self.textView.backgroundColor = [UIColor clearColor];
     self.textView.delegate = self;
     self.textView.scrollEnabled = NO;
     [self.contentView addSubview:self.textView];
     
+    self.detailTextLabel.textAlignment = UITextAlignmentLeft;
+    self.detailTextLabel.numberOfLines = 0;
+    
     [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textView action:NSSelectorFromString(@"becomeFirstResponder")]];
+}
+
+- (void)dealloc
+{
+    _textView.delegate = nil;
 }
 
 - (void)layoutSubviews
@@ -1976,8 +1991,11 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
 		textViewFrame.origin.y = self.textLabel.frame.origin.y;
 	}
-    
 	self.textView.frame = textViewFrame;
+    
+    textViewFrame.origin.x += 5;
+    textViewFrame.size.width -= 5;
+    self.detailTextLabel.frame = textViewFrame;
     
     CGRect contentViewFrame = self.contentView.frame;
     contentViewFrame.size.height = self.textView.frame.origin.y + self.textView.frame.size.height + FXFormFieldPaddingBottom;
@@ -1987,6 +2005,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.detailTextLabel.text = self.field.placeholder;
     self.textView.text = [self.field fieldDescription];
     
     self.textView.returnKeyType = UIReturnKeyDefault;
@@ -2033,25 +2052,21 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [self.textView selectAll:nil];
 }
 
-- (void)textViewDidChange:(__unused UITextView *)textView
+- (void)textViewDidChange:(UITextView *)textView
 {
     [self updateFieldValue];
-    // resize the tableview if required
-    id responder = [self nextResponder];
-    while (responder)
-    {
-        if ([responder respondsToSelector:@selector(beginUpdates)] &&
-            [responder respondsToSelector:@selector(endUpdates)])
-        {
-            [responder beginUpdates];
-            [responder endUpdates];
-            
-            CGRect caretRect = [self.textView caretRectForPosition:self.textView.selectedTextRange.end];
-            [responder scrollRectToVisible:[responder convertRect:caretRect fromView:self.textView] animated:YES];
-            break;
-        }
-        responder = [responder nextResponder];
-    }
+    
+    //show/hide placeholder
+    self.detailTextLabel.hidden = ([textView.text length] > 0);
+    
+    //resize the tableview if required
+    UITableView *tableView = [self tableView];
+    [tableView beginUpdates];
+    [tableView endUpdates];
+    
+    //scroll to show cursor
+    CGRect cursorRect = [self.textView caretRectForPosition:self.textView.selectedTextRange.end];
+    [tableView scrollRectToVisible:[tableView convertRect:cursorRect fromView:self.textView] animated:YES];
 }
 
 - (void)textViewDidEndEditing:(__unused UITextView *)textView
@@ -2087,7 +2102,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (BOOL)becomeFirstResponder
 {
-    return [self.textField becomeFirstResponder];
+    return [self.textView becomeFirstResponder];
 }
 
 @end
@@ -2305,15 +2320,19 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     [self setNeedsLayout];
 }
 
+- (void)dealloc
+{
+    _imagePickerController.delegate = nil;
+}
+
 - (void)layoutSubviews
 {
-    [super layoutSubviews];
-    
-    CGRect frame = self.imagePickerView.frame;
+    CGRect frame = self.imagePickerView.bounds;
     frame.size.height = self.bounds.size.height - 10;
-    frame.size.width = self.imagePickerView.image? self.imagePickerView.image.size.width / self.imagePickerView.image.size.height: 0;
-    frame.size.width = MIN(self.bounds.size.width - self.textLabel.frame.origin.x - self.textField.frame.size.width - FXFormFieldPaddingLeft, MAX(frame.size.height, frame.size.width));
-    self.imagePickerView.frame = frame;
+    frame.size.width = self.imagePickerView.image? self.imagePickerView.image.size.width / frame.size.height: 0;
+    self.imagePickerView.bounds = frame;
+    
+    [super layoutSubviews];
 }
 
 - (void)update
@@ -2409,6 +2428,12 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     self.pickerView = [[UIPickerView alloc] init];
     self.pickerView.dataSource = self;
     self.pickerView.delegate = self;
+}
+
+- (void)dealloc
+{
+    _pickerView.dataSource = nil;
+    _pickerView.delegate = nil;
 }
 
 - (void)update

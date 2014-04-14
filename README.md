@@ -453,9 +453,15 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.1.4
+
+- FXForms now nils out all control delegates & datasources correctly to prevent crashes when form is dismissed
+- The FXFormImagePickerCell image is no longer drawn with incorrect alignment
+- FXFormTextViewCell can now display placeholder text when empty
+
 Version 1.1.3
 
-- using <propertyName>Field method to set form properties is no longer overridden by defaults
+- Using <propertyName>Field method to set form properties is no longer overridden by defaults
 - Only mess with the content inset/offset when the view controller is not a UITableViewController
 - It should now be easier to use nibs to lay out cell subclasses without losing standard functionality
 - Using FXFormFieldTypeLabel now works more consistently
