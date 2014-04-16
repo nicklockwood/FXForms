@@ -411,7 +411,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             [dictionary addEntriesFromDictionary:fieldDictionariesByKey[key]];
             [dictionary addEntriesFromDictionary:dictionaryOrKey];
             NSString *selector = [key stringByAppendingString:@"Field"];
-            if ([form respondsToSelector:NSSelectorFromString(selector)])
+            if (selector && [form respondsToSelector:NSSelectorFromString(selector)])
             {
                 [dictionary addEntriesFromDictionary:[(NSObject *)form valueForKey:selector]];
             }
@@ -556,7 +556,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 - (NSString *)fieldDescription
 {
     NSString *descriptionKey = [self.key stringByAppendingString:@"FieldDescription"];
-    if ([self.form respondsToSelector:NSSelectorFromString(descriptionKey)])
+    if (descriptionKey && [self.form respondsToSelector:NSSelectorFromString(descriptionKey)])
     {
         return [(NSObject *)self.form valueForKey:descriptionKey];
     }
