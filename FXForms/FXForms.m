@@ -1566,7 +1566,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     {
         [self.tableView reloadData];
         [self.tableView selectRowAtIndexPath:selected animated:NO scrollPosition:UITableViewScrollPositionNone];
-        [self.tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+        [self.tableView deselectRowAtIndexPath:selected animated:YES];
     }
 }
 
@@ -1719,7 +1719,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     {
         [FXFormsFirstResponder(tableView) resignFirstResponder];
         if (self.field.action) self.field.action(self);
-        [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+        [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
     }
     else if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
     {
@@ -1737,7 +1737,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
         else
         {
             //deselect the cell
-            [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+            [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
         }
     }
     else if ([self.field isSubform])
@@ -2339,7 +2339,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
 {
     [self becomeFirstResponder];
-    [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+    [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
 }
 
 @end
@@ -2436,7 +2436,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
     [self becomeFirstResponder];
-    [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+    [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
     [controller presentViewController:self.imagePickerController animated:YES completion:NULL];
 }
 
@@ -2514,7 +2514,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
 {
     [self becomeFirstResponder];
-    [tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+    [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
 }
 
 - (NSInteger)numberOfComponentsInPickerView:(__unused UIPickerView *)pickerView
