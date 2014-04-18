@@ -352,12 +352,18 @@ static NSString *const FXFormFieldTypeNumber = @"number";
 ```
     
 Like `FXFormFieldTypeText`, but with a numeric keyboard, and input restricted to a valid number.
-    
+
 ```objc
 static NSString *const FXFormFieldTypeInteger = @"integer";
 ```
     
 Like `FXFormFieldTypeNumber`, but restricted to integer input.
+
+```objc
+static NSString *const FXFormFieldTypeFloat = @"float";
+```
+    
+Like `FXFormFieldTypeNumber`, but indicates value is primitive (not-nillable)
     
 ```objc
 static NSString *const FXFormFieldTypeBoolean = @"boolean";
@@ -473,6 +479,15 @@ Once you have created your custom cell, you can use it as follows:
 
 Release notes
 --------------
+
+Version 1.1.6
+
+- Options fields with numeric values are now correctly displayed
+- Action block will now be called when an options field is updated
+- Action blocks are no longer called when tapping subform field cells
+- Fixed crash when using placeholder values with options fields
+- Added FXFormFieldTypeFloat
+- Added dependent fields example
 
 Version 1.1.5
 

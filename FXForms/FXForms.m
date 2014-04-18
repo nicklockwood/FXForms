@@ -453,7 +453,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
             if (([(NSArray *)dictionary[FXFormFieldOptions] count] || dictionary[FXFormFieldViewController])
-                && [dictionaryOrKey[FXFormFieldType] isEqualToString:fieldDictionariesByKey[key][FXFormFieldType]]
+                && [dictionary[FXFormFieldType] isEqualToString:fieldDictionariesByKey[key][FXFormFieldType]]
                 && ![dictionary[FXFormFieldInline] boolValue])
             {
                 //TODO: is there a better way to force non-inline cells to use base cell?
@@ -782,18 +782,34 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     if ((self = [super init]))
     {
         _field = field;
+        id action = ^(__unused id sender)
+        {
+            if (field.action)
+            {
+                //this nasty hack is neccesary to pass the expected cell as the sender
+                FXFormController *formController = field.formController;
+                [formController enumerateFieldsWithBlock:^(FXFormField *f, NSIndexPath *indexPath) {
+                    if ([f.key isEqual:field.key])
+                    {
+                        field.action([formController.tableView cellForRowAtIndexPath:indexPath]);
+                    }
+                }];
+            }
+        };
         NSMutableArray *fields = [NSMutableArray array];
         if (field.placeholder)
         {
             [fields addObject:@{FXFormFieldKey: [@(NSNotFound) description],
                                 FXFormFieldTitle: [field.placeholder fieldDescription],
-                                FXFormFieldType: FXFormFieldTypeOption}];
+                                FXFormFieldType: FXFormFieldTypeOption,
+                                FXFormFieldAction: action}];
         }
         for (NSUInteger i = 0; i < [field.options count]; i++)
         {
             [fields addObject:@{FXFormFieldKey: [@(i) description],
                                 FXFormFieldTitle: [field optionDescriptionAtIndex:i],
-                                FXFormFieldType: FXFormFieldTypeOption}];
+                                FXFormFieldType: FXFormFieldTypeOption,
+                                FXFormFieldAction: action}];
         }
         _fields = fields;
     }
@@ -1112,6 +1128,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                                        FXFormFieldTypeEmail: [FXFormTextFieldCell class],
                                        FXFormFieldTypePassword: [FXFormTextFieldCell class],
                                        FXFormFieldTypeNumber: [FXFormTextFieldCell class],
+                                       FXFormFieldTypeFloat: [FXFormTextFieldCell class],
                                        FXFormFieldTypeInteger: [FXFormTextFieldCell class],
                                        FXFormFieldTypeBoolean: [FXFormSwitchCell class],
                                        FXFormFieldTypeDate: [FXFormDatePickerCell class],
@@ -1371,10 +1388,15 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
 
+    //configure cell before setting field (in case it affects how value is displayed)
+    [field.cellConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, __unused BOOL *stop) {
+        [cell setValue:value forKeyPath:keyPath];
+    }];
+    
     //set form field
     ((id<FXFormFieldCell>)cell).field = field;
     
-    //configure cell
+    //configure cell after setting field as well (not ideal, but allows overriding keyboard attributes, etc)
     [field.cellConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, __unused BOOL *stop) {
         [cell setValue:value forKeyPath:keyPath];
     }];
@@ -1715,15 +1737,11 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
-    if (self.field.action)
+    if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
     {
         [FXFormsFirstResponder(tableView) resignFirstResponder];
-        if (self.field.action) self.field.action(self);
-        [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
-    }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
-    {
         self.field.value = @(![self.field.value boolValue]);
+        if (self.field.action) self.field.action(self);
         self.accessoryType = [self.field.value boolValue]? UITableViewCellAccessoryCheckmark: UITableViewCellAccessoryNone;
         if ([self.field.type isEqualToString:FXFormFieldTypeOption])
         {
@@ -1755,6 +1773,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
         }
         if (!subcontroller.title) subcontroller.title = self.field.title;
         [controller.navigationController pushViewController:subcontroller animated:YES];
+    }
+    else if (self.field.action)
+    {
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
+        self.field.action(self);
+        [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
     }
 }
 
