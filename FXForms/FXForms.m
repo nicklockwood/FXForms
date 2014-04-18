@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1.5
+//  Version 1.1.6
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -215,7 +215,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                     case 'd':
                     {
                         valueClass = [NSNumber class];
-                        valueType = FXFormFieldTypeNumber;
+                        valueType = FXFormFieldTypeFloat;
                         break;
                     }
                     case '{': //struct
@@ -342,6 +342,31 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return NO;
 }
 
+static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
+{
+    if (FXFormCanSetValueForKey(form, key))
+    {
+        if (!value)
+        {
+            for (NSDictionary *field in FXFormProperties(form))
+            {
+                if ([field[FXFormFieldKey] isEqualToString:key])
+                {
+                    if ([@[FXFormFieldTypeBoolean, FXFormFieldTypeInteger, FXFormFieldTypeFloat] containsObject:field[FXFormFieldType]])
+                    {
+                        //prevents NSInvalidArgumentException in setNilValueForKey: method
+                        value = @0;
+                    }
+                    break;
+                }
+            }
+        }
+        [(NSObject *)form setValue:value forKey:key];
+        return YES;
+    }
+    return NO;
+}
+
 
 @interface FXFormController () <UITableViewDataSource, UITableViewDelegate>
 
@@ -428,7 +453,8 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
             if (([(NSArray *)dictionary[FXFormFieldOptions] count] || dictionary[FXFormFieldViewController])
-                && ![dictionary[FXFormFieldInline] boolValue] && !dictionaryOrKey[FXFormFieldType])
+                && [dictionaryOrKey[FXFormFieldType] isEqualToString:fieldDictionariesByKey[key][FXFormFieldType]]
+                && ![dictionary[FXFormFieldInline] boolValue])
             {
                 //TODO: is there a better way to force non-inline cells to use base cell?
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
@@ -617,6 +643,10 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
             
             return [options count]? [options fieldDescription]: nil;
         }
+        else if (self.placeholder && ![self.options containsObject:self.value])
+        {
+            return [self.placeholder description];
+        }
     }
     
     return [self valueDescription:self.value];
@@ -642,7 +672,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
                        [self.valueClass isSubclassOfClass:[UIViewController class]]))
         {
             value = [[self.valueClass alloc] init];
-            [(NSObject *)self.form setValue:value forKey:self.key];
+            FXFormSetValueForKey(self.form, value, self.key);
         }
         return value;
     }
@@ -651,10 +681,7 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 
 - (void)setValue:(id)value
 {
-    if (FXFormCanSetValueForKey(self.form, self.key))
-    {
-        [(NSObject *)self.form setValue:value forKey:self.key];
-    }
+    FXFormSetValueForKey(self.form, value, self.key);
 }
 
 - (void)setValueTransformer:(id)valueTransformer
@@ -816,9 +843,13 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
         return @(index == [self.field.value integerValue]);
     }
+    else if (value)
+    {
+        return @([value isEqual:self.field.value]);
+    }
     else
     {
-        return @(value == self.field.value || [value isEqual:self.field.value]);
+        return @(![self.field.options containsObject:self.field.value]);
     }
 }
 
@@ -910,9 +941,25 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     {
         self.field.value = @(index);
     }
+    else if (index != NSNotFound)
+    {
+        self.field.value = self.field.options[index];
+    }
     else
     {
-        self.field.value = (index != NSNotFound)? self.field.options[index]: nil;
+        value = nil;
+        for (NSDictionary *field in FXFormProperties(self.field.form))
+        {
+            if ([field[FXFormFieldKey] isEqualToString:self.field.key])
+            {
+                if ([field[FXFormFieldType] isEqualToString:FXFormFieldTypeInteger])
+                {
+                    value = @(NSNotFound);
+                }
+                break;
+            }
+        }
+        self.field.value = value;
     }
 }
 
