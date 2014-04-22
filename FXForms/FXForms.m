@@ -1684,7 +1684,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
         else if (self.field.action)
         {
             self.accessoryType = UITableViewCellAccessoryNone;
-            self.textLabel.textAlignment = UITextAlignmentCenter;
+            self.textLabel.textAlignment = NSTextAlignmentCenter;
         }
         else
         {
