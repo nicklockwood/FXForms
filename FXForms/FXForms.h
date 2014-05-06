@@ -108,6 +108,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) void (^action)(id sender);
 @property (nonatomic, strong) id value;
 
+- (NSString *)optionDescriptionAtIndex:(NSUInteger)index;
+
 @end
 
 
