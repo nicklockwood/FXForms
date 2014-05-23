@@ -2369,9 +2369,11 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 @end
 
 
-@interface FXFormImagePickerCell () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@interface FXFormImagePickerCell () <UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
+@property (nonatomic, strong) UIActionSheet *actionSheet;
+@property (nonatomic, weak) UIViewController *controller;
 
 @end
 
@@ -2394,13 +2396,14 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 - (void)dealloc
 {
     _imagePickerController.delegate = nil;
+    _actionSheet.delegate = nil;
 }
 
 - (void)layoutSubviews
 {
     CGRect frame = self.imagePickerView.bounds;
     frame.size.height = self.bounds.size.height - 10;
-    frame.size.width = self.imagePickerView.image? self.imagePickerView.image.size.width / frame.size.height: 0;
+    frame.size.width = self.imagePickerView.image ? frame.size.height : 0;
     self.imagePickerView.bounds = frame;
     
     [super layoutSubviews];
@@ -2437,9 +2440,18 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     {
         _imagePickerController = [[UIImagePickerController alloc] init];
         _imagePickerController.delegate = self;
+        _imagePickerController.allowsEditing = YES;
         [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
     }
     return _imagePickerController;
+}
+
+- (UIActionSheet *)actionSheet
+{
+    if (!_actionSheet) {
+        _actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Camera", nil), NSLocalizedString(@"Library", nil), nil];
+    }
+    return _actionSheet;
 }
 
 - (UIImageView *)imagePickerView
@@ -2461,7 +2473,8 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 {
     [self becomeFirstResponder];
     [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
-    [controller presentViewController:self.imagePickerController animated:YES completion:NULL];
+    [self.actionSheet showInView:controller.view];
+    self.controller = controller;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
@@ -2478,6 +2491,28 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     [self setNeedsLayout];
     
     if (self.field.action) self.field.action(self);
+}
+
+- (void)actionSheet:(__unused UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    BOOL sourceTypeAvailable = NO;
+    switch (buttonIndex) {
+        case 0: {
+            sourceTypeAvailable = [self setSourceType:UIImagePickerControllerSourceTypeCamera];
+            break;
+        }
+        case 1: {
+            sourceTypeAvailable = [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+            break;
+        }
+        default: {
+            return;
+        }
+    }
+    
+    if (sourceTypeAvailable) {
+        [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
+    }
 }
 
 @end
