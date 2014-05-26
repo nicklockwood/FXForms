@@ -1143,11 +1143,11 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                                        FXFormFieldTypeDateTime: [FXFormDatePickerCell class],
                                        FXFormFieldTypeImage: [FXFormImagePickerCell class]} mutableCopy];
         
-        _cellClassesForFieldClasses = [@{@"NSObject": [FXFormBaseCell class]} mutableCopy];
+        _cellClassesForFieldClasses = [NSMutableDictionary dictionary];
         
         _controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
         
-        _controllerClassesForFieldClasses = [@{@"NSObject": [FXFormViewController class]} mutableCopy];
+        _controllerClassesForFieldClasses = [NSMutableDictionary dictionary];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillShow:)
@@ -2707,21 +2707,25 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     [self setNeedsLayout];
 }
 
-- (void)updateSegmentedControlOptions {
-    for (NSInteger index=self.segmentedControl.numberOfSegments; index >= 0; index--) {
+- (void)updateSegmentedControlOptions
+{
+    for (NSInteger index = self.segmentedControl.numberOfSegments; index >= 0; index--)
+    {
         [self.segmentedControl removeSegmentAtIndex:index animated:NO];
     }
     
     NSInteger index = 0;
-    // if there's a placeholder, add it as an option
+    
+    //if there's a placeholder, add it as an option
     if (self.field.placeholder)
     {
         [self.segmentedControl insertSegmentWithTitle:[self.field.placeholder fieldDescription] atIndex:index animated:NO];
         index++;
     }
     
-    // add the rest of the options
-    for (id option in self.field.options) {
+    //add the rest of the options
+    for (id option in self.field.options)
+    {
         [self.segmentedControl insertSegmentWithTitle:[self.field valueDescription:option] atIndex:index animated:NO];
         index++;
     }
@@ -2740,6 +2744,11 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     self.field.value = value;
     
     if (self.field.action) self.field.action(self);
+}
+
+- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
+{
+    //does nothing
 }
 
 @end

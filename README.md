@@ -483,7 +483,8 @@ Release notes
 
 Version 1.2 beta
 
-- Added phone field type
+- Added FXFormFieldTypePhone field type
+- Added FXFormOptionSegmentsCell class
 - Added ability to register cell and controller classes based on field value class as well as type
 
 Version 1.1.6
