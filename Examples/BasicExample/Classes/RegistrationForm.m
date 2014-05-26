@@ -91,6 +91,13 @@
              
              @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText},
              
+             @{FXFormFieldHeader: @"Plan",
+               FXFormFieldKey: @"plan",
+               FXFormFieldTitle: @"",
+               FXFormFieldPlaceholder: @"Free",
+               FXFormFieldOptions: @[@"Micro", @"Normal", @"Maxi"],
+               FXFormFieldCell: [FXFormOptionSegmentsCell class]},
+             
              //we want to add a section header here, so we use another config dictionary
              
              @{FXFormFieldKey: @"termsAndConditions", FXFormFieldHeader: @"Legal"},

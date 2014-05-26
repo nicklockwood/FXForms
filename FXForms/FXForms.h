@@ -244,5 +244,12 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @end
 
 
+@interface FXFormOptionSegmentsCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UISegmentedControl *segmentedControl;
+
+@end
+
+
 #pragma GCC diagnostic pop
 

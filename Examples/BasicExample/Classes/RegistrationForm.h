@@ -46,6 +46,8 @@ typedef NS_OPTIONS(NSInteger, Interests)
 @property (nonatomic, assign) Interests otherInterests;
 @property (nonatomic, copy) NSString *about;
 
+@property (nonatomic, copy) NSString *plan;
+
 @property (nonatomic, copy) NSString *notifications;
 
 @property (nonatomic, readonly) TermsViewController *termsAndConditions;
