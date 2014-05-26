@@ -8,6 +8,10 @@
 
 #import "RootForm.h"
 
+@implementation BMRange
+
+@end
+
 @implementation RootForm
 
 //we want to display our login form inline instead
