@@ -162,6 +162,10 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                 {
                                     valueType = FXFormFieldTypeEmail;
                                 }
+                                else if ([lowercaseKey hasSuffix:@"phone"])
+                                {
+                                    valueType = FXFormFieldTypePhone;
+                                }
                                 else if ([lowercaseKey hasSuffix:@"url"] || [lowercaseKey hasSuffix:@"link"])
                                 {
                                     valueType = FXFormFieldTypeURL;
@@ -1126,6 +1130,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                                        FXFormFieldTypeLongText: [FXFormTextViewCell class],
                                        FXFormFieldTypeURL: [FXFormTextFieldCell class],
                                        FXFormFieldTypeEmail: [FXFormTextFieldCell class],
+                                       FXFormFieldTypePhone: [FXFormTextFieldCell class],
                                        FXFormFieldTypePassword: [FXFormTextFieldCell class],
                                        FXFormFieldTypeNumber: [FXFormTextFieldCell class],
                                        FXFormFieldTypeFloat: [FXFormTextFieldCell class],
@@ -1909,6 +1914,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
         self.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
         self.textField.keyboardType = UIKeyboardTypeEmailAddress;
     }
+    else if ([self.field.type isEqualToString:FXFormFieldTypePhone])
+    {
+        self.textField.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textField.keyboardType = UIKeyboardTypePhonePad;
+    }
     else if ([self.field.type isEqualToString:FXFormFieldTypeURL])
     {
         self.textField.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -2107,6 +2118,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
         self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
         self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
         self.textView.keyboardType = UIKeyboardTypeEmailAddress;
+    }
+    else if ([self.field.type isEqualToString:FXFormFieldTypePhone])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textView.keyboardType = UIKeyboardTypePhonePad;
     }
     else if ([self.field.type isEqualToString:FXFormFieldTypeURL])
     {

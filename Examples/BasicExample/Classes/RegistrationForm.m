@@ -54,6 +54,9 @@
              
              @"profilePhoto",
              
+             // phone field
+             @{FXFormFieldKey: @"phone", FXFormFieldType : FXFormFieldTypePhone},
+             
              //the country value in our form is a locale code, which isn't human readable
              //so we've used the FXFormFieldValueTransformer option to supply a value transformer
              
