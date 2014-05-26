@@ -110,6 +110,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) void (^action)(id sender);
 @property (nonatomic, strong) id value;
 
+- (NSString *)optionDescriptionAtIndex:(NSUInteger)index;
+
 @end
 
 
@@ -134,9 +136,10 @@ static NSString *const FXFormFieldTypeImage = @"image";
 - (FXFormField *)fieldForIndexPath:(NSIndexPath *)indexPath;
 - (void)enumerateFieldsWithBlock:(void (^)(FXFormField *field, NSIndexPath *indexPath))block;
 
-- (Class)cellClassForFieldType:(NSString *)fieldType;
+- (Class)cellClassForField:(FXFormField *)fieldType;
 - (void)registerDefaultFieldCellClass:(Class)cellClass;
 - (void)registerCellClass:(Class)cellClass forFieldType:(NSString *)fieldType;
+- (void)registerCellClass:(Class)cellClass forClassName:(NSString*)fieldClassName;
 
 - (Class)viewControllerClassForFieldType:(NSString *)fieldType;
 - (void)registerDefaultViewControllerClass:(Class)controllerClass;
