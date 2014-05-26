@@ -474,6 +474,7 @@ Once you have created your custom cell, you can use it as follows:
 
 * If your cell is used only for a few specific fields, you can use the `FXFormFieldCell` property to use it for a particular form field
 * If your cell is designed to handle a particular field type (or types), you can tell the formController to use your custom cell class for a particular type using the `-registerCellClass:forFieldType:` method of FXFormController.
+* If your cell is designed to handle a particular field value class (or subclass), you can tell the formController to use your custom cell class for a particular value class using the `-registerCellClass:forFieldClass:` method of FXFormController.
 * If you want to completely replace all cells with your own classes, use the `-registerDefaultFieldCellClass:` method of `FXFormController`. This replaces all default cell associations for all field types with your new cell class. You can then use `-registerCellClass:forFieldType:` to add additional cell classes for specific types.
 
 
@@ -483,6 +484,7 @@ Release notes
 Version 1.2 beta
 
 - Added phone field type
+- Added ability to register cell and controller classes based on field value class as well as type
 
 Version 1.1.6
 

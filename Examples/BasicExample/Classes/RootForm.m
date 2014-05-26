@@ -8,9 +8,6 @@
 
 #import "RootForm.h"
 
-@implementation BMRange
-
-@end
 
 @implementation RootForm
 

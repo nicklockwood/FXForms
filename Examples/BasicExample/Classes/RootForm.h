@@ -12,12 +12,8 @@
 #import "RegistrationForm.h"
 
 
-@interface BMRange : NSObject
-@end
-
 @interface RootForm : NSObject <FXForm>
 
-@property (nonatomic) BMRange* value;
 @property (nonatomic, strong) LoginForm *login;
 @property (nonatomic, strong) RegistrationForm *registration;
 

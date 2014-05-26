@@ -378,6 +378,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 @property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldTypes;
 @property (nonatomic, strong) NSMutableDictionary *cellClassesForFieldClasses;
 @property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
+@property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldClasses;
 
 - (void)performAction:(SEL)selector withSender:(id)sender;
 
@@ -1142,10 +1143,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                                        FXFormFieldTypeDateTime: [FXFormDatePickerCell class],
                                        FXFormFieldTypeImage: [FXFormImagePickerCell class]} mutableCopy];
         
-        _cellClassesForFieldClasses = [@{FXFormFieldTypeDefault: [FXFormBaseCell class]} mutableCopy];
+        _cellClassesForFieldClasses = [@{@"NSObject": [FXFormBaseCell class]} mutableCopy];
         
         _controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
-                
+        
+        _controllerClassesForFieldClasses = [@{@"NSObject": [FXFormViewController class]} mutableCopy];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillShow:)
                                                      name:UIKeyboardWillShowNotification
@@ -1167,19 +1170,28 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (Class)cellClassForField:(FXFormField*)field
+- (Class)cellClassForField:(FXFormField *)field
 {
-    if (field.type != FXFormFieldTypeDefault) {
-
+    if (field.type != FXFormFieldTypeDefault)
+    {
         return self.cellClassesForFieldTypes[field.type] ?:
         self.parentFormController.cellClassesForFieldTypes[field.type] ?:
         self.cellClassesForFieldTypes[FXFormFieldTypeDefault];
-
-    } else {
-        
-        return self.cellClassesForFieldClasses[NSStringFromClass(field.valueClass)] ?:
-        self.parentFormController.cellClassesForFieldClasses[NSStringFromClass(field.valueClass)] ?:
-         self.cellClassesForFieldClasses[FXFormFieldTypeDefault];
+    }
+    else
+    {
+        Class valueClass = field.valueClass;
+        while (valueClass != [NSObject class])
+        {
+            Class cellClass = self.cellClassesForFieldClasses[NSStringFromClass(valueClass)] ?:
+            self.parentFormController.cellClassesForFieldClasses[NSStringFromClass(valueClass)];
+            if (cellClass)
+            {
+                return cellClass;
+            }
+            valueClass = [valueClass superclass];
+        }
+        return self.cellClassesForFieldTypes[FXFormFieldTypeDefault];
     }
 }
 
@@ -1195,17 +1207,35 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     self.cellClassesForFieldTypes[fieldType] = cellClass;
 }
 
-- (void)registerCellClass:(Class)cellClass forClassName:(NSString*)fieldClassName
+- (void)registerCellClass:(Class)cellClass forFieldClass:(__unsafe_unretained Class)fieldClass
 {
     NSParameterAssert([cellClass conformsToProtocol:@protocol(FXFormFieldCell)]);
-    self.cellClassesForFieldClasses[fieldClassName] = cellClass;
+    self.cellClassesForFieldClasses[NSStringFromClass(fieldClass)] = cellClass;
 }
 
-- (Class)viewControllerClassForFieldType:(NSString *)fieldType
+- (Class)viewControllerClassForField:(FXFormField *)field
 {
-    return self.controllerClassesForFieldTypes[fieldType] ?:
-    self.parentFormController.controllerClassesForFieldTypes[fieldType] ?:
-    self.controllerClassesForFieldTypes[FXFormFieldTypeDefault];
+    if (field.type != FXFormFieldTypeDefault)
+    {
+        return self.controllerClassesForFieldTypes[field.type] ?:
+        self.parentFormController.controllerClassesForFieldTypes[field.type] ?:
+        self.controllerClassesForFieldTypes[FXFormFieldTypeDefault];
+    }
+    else
+    {
+        Class valueClass = field.valueClass;
+        while (valueClass != [NSObject class])
+        {
+            Class controllerClass = self.controllerClassesForFieldClasses[NSStringFromClass(valueClass)] ?:
+            self.parentFormController.controllerClassesForFieldClasses[NSStringFromClass(valueClass)];
+            if (controllerClass)
+            {
+                return controllerClass;
+            }
+            valueClass = [valueClass superclass];
+        }
+        return self.controllerClassesForFieldTypes[FXFormFieldTypeDefault];
+    }
 }
 
 - (void)registerDefaultViewControllerClass:(Class)controllerClass
@@ -1218,6 +1248,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 {
     NSParameterAssert([controllerClass conformsToProtocol:@protocol(FXFormFieldViewController)]);
     self.controllerClassesForFieldTypes[fieldType] = controllerClass;
+}
+
+- (void)registerViewControllerClass:(Class)controllerClass forFieldClass:(__unsafe_unretained Class)fieldClass
+{
+    NSParameterAssert([controllerClass conformsToProtocol:@protocol(FXFormFieldViewController)]);
+    self.controllerClassesForFieldClasses[NSStringFromClass(fieldClass)] = fieldClass;
 }
 
 - (void)setDelegate:(id<FXFormControllerDelegate>)delegate

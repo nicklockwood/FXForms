@@ -136,14 +136,16 @@ static NSString *const FXFormFieldTypeImage = @"image";
 - (FXFormField *)fieldForIndexPath:(NSIndexPath *)indexPath;
 - (void)enumerateFieldsWithBlock:(void (^)(FXFormField *field, NSIndexPath *indexPath))block;
 
-- (Class)cellClassForField:(FXFormField *)fieldType;
+- (Class)cellClassForField:(FXFormField *)field;
 - (void)registerDefaultFieldCellClass:(Class)cellClass;
 - (void)registerCellClass:(Class)cellClass forFieldType:(NSString *)fieldType;
-- (void)registerCellClass:(Class)cellClass forClassName:(NSString*)fieldClassName;
+- (void)registerCellClass:(Class)cellClass forFieldClass:(Class)fieldClass;
 
-- (Class)viewControllerClassForFieldType:(NSString *)fieldType;
+- (Class)viewControllerClassForField:(FXFormField *)field;
 - (void)registerDefaultViewControllerClass:(Class)controllerClass;
 - (void)registerViewControllerClass:(Class)controllerClass forFieldType:(NSString *)fieldType;
+- (void)registerViewControllerClass:(Class)controllerClass forFieldClass:(Class)fieldClass;
+
 
 @end
 

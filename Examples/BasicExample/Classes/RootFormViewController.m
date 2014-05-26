@@ -19,7 +19,6 @@
     {
         //set up form
         self.formController.form = [[RootForm alloc] init];
-        [self.formController registerCellClass:[FXFormSliderCell class] forClassName:NSStringFromClass([BMRange class])];
     }
     return self;
 }
