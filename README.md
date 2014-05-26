@@ -480,6 +480,10 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.2 beta
+
+- Added phone field type
+
 Version 1.1.6
 
 - Options fields with numeric values are now correctly displayed

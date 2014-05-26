@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.1.6
+//  Version 1.2 beta
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -158,11 +158,11 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                 {
                                     valueType = FXFormFieldTypePassword;
                                 }
-                                else if ([lowercaseKey hasSuffix:@"email"])
+                                else if ([lowercaseKey hasSuffix:@"email"] || [lowercaseKey hasSuffix:@"emailaddress"])
                                 {
                                     valueType = FXFormFieldTypeEmail;
                                 }
-                                else if ([lowercaseKey hasSuffix:@"phone"])
+                                else if ([lowercaseKey hasSuffix:@"phone"] || [lowercaseKey hasSuffix:@"phonenumber"])
                                 {
                                     valueType = FXFormFieldTypePhone;
                                 }
