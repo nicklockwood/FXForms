@@ -487,6 +487,7 @@ Version 1.2 beta
 - Added FXFormOptionSegmentsCell class
 - Added ability to register cell and controller classes based on field value class as well as type
 - Fixed bug in stepper field where labels didn't resize after value change
+- Fixed bug where image preview in FXImagePickerCell would be displayed with incorrect width
 - Added dynamic fields example (loading form field descriptions from a JSON file)
 
 Version 1.1.6
