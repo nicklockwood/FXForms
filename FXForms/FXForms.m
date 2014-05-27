@@ -2320,6 +2320,8 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 {
     self.field.value = @(self.stepper.value);
     self.detailTextLabel.text = [self.field fieldDescription];
+    [self setNeedsLayout];
+    
     if (self.field.action) self.field.action(self);
 }
 
