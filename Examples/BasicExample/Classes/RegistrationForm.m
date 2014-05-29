@@ -50,12 +50,10 @@
              
              @{FXFormFieldKey: @"age", FXFormFieldCell: [FXFormStepperCell class]},
              
-             //another regular field
+             //some more regular fields
              
              @"profilePhoto",
-             
-             // phone field
-             @{FXFormFieldKey: @"phone", FXFormFieldType : FXFormFieldTypePhone},
+             @"phone",
              
              //the country value in our form is a locale code, which isn't human readable
              //so we've used the FXFormFieldValueTransformer option to supply a value transformer

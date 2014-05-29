@@ -149,48 +149,8 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                                 name = [name substringToIndex:range.location];
                             }
                             valueClass = NSClassFromString(name) ?: [NSObject class];
+                            valueType = FXFormFieldTypeDefault;
                             free(className);
-                            
-                            if ([valueClass isSubclassOfClass:[NSString class]])
-                            {
-                                NSString *lowercaseKey = [key lowercaseString];
-                                if ([lowercaseKey hasSuffix:@"password"])
-                                {
-                                    valueType = FXFormFieldTypePassword;
-                                }
-                                else if ([lowercaseKey hasSuffix:@"email"] || [lowercaseKey hasSuffix:@"emailaddress"])
-                                {
-                                    valueType = FXFormFieldTypeEmail;
-                                }
-                                else if ([lowercaseKey hasSuffix:@"phone"] || [lowercaseKey hasSuffix:@"phonenumber"])
-                                {
-                                    valueType = FXFormFieldTypePhone;
-                                }
-                                else if ([lowercaseKey hasSuffix:@"url"] || [lowercaseKey hasSuffix:@"link"])
-                                {
-                                    valueType = FXFormFieldTypeURL;
-                                }
-                                else
-                                {
-                                    valueType = FXFormFieldTypeText;
-                                }
-                            }
-                            else if ([valueClass isSubclassOfClass:[NSNumber class]])
-                            {
-                                valueType = FXFormFieldTypeNumber;
-                            }
-                            else if ([valueClass isSubclassOfClass:[NSDate class]])
-                            {
-                                valueType = FXFormFieldTypeDate;
-                            }
-                            else if ([valueClass isSubclassOfClass:[UIImage class]])
-                            {
-                                valueType = FXFormFieldTypeImage;
-                            }
-                            else
-                            {
-                                valueType = FXFormFieldTypeDefault;
-                            }
                         }
                         break;
                     }
@@ -410,11 +370,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 + (NSArray *)fieldsWithForm:(id<FXForm>)form controller:(FXFormController *)formController
 {
     //get fields
+    NSArray *properties = FXFormProperties(form);
     NSMutableArray *fields = [[form fields] mutableCopy];
     if (!fields)
     {
         //use default fields
-        fields = [NSMutableArray arrayWithArray:FXFormProperties(form)];
+        fields = [NSMutableArray arrayWithArray:[properties valueForKey:FXFormFieldKey]];
     }
     
     //add extra fields
@@ -422,7 +383,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     
     //process fields
     NSMutableDictionary *fieldDictionariesByKey = [NSMutableDictionary dictionary];
-    for (NSDictionary *dict in FXFormProperties(form))
+    for (NSDictionary *dict in properties)
     {
         fieldDictionariesByKey[dict[FXFormFieldKey]] = dict;
     }
@@ -450,6 +411,60 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
             {
                 dictionary[FXFormFieldClass] = NSClassFromString(dictionary[FXFormFieldClass]);
             }
+            Class valueClass = dictionary[FXFormFieldClass];
+            if (!valueClass)
+            {
+                //treat as string if not otherwise indicated
+                valueClass = [NSString class];
+                dictionary[FXFormFieldClass] = valueClass;
+            }
+            NSString *type = dictionaryOrKey[FXFormFieldType];
+            NSString *inferredType = fieldDictionariesByKey[key][FXFormFieldType];
+            if (!type && (!inferredType || [inferredType isEqualToString:FXFormFieldTypeDefault]))
+            {
+                if ([valueClass isSubclassOfClass:[NSString class]])
+                {
+                    NSString *lowercaseKey = [key lowercaseString];
+                    if ([lowercaseKey hasSuffix:@"password"])
+                    {
+                        type = FXFormFieldTypePassword;
+                    }
+                    else if ([lowercaseKey hasSuffix:@"email"] || [lowercaseKey hasSuffix:@"emailaddress"])
+                    {
+                        type = FXFormFieldTypeEmail;
+                    }
+                    else if ([lowercaseKey hasSuffix:@"phone"] || [lowercaseKey hasSuffix:@"phonenumber"])
+                    {
+                        type = FXFormFieldTypePhone;
+                    }
+                    else if ([lowercaseKey hasSuffix:@"url"] || [lowercaseKey hasSuffix:@"link"])
+                    {
+                        type = FXFormFieldTypeURL;
+                    }
+                    else
+                    {
+                        type = FXFormFieldTypeText;
+                    }
+                }
+                else if ([valueClass isSubclassOfClass:[NSNumber class]])
+                {
+                    type = FXFormFieldTypeNumber;
+                }
+                else if ([valueClass isSubclassOfClass:[NSDate class]])
+                {
+                    type = FXFormFieldTypeDate;
+                }
+                else if ([valueClass isSubclassOfClass:[UIImage class]])
+                {
+                    type = FXFormFieldTypeImage;
+                }
+                else
+                {
+                    type = FXFormFieldTypeDefault;
+                }
+                
+                dictionary[FXFormFieldType] = type;
+            }
             if ([dictionary[FXFormFieldCell] isKindOfClass:[NSString class]])
             {
                 dictionary[FXFormFieldCell] = NSClassFromString(dictionary[FXFormFieldCell]);
@@ -459,8 +474,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                 dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
             }
             if (([(NSArray *)dictionary[FXFormFieldOptions] count] || dictionary[FXFormFieldViewController])
-                && [dictionary[FXFormFieldType] isEqualToString:fieldDictionariesByKey[key][FXFormFieldType]]
-                && ![dictionary[FXFormFieldInline] boolValue])
+                && !dictionaryOrKey[FXFormFieldType] && ![dictionary[FXFormFieldInline] boolValue])
             {
                 //TODO: is there a better way to force non-inline cells to use base cell?
                 dictionary[FXFormFieldType] = FXFormFieldTypeDefault;
@@ -1612,7 +1626,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
 
 - (void)viewDidLoad
 {
-    [super loadView];
+    [super viewDidLoad];
     
     if (!self.tableView)
     {
@@ -2743,13 +2757,12 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
     {
         value = self.field.options[selectedSegmentIndex - (self.field.placeholder? 1: 0)];
     }
-    
     self.field.value = value;
     
     if (self.field.action) self.field.action(self);
 }
 
-- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
+- (void)didSelectWithTableView:(__unused UITableView *)tableView controller:(__unused UIViewController *)controller
 {
     //does nothing
 }
