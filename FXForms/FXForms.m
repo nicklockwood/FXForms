@@ -414,8 +414,16 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
             Class valueClass = dictionary[FXFormFieldClass];
             if (!valueClass)
             {
-                //treat as string if not otherwise indicated
-                valueClass = [NSString class];
+                if ([(NSArray *)dictionary[FXFormFieldOptions] count])
+                {
+                    //use same type as options
+                    valueClass = [[dictionary[FXFormFieldOptions] firstObject] class];
+                }
+                else
+                {
+                    //treat as string if not otherwise indicated
+                    valueClass = [NSString class];
+                }
                 dictionary[FXFormFieldClass] = valueClass;
             }
             NSString *type = dictionaryOrKey[FXFormFieldType];
@@ -445,6 +453,10 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
                     {
                         type = FXFormFieldTypeText;
                     }
+                }
+                else if ([valueClass isSubclassOfClass:[NSURL class]])
+                {
+                    type = FXFormFieldTypeURL;
                 }
                 else if ([valueClass isSubclassOfClass:[NSNumber class]])
                 {
