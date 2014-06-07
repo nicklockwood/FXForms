@@ -1855,6 +1855,7 @@ static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
         else if ([self.field.viewController isKindOfClass:[UIViewController class]])
         {
             subcontroller = self.field.viewController;
+            ((id <FXFormFieldViewController>)subcontroller).field = self.field;
         }
         else
         {
