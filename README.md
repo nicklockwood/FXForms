@@ -264,6 +264,13 @@ static NSString *const FXFormFieldOptions = @"options";
 For any field type, you can supply an array of supported values, which will override the standard field with a checklist of options to be selected instead. The options can be NSStrings, NSNumbers or any other object type. You can supply an `FXFormFieldValueTransformer` to control how the option values are displayed in the list. Alternatively, if you use a custom object for the values, you can implement the `-(NSString *)fieldDescription;` method to control how it is displayed. See Form field options below for more details.
 
 ```objc
+static NSString *const FXFormFieldTemplate = @"template";
+```
+
+If the field is an NSArray or NSOrderedSet, FXForms allows the user to add, edit and remove items. By default FXForms assumes that the values in the collection are of type FXFormFieldTypeText, however you can override this using the FXFormFieldTemplate dictionary. The FXFormFieldTemplate dictionary can contains most of the same types of value as an ordinary field dictionary, and should be used to describe all the attributes of the elements in the collection.
+
+
+```objc
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 ```
 
@@ -294,6 +301,12 @@ static NSString *const FXFormFieldInline = @"inline";
 ```
 
 Fields whose values is another FXForm, or which have a supplied options array, will normally be displayed in a new FXFormViewController, which is pushed onto the navigation stack when you tap the field. You may wish to display such fields inline within same tableView instead. You can do this by setting the `FXFormFieldInline` property to `@YES`.
+
+```objc
+static NSString *const FXFormFieldSortable = @"sortable";
+```
+
+Fields of type NSArray or NSOrderedSet can optionally display sorting controls so that the user can change the item order. Set the FXFormFieldSortable property to YES to enabled this feature.
 
 ```objc
 static NSString *const FXFormFieldViewController = @"controller";
@@ -483,6 +496,8 @@ Release notes
 
 Version 1.2 beta
 
+- Fields of type NSArray and NSOrderedSet can now be edited by adding, removing and sorting items
+- Added FXFormFieldTemplate for creating template values for NSArray and NSOrderedSet
 - Added FXFormFieldTypePhone field type
 - Added FXFormOptionSegmentsCell class
 - Added ability to register cell and controller classes based on field value class as well as type
@@ -491,6 +506,8 @@ Version 1.2 beta
 - Fixed handling of NSURL fields
 - Type inference now works better for dynamic fields
 - Added dynamic fields example (loading form field descriptions from a JSON file)
+- Added indexPathForField: method to FXFormController
+- FXForm tableView is now always in edit mode - this may affect layout for custom cells
 
 Version 1.1.6
 

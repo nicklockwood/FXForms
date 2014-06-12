@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2 beta
+//  Version 1.2 beta 2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -44,11 +44,13 @@ static NSString *const FXFormFieldCell = @"cell";
 static NSString *const FXFormFieldTitle = @"title";
 static NSString *const FXFormFieldPlaceholder = @"placeholder";
 static NSString *const FXFormFieldOptions = @"options";
+static NSString *const FXFormFieldTemplate = @"template";
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 static NSString *const FXFormFieldAction = @"action";
 static NSString *const FXFormFieldHeader = @"header";
 static NSString *const FXFormFieldFooter = @"footer";
 static NSString *const FXFormFieldInline = @"inline";
+static NSString *const FXFormFieldSortable = @"sortable";
 static NSString *const FXFormFieldViewController = @"viewController";
 
 static NSString *const FXFormFieldTypeDefault = @"default";
@@ -105,6 +107,9 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) id placeholder;
+@property (nonatomic, readonly) NSDictionary *fieldTemplate;
+@property (nonatomic, readonly) BOOL isSortable;
+@property (nonatomic, readonly) BOOL isInline;
 @property (nonatomic, readonly) NSArray *options;
 @property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
@@ -134,6 +139,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 - (NSUInteger)numberOfSections;
 - (NSUInteger)numberOfFieldsInSection:(NSUInteger)section;
 - (FXFormField *)fieldForIndexPath:(NSIndexPath *)indexPath;
+- (NSIndexPath *)indexPathForField:(FXFormField *)field;
 - (void)enumerateFieldsWithBlock:(void (^)(FXFormField *field, NSIndexPath *indexPath))block;
 
 - (Class)cellClassForField:(FXFormField *)field;
