@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 2
+//  Version 1.2 beta 3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -339,9 +339,10 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     
     //determine value class
+    NSString *key = dictionary[FXFormFieldKey];
     NSArray *options = dictionary[FXFormFieldOptions];
     Class valueClass = dictionary[FXFormFieldClass];
-    if (!valueClass)
+    if (!valueClass && key)
     {
         if ([options count])
         {
@@ -366,7 +367,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     
     //derive value type from key and/or value class
-    NSString *key = dictionary[FXFormFieldKey];
     if (!type)
     {
         if ([valueClass isSubclassOfClass:[NSString class]])
@@ -1116,7 +1116,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     //TODO: - could we put this in the init and just update whenever values are added?
     NSMutableArray *fields = [NSMutableArray array];
-    NSUInteger count = [self.field.value count];
+    NSUInteger count = [(NSArray *)self.field.value count];
     if (_hasNilLastValue) count ++;
     for (NSUInteger i = 0; i < count; i++)
     {
@@ -1166,7 +1166,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         if ([self.field.value isKindOfClass:[NSArray class]] || [self.field.value isKindOfClass:[NSOrderedSet class]])
         {
-            return (index >= [self.field.value count])? nil: [self.field.value objectAtIndex:index];
+            return (index >= [(NSArray *)self.field.value count])? nil: [self.field.value objectAtIndex:index];
         }
     }
     return nil;
@@ -1192,7 +1192,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     if (collection && value)
     {
-        if (index >= [collection count])
+        if (index >= [(NSArray *)collection count])
         {
             [collection addObject:value];
             self.hasNilLastValue = NO;
@@ -1446,7 +1446,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     else
     {
         Class valueClass = field.valueClass;
-        while (valueClass != [NSObject class])
+        while (valueClass && valueClass != [NSObject class])
         {
             Class cellClass = self.cellClassesForFieldClasses[NSStringFromClass(valueClass)] ?:
             self.parentFormController.cellClassesForFieldClasses[NSStringFromClass(valueClass)];
@@ -2072,6 +2072,19 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     //don't distinguish between these, because we're always in edit mode
     [self setAccessoryType:editingAccessoryType];
+}
+
+- (void)setAccessoryView:(UIView *)accessoryView
+{
+    //don't distinguish between these, because we're always in edit mode
+    super.accessoryView = accessoryView;
+    super.editingAccessoryView = accessoryView;
+}
+
+- (void)setEditingAccessoryView:(UIView *)editingAccessoryView
+{
+    //don't distinguish between these, because we're always in edit mode
+    [self setAccessoryView:editingAccessoryView];
 }
 
 - (void)setUp
