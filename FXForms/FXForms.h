@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2 beta 3
+//  Version 1.2 beta 4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -110,12 +110,14 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) NSDictionary *fieldTemplate;
 @property (nonatomic, readonly) BOOL isSortable;
 @property (nonatomic, readonly) BOOL isInline;
-@property (nonatomic, readonly) NSArray *options;
 @property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
 @property (nonatomic, strong) id value;
 
+- (NSUInteger)optionCount;
 - (NSString *)optionDescriptionAtIndex:(NSUInteger)index;
+- (void)setOptionSelected:(BOOL)selected atIndex:(NSUInteger)index;
+- (BOOL)isOptionSelectedAtIndex:(NSUInteger)index;
 
 @end
 

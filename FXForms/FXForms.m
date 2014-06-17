@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 3
+//  Version 1.2 beta 4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -663,15 +663,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return [value fieldDescription];
 }
 
-- (NSString *)optionDescriptionAtIndex:(NSUInteger)index
-{
-    if (index != NSNotFound && index < [self.options count])
-    {
-        return [self valueDescription:self.options[index]];
-    }
-    return nil;
-}
-
 - (NSString *)fieldDescription
 {
     NSString *descriptionKey = [self.key stringByAppendingString:@"FieldDescription"];
@@ -684,8 +675,14 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         if ([self isIndexedType])
         {
-            NSUInteger index = self.value ? [self.value integerValue]: NSNotFound;
-            return [self optionDescriptionAtIndex:index];
+            if (self.value)
+            {
+                return [self optionDescriptionAtIndex:[self.value integerValue] + (self.placeholder? 1: 0)];
+            }
+            else
+            {
+                return [self.placeholder fieldDescription];
+            }
         }
         
         //TODO: should we pass the results of these transforms to the
@@ -707,7 +704,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                     }
                     if ([value containsIndex:index])
                     {
-                        NSString *description = [self optionDescriptionAtIndex:i];
+                        NSString *description = [self optionDescriptionAtIndex:i + (self.placeholder? 1: 0)];
                         if ([description length]) [options addObject:description];
                     }
                 }];
@@ -715,7 +712,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                 return value = [options count]? options: nil;
             }
             
-            return [value fieldDescription];
+            return [value fieldDescription] ?: [self.placeholder fieldDescription];
         }
         else if ([self.type isEqual:FXFormFieldTypeBitfield])
         {
@@ -729,12 +726,12 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                 }
                 if (value & bit)
                 {
-                    NSString *description = [self optionDescriptionAtIndex:i];
+                    NSString *description = [self optionDescriptionAtIndex:i + (self.placeholder? 1: 0)];
                     if ([description length]) [options addObject:description];
                 }
             }];
             
-            return [options count]? [options fieldDescription]: nil;
+            return [options count]? [options fieldDescription]: [self.placeholder fieldDescription];
         }
         else if (self.placeholder && ![self.options containsObject:self.value])
         {
@@ -759,13 +756,22 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if (FXFormCanGetValueForKey(self.form, self.key))
     {
-        return [(NSObject *)self.form valueForKey:self.key];
+        id value = [(NSObject *)self.form valueForKey:self.key];
+        if (!value && [self isIndexedType])
+        {
+            value = @(NSNotFound);
+        }
+        return value;
     }
     return nil;
 }
 
 - (void)setValue:(id)value
 {
+    if (!value && [self isIndexedType])
+    {
+        value = @(NSNotFound);
+    }
     FXFormSetValueForKey(self.form, value, self.key);
 }
 
@@ -839,7 +845,25 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 }
 
 #pragma mark -
-#pragma mark Option cell Helpers
+#pragma mark Option helpers
+
+- (NSUInteger)optionCount
+{
+    NSUInteger count = [self.options count];
+    return count? count + (self.placeholder? 1: 0): 0;
+}
+
+- (id)optionAtIndex:(NSUInteger)index
+{
+    if (index == 0)
+    {
+        return self.placeholder ?: self.options[0];
+    }
+    else
+    {
+        return self.options[index - (self.placeholder? 1: 0)];
+    }
+}
 
 - (NSUInteger)indexOfOption:(id)option
 {
@@ -854,15 +878,170 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
 }
 
-- (id)optionAtIndex:(NSUInteger)index
+- (NSString *)optionDescriptionAtIndex:(NSUInteger)index
 {
     if (index == 0)
     {
-        return self.placeholder ?: self.options[0];
+        return self.placeholder? [self.placeholder fieldDescription]: [self valueDescription:self.options[0]];
     }
     else
     {
-        return self.options[index - (self.placeholder? 1: 0)];
+        return [self valueDescription:self.options[index - (self.placeholder? 1: 0)]];
+    }
+}
+
+- (void)setOptionSelected:(BOOL)selected atIndex:(NSUInteger)index
+{
+    if (self.placeholder)
+    {
+        index = (index == 0)? NSNotFound: index - 1;
+    }
+    
+    if ([self isCollectionType])
+    {
+        BOOL copyNeeded = ([NSStringFromClass(self.valueClass) rangeOfString:@"Mutable"].location == NSNotFound);
+        
+        id collection = self.value ?: [[self.valueClass alloc] init];
+        if (copyNeeded) collection = [collection mutableCopy];
+        
+        if (index == NSNotFound)
+        {
+            collection = nil;
+        }
+        else if ([self.valueClass isSubclassOfClass:[NSIndexSet class]])
+        {
+            if (selected)
+            {
+                [collection addIndex:index];
+            }
+            else
+            {
+                [collection removeIndex:index];
+            }
+        }
+        else if ([self.valueClass isSubclassOfClass:[NSDictionary class]])
+        {
+            if (selected)
+            {
+                collection[@(index)] = self.options[index];
+            }
+            else
+            {
+                [(NSMutableDictionary *)collection removeObjectForKey:@(index)];
+            }
+        }
+        else
+        {
+            //need to preserve order for ordered collections
+            [collection removeAllObjects];
+            [self.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
+                
+                if (i == index)
+                {
+                    if (selected) [collection addObject:option];
+                }
+                else if ([self.value containsObject:option])
+                {
+                    [collection addObject:option];
+                }
+            }];
+        }
+        
+        if (copyNeeded) collection = [collection copy];
+        self.value = collection;
+    }
+    else if ([self.type isEqualToString:FXFormFieldTypeBitfield])
+    {
+        if (index == NSNotFound)
+        {
+            self.value = @0;
+        }
+        else
+        {
+            if ([self.options[index] isKindOfClass:[NSNumber class]])
+            {
+                index = [self.options[index] integerValue];
+            }
+            else
+            {
+                index = 1 << index;
+            }
+            if (selected)
+            {
+                self.value = @([self.value integerValue] | index);
+            }
+            else
+            {
+                self.value = @([self.value integerValue] ^ index);
+            }
+        }
+    }
+    else if (selected && [self isIndexedType])
+    {
+        self.value = @(index);
+    }
+    else if (selected && index != NSNotFound)
+    {
+        self.value = self.options[index];
+    }
+    else
+    {
+        self.value = nil;
+    }
+}
+
+- (BOOL)isOptionSelectedAtIndex:(NSUInteger)index
+{
+    if (self.placeholder)
+    {
+        index = (index == 0)? NSNotFound: index - 1;
+    }
+
+    id option = (index == NSNotFound)? nil: self.options[index];
+    if ([self isCollectionType])
+    {
+        if (index == NSNotFound)
+        {
+            //true if no option selected
+            return [(NSArray *)self.value count] == 0;
+        }
+        else if ([self.valueClass isSubclassOfClass:[NSIndexSet class]])
+        {
+            if ([option isKindOfClass:[NSNumber class]])
+            {
+                index = [option integerValue];
+            }
+            return [(NSIndexSet *)self.value containsIndex:index];
+        }
+        else
+        {
+            return [(NSArray *)self.value containsObject:option];
+        }
+    }
+    else if ([self.type isEqualToString:FXFormFieldTypeBitfield])
+    {
+        if (index == NSNotFound)
+        {
+            //true if not numeric
+            return ![self.value integerValue];
+        }
+        else if ([option isKindOfClass:[NSNumber class]])
+        {
+            index = [option integerValue];
+        }
+        else
+        {
+            index = 1 << index;
+        }
+        return ([self.value integerValue] & index) != 0;
+    }
+    else if ([self isIndexedType])
+    {
+        return index == (option? (NSUInteger)[self.value integerValue]: NSNotFound);
+    }
+    else
+    {
+        return option? [option isEqual:self.value]: !self.value;
     }
 }
 
@@ -901,15 +1080,16 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         NSMutableArray *fields = [NSMutableArray array];
         if (field.placeholder)
         {
-            [fields addObject:@{FXFormFieldKey: [@(NSNotFound) description],
+            [fields addObject:@{FXFormFieldKey: @"0",
                                 FXFormFieldTitle: [field.placeholder fieldDescription],
                                 FXFormFieldType: FXFormFieldTypeOption,
                                 FXFormFieldAction: action}];
         }
         for (NSUInteger i = 0; i < [field.options count]; i++)
         {
-            [fields addObject:@{FXFormFieldKey: [@(i) description],
-                                FXFormFieldTitle: [field optionDescriptionAtIndex:i],
+            NSInteger index = i + (field.placeholder? 1: 0);
+            [fields addObject:@{FXFormFieldKey: [@(index) description],
+                                FXFormFieldTitle: [field optionDescriptionAtIndex:index],
                                 FXFormFieldType: FXFormFieldTypeOption,
                                 FXFormFieldAction: action}];
         }
@@ -921,164 +1101,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (id)valueForKey:(NSString *)key
 {
     NSInteger index = [key integerValue];
-    id value = (index == NSNotFound)? nil: self.field.options[index];
-    if ([self.field isCollectionType])
-    {
-        if (index == NSNotFound)
-        {
-            return @(![(NSArray *)self.field.value count]);
-        }
-        else if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
-        {
-            if ([value isKindOfClass:[NSNumber class]])
-            {
-                index = [value integerValue];
-            }
-            return @([self.field.value containsIndex:index]);
-        }
-        else
-        {
-            return @([self.field.value containsObject:value]);
-        }
-    }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeBitfield])
-    {
-        if (index == NSNotFound)
-        {
-            return @(![self.field.value integerValue]);
-        }
-        else if ([value isKindOfClass:[NSNumber class]])
-        {
-            index = [value integerValue];
-        }
-        else
-        {
-            index = 1 << index;
-        }
-        return @(([self.field.value integerValue] & index) != 0);
-    }
-    else if ([self.field isIndexedType])
-    {
-        return @(index == [self.field.value integerValue]);
-    }
-    else if (value)
-    {
-        return @([value isEqual:self.field.value]);
-    }
-    else
-    {
-        return @(![self.field.options containsObject:self.field.value]);
-    }
+    return @([self.field isOptionSelectedAtIndex:index]);
 }
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
     NSUInteger index = [key integerValue];
-    if ([self.field isCollectionType])
-    {
-        BOOL addValue = [value boolValue];
-        BOOL copyNeeded = ([NSStringFromClass(self.field.valueClass) rangeOfString:@"Mutable"].location == NSNotFound);
-        
-        id collection = self.field.value ?: [[self.field.valueClass alloc] init];
-        if (copyNeeded) collection = [collection mutableCopy];
-        
-        if (index == NSNotFound)
-        {
-            collection = nil;
-        }
-        else if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
-        {
-            if (addValue)
-            {
-                [collection addIndex:index];
-            }
-            else
-            {
-                [collection removeIndex:index];
-            }
-        }
-        else if ([self.field.valueClass isSubclassOfClass:[NSDictionary class]])
-        {
-            if (addValue)
-            {
-                collection[@(index)] = self.field.options[index];
-            }
-            else
-            {
-                [(NSMutableDictionary *)collection removeObjectForKey:@(index)];
-            }
-        }
-        else
-        {
-            //need to preserve order for ordered collections
-            [collection removeAllObjects];
-            [self.field.options enumerateObjectsUsingBlock:^(id option, NSUInteger i, __unused BOOL *stop) {
-                
-                if (i == index)
-                {
-                    if (addValue) [collection addObject:option];
-                }
-                else if ([self.field.value containsObject:option])
-                {
-                    [collection addObject:option];
-                }
-            }];
-            self.field.value = collection;
-        }
-        
-        if (copyNeeded) collection = [collection copy];
-        self.field.value = collection;
-    }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeBitfield])
-    {
-        if (index == NSNotFound)
-        {
-            self.field.value = @0;
-        }
-        else
-        {
-            if ([self.field.options[index] isKindOfClass:[NSNumber class]])
-            {
-                index = [self.field.options[index] integerValue];
-            }
-            else
-            {
-                index = 1 << index;
-            }
-            if ([value boolValue])
-            {
-                self.field.value = @([self.field.value integerValue] | index);
-            }
-            else
-            {
-                self.field.value = @([self.field.value integerValue] ^ index);
-            }
-        }
-    }
-    else if ([self.field isIndexedType])
-    {
-        self.field.value = @(index);
-    }
-    else if (index != NSNotFound)
-    {
-        self.field.value = self.field.options[index];
-    }
-    else
-    {
-        value = nil;
-        for (NSDictionary *field in FXFormProperties(self.field.form))
-        {
-            if ([field[FXFormFieldKey] isEqualToString:self.field.key])
-            {
-                if ([field[FXFormFieldType] isEqualToString:FXFormFieldTypeInteger])
-                {
-                    value = @(NSNotFound);
-                }
-                break;
-            }
-        }
-        self.field.value = value;
-    }
+    [self.field setOptionSelected:[value boolValue] atIndex:index];
 }
 
 - (BOOL)respondsToSelector:(SEL)selector
@@ -1160,7 +1189,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (id)valueForKey:(NSString *)key
 {
-    //TODO: handle other collection types
+    //TODO: handle collection types other than NSArray and NSOrderedSet
+    
     NSUInteger index = [key integerValue];
     if (index != NSNotFound)
     {
@@ -1174,22 +1204,23 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    //TODO: handle other collection types
+    BOOL copyNeeded = ([NSStringFromClass(self.field.valueClass) rangeOfString:@"Mutable"].location == NSNotFound);
+    
+    id collection = self.field.value ?: [[self.field.valueClass alloc] init];
+    if (copyNeeded) collection = [collection mutableCopy];
+    
+    //TODO: handle collection types other than NSArray and NSOrderedSet
+    
     NSUInteger index = [key integerValue];
-    id collection = nil;
-    if ([self.field.valueClass isSubclassOfClass:[NSArray class]])
+    if ([self.field.valueClass isSubclassOfClass:[NSOrderedSet class]])
     {
-        collection = [NSMutableArray arrayWithArray:self.field.value];
-    }
-    else if ([self.field.valueClass isSubclassOfClass:[NSOrderedSet class]])
-    {
-        collection = [NSMutableOrderedSet orderedSetWithOrderedSet:self.field.value];
         if ([collection containsObject:value])
         {
             //adding this value will have no affect
             return;
         }
     }
+    
     if (collection && value)
     {
         if (index >= [(NSArray *)collection count])
@@ -1203,6 +1234,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             [collection replaceObjectAtIndex:index withObject:value];
         }
     }
+    
+    if (copyNeeded) collection = [collection copy];
     self.field.value = collection;
 }
 
@@ -2099,7 +2132,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if ([self class] == [FXFormBaseCell class])
     {
         self.textLabel.text = self.field.title;
-        self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
+        self.detailTextLabel.text = [self.field fieldDescription];
         
         if ([self.field.type isEqualToString:FXFormFieldTypeLabel])
         {
@@ -2970,7 +3003,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
+    self.detailTextLabel.text = [self.field fieldDescription];
     
     NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
     if (self.field.placeholder)
@@ -3008,29 +3041,17 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (NSInteger)pickerView:(__unused UIPickerView *)pickerView numberOfRowsInComponent:(__unused NSInteger)component
 {
-    return [self.field.options count] + (self.field.placeholder? 1: 0);
+    return [self.field optionCount];
 }
 
 - (NSString *)pickerView:(__unused UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(__unused NSInteger)component
 {
-    if (row == 0)
-    {
-        return [self.field.placeholder fieldDescription] ?: [self.field optionDescriptionAtIndex:0];
-    }
-    else
-    {
-        return [self.field optionDescriptionAtIndex:row - (self.field.placeholder? 1: 0)];
-    }
+    return [self.field optionDescriptionAtIndex:row];
 }
 
 - (void)pickerView:(__unused UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(__unused NSInteger)component
 {
-    id value = nil;
-    if (!self.field.placeholder || row > 0)
-    {
-        value = self.field.options[row - (self.field.placeholder? 1: 0)];
-    }
-    self.field.value = value;
+    [self.field setOptionSelected:YES atIndex:row];
     self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
     
     [self setNeedsLayout];

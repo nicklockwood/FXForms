@@ -63,8 +63,8 @@
                FXFormFieldPlaceholder: @"None",
                FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]},
              
-             // this is a option field that uses a FXFormOptionPickerCell to display the available
-             // options in a UIPickerView
+             //this is an options field that uses a FXFormOptionPickerCell to display the available
+             //options in a UIPickerView
              
              @{FXFormFieldKey: @"language",
                FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"],
@@ -74,7 +74,8 @@
              //this is a multi-select options field - FXForms knows this because the
              //class of the field property is a collection (in this case, NSArray)
              
-             @{FXFormFieldKey: @"interests", FXFormFieldPlaceholder: @"None", FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
+             @{FXFormFieldKey: @"interests", FXFormFieldPlaceholder: @"None",
+               FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
              
              //this is another multi-select options field, but in this case it's represented
              //as a bitfield. FXForms can't infer this from the property (which is just an integer), so
@@ -88,6 +89,9 @@
              //this is a multiline text view that grows to fit its contents
              
              @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText},
+             
+             //this is an options field that uses a FXFormOptionSegmentsCell to display the available
+             //options in a UIPickerView
              
              @{FXFormFieldHeader: @"Plan",
                FXFormFieldKey: @"plan",

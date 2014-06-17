@@ -28,6 +28,14 @@ typedef NS_OPTIONS(NSInteger, Interests)
 };
 
 
+typedef NS_OPTIONS(NSInteger, ServicePlan)
+{
+    ServicePlanMicro = 0,
+    ServicePlanNormal,
+    ServicePlanMaxi
+};
+
+
 @interface RegistrationForm : NSObject <FXForm>
 
 @property (nonatomic, copy) NSString *email;
@@ -46,7 +54,7 @@ typedef NS_OPTIONS(NSInteger, Interests)
 @property (nonatomic, assign) Interests otherInterests;
 @property (nonatomic, copy) NSString *about;
 
-@property (nonatomic, copy) NSString *plan;
+@property (nonatomic, assign) ServicePlan plan;
 
 @property (nonatomic, copy) NSString *notifications;
 
