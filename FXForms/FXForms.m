@@ -2349,7 +2349,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     [self.contentView addSubview:self.textField];
     
     [self.contentView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textField action:NSSelectorFromString(@"becomeFirstResponder")]];
-    k
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange) name:UITextFieldTextDidChangeNotification object:self.textField];
 }
 
