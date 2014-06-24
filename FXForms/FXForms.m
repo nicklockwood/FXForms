@@ -492,6 +492,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @property (nonatomic, readwrite) BOOL isSortable;
 @property (nonatomic, readwrite) BOOL isInline;
 @property (nonatomic, readonly) id (^valueTransformer)(id input);
+@property (nonatomic, readonly) id (^reverseValueTransformer)(id input);
 @property (nonatomic, copy) NSString *header;
 @property (nonatomic, copy) NSString *footer;
 
@@ -768,10 +769,36 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setValue:(id)value
 {
-    if (!value && [self isIndexedType])
+    if (self.reverseValueTransformer)
+    {
+        value = self.reverseValueTransformer;
+    }
+    else if ([value isKindOfClass:[NSString class]])
+    {
+        if ([self.type isEqualToString:FXFormFieldTypeNumber])
+        {
+            value = @([value doubleValue]);
+        }
+        else if ([self.type isEqualToString:FXFormFieldTypeInteger])
+        {
+            value = @([value longLongValue]);
+        }
+        else if ([self.valueClass isSubclassOfClass:[NSURL class]])
+        {
+            value = [self.valueClass URLWithString:value];
+        }
+        
+        //handle case where value is numeric but value class is string
+        if (![value isKindOfClass:[NSString class]] && [self.valueClass isSubclassOfClass:[NSString class]])
+        {
+            value = [self.valueClass stringWithString:[value description]];
+        }
+    }
+    else if (!value && [self isIndexedType])
     {
         value = @(NSNotFound);
     }
+    
     FXFormSetValueForKey(self.form, value, self.key);
 }
 
@@ -781,7 +808,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         valueTransformer = NSClassFromString(valueTransformer);
     }
-    if ([valueTransformer respondsToSelector:@selector(alloc)])
+    if ([valueTransformer class] == valueTransformer)
     {
         valueTransformer = [[valueTransformer alloc] init];
     }
@@ -792,6 +819,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             return [transformer transformedValue:input];
         };
+        if ([[transformer class] allowsReverseTransformation])
+        {
+            _reverseValueTransformer = ^(id input)
+            {
+                return [transformer reverseTransformedValue:input];
+            };
+        }
     }
     
     _valueTransformer = [valueTransformer copy];
@@ -2315,10 +2349,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     [self.contentView addSubview:self.textField];
     
     [self.contentView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.textField action:NSSelectorFromString(@"becomeFirstResponder")]];
+    k
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange) name:UITextFieldTextDidChangeNotification object:self.textField];
 }
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     _textField.delegate = nil;
 }
 
@@ -2430,48 +2467,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
 }
 
-- (BOOL)textFieldShouldReturn:(__unused UITextField *)textField
-{
-    if (self.textField.returnKeyType == UIReturnKeyNext)
-    {
-        [[self nextCell] becomeFirstResponder];
-    }
-    else
-    {
-        [self.textField resignFirstResponder];
-    }
-    return NO;
-}
-
-- (void)textFieldDidEndEditing:(__unused UITextField *)textField
-{
-    id value = [self.textField.text length]? self.textField.text: nil;
-    if (value)
-    {
-        if ([self.field.type isEqualToString:FXFormFieldTypeNumber])
-        {
-            value = @([self.textField.text doubleValue]);
-        }
-        else if ([self.field.type isEqualToString:FXFormFieldTypeInteger])
-        {
-            value = @([self.textField.text longLongValue]);
-        }
-        else if ([self.field.valueClass isSubclassOfClass:[NSURL class]])
-        {
-            value = [self.field.valueClass URLWithString:self.textField.text];
-        }
-        
-        //handle case where value is numeric but value class is string
-        if (![value isKindOfClass:[NSString class]] && [self.field.valueClass isSubclassOfClass:[NSString class]])
-        {
-            value = [self.field.valueClass stringWithString:[value description]];
-        }
-    }
-    self.field.value = value;
-
-    if (self.field.action) self.field.action(self);
-}
-
 - (BOOL)textFieldShouldBeginEditing:(__unused UITextField *)textField
 {
     //welcome to hacksville, population: you
@@ -2493,6 +2488,36 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)textFieldDidBeginEditing:(__unused UITextField *)textField
 {
     [self.textField selectAll:nil];
+}
+
+- (void)textDidChange
+{
+    [self updateFieldValue];
+}
+
+- (BOOL)textFieldShouldReturn:(__unused UITextField *)textField
+{
+    if (self.textField.returnKeyType == UIReturnKeyNext)
+    {
+        [[self nextCell] becomeFirstResponder];
+    }
+    else
+    {
+        [self.textField resignFirstResponder];
+    }
+    return NO;
+}
+
+- (void)textFieldDidEndEditing:(__unused UITextField *)textField
+{
+    [self updateFieldValue];
+
+    if (self.field.action) self.field.action(self);
+}
+
+- (void)updateFieldValue
+{
+    self.field.value = [self.textField.text length]? self.textField.text: nil;
 }
 
 - (BOOL)canBecomeFirstResponder
@@ -2671,22 +2696,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)updateFieldValue
 {
-    if ([self.field.type isEqualToString:FXFormFieldTypeNumber])
-    {
-        self.field.value = @([self.textView.text doubleValue]);
-    }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeInteger])
-    {
-        self.field.value = @([self.textView.text integerValue]);
-    }
-    else if ([self.field.valueClass isSubclassOfClass:[NSURL class]])
-    {
-        self.field.value = [self.field.valueClass URLWithString:self.textView.text];
-    }
-    else
-    {
-        self.field.value = self.textView.text;
-    }
+    self.field.value = [self.textView.text length]? self.textView.text: nil;
 }
 
 - (BOOL)canBecomeFirstResponder

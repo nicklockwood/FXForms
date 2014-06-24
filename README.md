@@ -274,7 +274,7 @@ If the field is an NSArray or NSOrderedSet, FXForms allows the user to add, edit
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 ```
 
-Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The `FXFormFieldValueTransformer` property lets you specify either a conversion block or an `NSValueTransformer` to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance of `NSValueTransformer` or the name of an `NSValueTransformer` subclass. If the form field has an options array, the value transformer will also be used to control how the options are displayed in the list.
+Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The `FXFormFieldValueTransformer` property lets you specify either a conversion block or an `NSValueTransformer` to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance of `NSValueTransformer` or the name of an `NSValueTransformer` subclass. If the form field has an options array, the value transformer will also be used to control how the options are displayed in the list. The `FXFormFieldValueTransformer` can be reversible, in which case it will be also be used to convert input values before storing them in the form.
 
 ```objc
 static NSString *const FXFormFieldAction = @"action";
@@ -518,6 +518,8 @@ Version 1.2 beta
 - Added dynamic fields example (loading form field descriptions from a JSON file)
 - Added indexPathForField: method to FXFormController
 - FXForm tableView is now always in edit mode - this may affect layout for custom cells
+- Specified FXFormFieldValueTransformer object can now be reversible
+- Textfield form values are now updated live during editing
 
 Version 1.1.6
 
