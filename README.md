@@ -280,9 +280,18 @@ Sometimes the value you wish to display for a field may not match the value you 
 static NSString *const FXFormFieldAction = @"action";
 ```
     
-This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, it's superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
+This is an optional action to be performed by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, it's superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
 
 For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the field model, and from that the form itself.
+
+```objc
+static NSString *const FXFormFieldSegue = @"segue";
+```
+    
+This is a `UIStoryboardSegue` to be performed when the field is tapped. This can be either be a `UIStoryboardSegue` subclass (or a string containing the name of a `UIStoryboardSegue` subclass), an instance of a `UIStoryboardSegue` subclass, or a string representing the identifier of a segue attached to the form view controller. Note that in the latter case, the segue *must* be attached to the same controller as the form, or it will crash when invoked.
+
+If the FXFormFieldSegue property is a segue instance or identifier, it will be invoked when the field is tapped. If it is a segue subclass, this segue will be instantiated and used to handle the transition when displaying a subform or sub-controller.
+
 
 ```objc
 static NSString *const FXFormFieldHeader = @"header";
@@ -498,6 +507,7 @@ Version 1.2 beta
 
 - Fields of type NSArray and NSOrderedSet can now be edited by adding, removing and sorting items
 - Added FXFormFieldTemplate for creating template values for NSArray and NSOrderedSet
+- Added FXFormFieldSegue property for specifying a segue to perform when field is tapped
 - Added FXFormFieldTypePhone field type
 - Added FXFormOptionSegmentsCell class
 - Added ability to register cell and controller classes based on field value class as well as type

@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 4
+//  Version 1.2 beta 5
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -810,6 +810,18 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     
     _action = [action copy];
+}
+
+- (void)setSegue:(id)segue
+{
+    if ([segue isKindOfClass:[NSString class]])
+    {
+        segue = NSClassFromString(segue) ?: [segue copy];
+    }
+    
+    NSAssert(segue != [UIStoryboardPopoverSegue class], @"Unfortunately displaying subcontrollers using UIStoryboardPopoverSegue is not supported, as doing so would require calling private methods. To display using a popover, create a custom UIStoryboard subclass instead.");
+    
+    _segue = segue;
 }
 
 - (void)setClass:(Class)valueClass
@@ -2142,7 +2154,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                 self.selectionStyle = UITableViewCellSelectionStyleNone;
             }
         }
-        else if ([self.field isSubform])
+        else if ([self.field isSubform] || self.field.segue)
         {
             self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
@@ -2228,13 +2240,34 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
         }
     }
+    else if (self.field.action)
+    {
+        //action takes precendence over segue or subform - you can implement these yourself in the action
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
+        self.field.action(self);
+        [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
+    }
+    else if (self.field.segue && [self.field.segue class] != self.field.segue)
+    {
+        //segue takes precendence over subform - you have to handle setup of subform yourself
+        [FXFormsFirstResponder(tableView) resignFirstResponder];
+        if ([self.field.segue isKindOfClass:[UIStoryboardSegue class]])
+        {
+            [controller prepareForSegue:self.field.segue sender:self];
+            [(UIStoryboardSegue *)self.field.segue perform];
+        }
+        else if ([self.field.segue isKindOfClass:[NSString class]])
+        {
+            [controller performSegueWithIdentifier:self.field.segue sender:self];
+        }
+    }
     else if ([self.field isSubform])
     {
         [FXFormsFirstResponder(tableView) resignFirstResponder];
         UIViewController *subcontroller = nil;
         if ([self.field.valueClass isSubclassOfClass:[UIViewController class]])
         {
-            subcontroller = self.field.value;
+            subcontroller = self.field.value ?: [[self.field.valueClass alloc] init];
         }
         else
         {
@@ -2242,14 +2275,16 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             ((id <FXFormFieldViewController>)subcontroller).field = self.field;
         }
         if (!subcontroller.title) subcontroller.title = self.field.title;
-        [controller.navigationController pushViewController:subcontroller animated:YES];
-        if (self.field.action) self.field.action(self);
-    }
-    else if (self.field.action)
-    {
-        [FXFormsFirstResponder(tableView) resignFirstResponder];
-        self.field.action(self);
-        [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
+        if (self.field.segue)
+        {
+            UIStoryboardSegue *segue = [[self.field.segue alloc] initWithIdentifier:self.field.key source:controller destination:subcontroller];
+            [controller prepareForSegue:self.field.segue sender:self];
+            [segue perform];
+        }
+        else
+        {
+            [controller.navigationController pushViewController:subcontroller animated:YES];
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2 beta 4
+//  Version 1.2 beta 5
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -47,6 +47,7 @@ static NSString *const FXFormFieldOptions = @"options";
 static NSString *const FXFormFieldTemplate = @"template";
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 static NSString *const FXFormFieldAction = @"action";
+static NSString *const FXFormFieldSegue = @"segue";
 static NSString *const FXFormFieldHeader = @"header";
 static NSString *const FXFormFieldFooter = @"footer";
 static NSString *const FXFormFieldInline = @"inline";
@@ -112,6 +113,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) BOOL isInline;
 @property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
+@property (nonatomic, readonly) id segue;
 @property (nonatomic, strong) id value;
 
 - (NSUInteger)optionCount;
