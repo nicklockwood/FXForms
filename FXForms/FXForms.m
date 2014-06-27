@@ -853,7 +853,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     _valueClass = valueClass;
 }
 
-- (void)setCellClass:(Class)cellClass
+- (void)setCell:(Class)cellClass
 {
     _cellClass = cellClass;
 }
