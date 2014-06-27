@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01244B141934E926000BF3CD /* OptionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01244B131934E926000BF3CD /* OptionsTests.m */; };
+		01244B141934E926000BF3CD /* FXFormsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01244B131934E926000BF3CD /* FXFormsTests.m */; };
 		01D28C891907BFC80021C719 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D28C881907BFC80021C719 /* XCTest.framework */; };
 		01D28C8A1907BFC80021C719 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D28C6F1907BFC80021C719 /* Foundation.framework */; };
 		01D28C8B1907BFC80021C719 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D28C731907BFC80021C719 /* UIKit.framework */; };
@@ -16,7 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		01244B131934E926000BF3CD /* OptionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OptionsTests.m; sourceTree = "<group>"; };
+		01244B131934E926000BF3CD /* FXFormsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXFormsTests.m; sourceTree = "<group>"; };
 		01D28C6F1907BFC80021C719 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		01D28C711907BFC80021C719 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		01D28C731907BFC80021C719 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -74,7 +74,7 @@
 		01D28C8E1907BFC80021C719 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
-				01244B131934E926000BF3CD /* OptionsTests.m */,
+				01244B131934E926000BF3CD /* FXFormsTests.m */,
 				01D28C8F1907BFC80021C719 /* Supporting Files */,
 			);
 			path = UnitTests;
@@ -164,7 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01244B141934E926000BF3CD /* OptionsTests.m in Sources */,
+				01244B141934E926000BF3CD /* FXFormsTests.m in Sources */,
 				01F111DB1950390300A81507 /* FXForms.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

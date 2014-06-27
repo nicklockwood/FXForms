@@ -1017,13 +1017,27 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             }
         }
     }
-    else if (selected && [self isIndexedType])
+    else if ([self isIndexedType])
     {
-        self.value = @(index);
+        if (selected)
+        {
+            self.value = @(index);
+        }
+        else if ([self.value integerValue] == (NSInteger)index)
+        {
+            self.value = nil;
+        }
     }
-    else if (selected && index != NSNotFound)
+    else if (index != NSNotFound)
     {
-        self.value = self.options[index];
+        if (selected)
+        {
+            self.value = self.options[index];
+        }
+        else if ([self.value isEqual:self.options[index]])
+        {
+            self.value = nil;
+        }
     }
     else
     {
@@ -3137,59 +3151,28 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     self.textLabel.text = self.field.title;
     
-    [self updateSegmentedControlOptions];
-    
-    NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
-    if (self.field.placeholder)
+    [self.segmentedControl removeAllSegments];
+    for (NSUInteger i = 0; i < [self.field optionCount]; i++)
     {
-        index = (index == NSNotFound)? 0: index + 1;
-    }
-    if (index == NSNotFound)
-    {
-        [self.segmentedControl setSelectedSegmentIndex:UISegmentedControlNoSegment];
-    }
-    else
-    {
-        [self.segmentedControl setSelectedSegmentIndex:index];
+        [self.segmentedControl insertSegmentWithTitle:[self.field optionDescriptionAtIndex:i] atIndex:i animated:NO];
+        if ([self.field isOptionSelectedAtIndex:i])
+        {
+            [self.segmentedControl setSelectedSegmentIndex:i];
+        }
     }
     
     [self setNeedsLayout];
 }
 
-- (void)updateSegmentedControlOptions
-{
-    for (NSInteger index = self.segmentedControl.numberOfSegments; index >= 0; index--)
-    {
-        [self.segmentedControl removeSegmentAtIndex:index animated:NO];
-    }
-    
-    NSInteger index = 0;
-    
-    //if there's a placeholder, add it as an option
-    if (self.field.placeholder)
-    {
-        [self.segmentedControl insertSegmentWithTitle:[self.field.placeholder fieldDescription] atIndex:index animated:NO];
-        index++;
-    }
-    
-    //add the rest of the options
-    for (id option in self.field.options)
-    {
-        [self.segmentedControl insertSegmentWithTitle:[self.field valueDescription:option] atIndex:index animated:NO];
-        index++;
-    }
-}
-
 - (void)valueChanged
 {
-    NSInteger selectedSegmentIndex = self.segmentedControl.selectedSegmentIndex;
-    
-    id value = nil;
-    if (!self.field.placeholder || selectedSegmentIndex > 0)
+    //note: this loop is to prevent bugs when field type is multiselect
+    //which currently isn't supported by FXFormOptionSegmentsCell
+    NSInteger selectedIndex = self.segmentedControl.selectedSegmentIndex;
+    for (NSInteger i = 0; i < (NSInteger)[self.field optionCount]; i++)
     {
-        value = self.field.options[selectedSegmentIndex - (self.field.placeholder? 1: 0)];
+        [self.field setOptionSelected:(selectedIndex == i) atIndex:i];
     }
-    self.field.value = value;
     
     if (self.field.action) self.field.action(self);
 }

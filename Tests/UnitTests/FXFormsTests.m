@@ -1,5 +1,5 @@
 //
-//  OptionsTests.m
+//  FXFormsTests.m
 //  UnitTests
 //
 //  Created by Nick Lockwood on 17/06/2014.
@@ -70,14 +70,14 @@
 @end
 
 
-@interface OptionsTests : XCTestCase
+@interface FXFormsTests : XCTestCase
 
 @property (nonatomic, strong) FXFormController *controller;
 
 @end
 
 
-@implementation OptionsTests
+@implementation FXFormsTests
 
 - (void)setUp
 {
@@ -262,6 +262,29 @@
     FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     XCTAssertEqualObjects(field.type, FXFormFieldTypeInteger, @"");
     XCTAssertEqualObjects(field.valueClass, [NSNumber class], @"");
+}
+
+- (void)testToggleOptions
+{
+    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    
+    [field setOptionSelected:YES atIndex:0];
+    XCTAssertNil(field.value, @"");
+    
+    [field setOptionSelected:NO atIndex:0];
+    XCTAssertNil(field.value, @"");
+    
+    [field setOptionSelected:YES atIndex:1];
+    XCTAssertEqualObjects(field.value, @0, @"");
+    
+    [field setOptionSelected:NO atIndex:1];
+    XCTAssertNil(field.value, @"");
+    
+    [field setOptionSelected:YES atIndex:2];
+    XCTAssertEqualObjects(field.value, @1, @"");
+    
+    [field setOptionSelected:NO atIndex:2];
+    XCTAssertNil(field.value, @"");
 }
 
 @end
