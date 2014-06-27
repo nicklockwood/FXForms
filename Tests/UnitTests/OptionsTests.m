@@ -1,5 +1,6 @@
 //
 //  OptionsTests.m
+//  UnitTests
 //
 //  Created by Nick Lockwood on 17/06/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -18,6 +19,8 @@
 @property (nonatomic, copy) NSString *options4;
 @property (nonatomic, assign) NSInteger options5;
 @property (nonatomic, assign) NSInteger options6;
+@property (nonatomic, strong) NSNumber *options7;
+@property (nonatomic, strong) NSNumber *options8;
 
 @end
 
@@ -99,7 +102,7 @@
     XCTAssertEqualObjects(field.value, @2, @"");
     
     [field setOptionSelected:NO atIndex:2];
-    XCTAssertEqualObjects(field.value, @(NSNotFound), @"");
+    XCTAssertNil(field.value, @"");
 }
 
 - (void)testIndexedOptionsWithPlaceholder
@@ -110,7 +113,7 @@
     XCTAssertEqualObjects(field.value, @0, @""); //defaults to zero
     
     [field setOptionSelected:YES atIndex:0];
-    XCTAssertEqualObjects(field.value, @(NSNotFound), @"");
+    XCTAssertNil(field.value, @"");
     
     [field setOptionSelected:YES atIndex:1];
     XCTAssertEqualObjects(field.value, @0, @"");
@@ -122,7 +125,7 @@
     XCTAssertEqualObjects(field.value, @2, @"");
     
     [field setOptionSelected:NO atIndex:3];
-    XCTAssertEqualObjects(field.value, @(NSNotFound), @"");
+    XCTAssertNil(field.value, @"");
 }
 
 - (void)testStringOptions
@@ -209,6 +212,56 @@
     
     [field setOptionSelected:NO atIndex:3];
     XCTAssertEqualObjects(field.value, @0, @"");
+}
+
+- (void)testIndexedOptionsWithNSNumber
+{
+    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:6 inSection:0]];
+    XCTAssertEqual([field optionCount], 3, @"");
+    XCTAssertEqualObjects([field optionDescriptionAtIndex:0], @"Foo", @"");
+    XCTAssertNil(field.value, @""); //defaults to nil
+    
+    [field setOptionSelected:YES atIndex:0];
+    XCTAssertEqualObjects(field.value, @0, @"");
+    
+    [field setOptionSelected:YES atIndex:1];
+    XCTAssertEqualObjects(field.value, @1, @"");
+    
+    [field setOptionSelected:YES atIndex:2];
+    XCTAssertEqualObjects(field.value, @2, @"");
+    
+    [field setOptionSelected:NO atIndex:2];
+    XCTAssertNil(field.value, @"");
+}
+
+- (void)testIndexedOptionsWithNSNumberWithPlaceholder
+{
+    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:7 inSection:0]];
+    XCTAssertEqual([field optionCount], 4, @"");
+    XCTAssertEqualObjects([field optionDescriptionAtIndex:0], @"Nope", @"");
+    XCTAssertNil(field.value, @""); //defaults to nil
+    
+    [field setOptionSelected:YES atIndex:0];
+    XCTAssertNil(field.value, @"");
+    
+    [field setOptionSelected:YES atIndex:1];
+    XCTAssertEqualObjects(field.value, @0, @"");
+    
+    [field setOptionSelected:YES atIndex:2];
+    XCTAssertEqualObjects(field.value, @1, @"");
+    
+    [field setOptionSelected:YES atIndex:3];
+    XCTAssertEqualObjects(field.value, @2, @"");
+    
+    [field setOptionSelected:NO atIndex:3];
+    XCTAssertNil(field.value, @"");
+}
+
+- (void)testOptions1Type
+{
+    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    XCTAssertEqualObjects(field.type, FXFormFieldTypeInteger, @"");
+    XCTAssertEqualObjects(field.valueClass, [NSNumber class], @"");
 }
 
 @end

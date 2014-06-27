@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 5
+//  Version 1.2 beta 6
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -212,7 +212,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
     return properties;
 }
 
-static BOOL *FXFormOverridesSelector(id<FXForm> form, SEL selector)
+static BOOL FXFormOverridesSelector(id<FXForm> form, SEL selector)
 {
     Class formClass = [form class];
     while (formClass && formClass != [NSObject class])
@@ -233,7 +233,7 @@ static BOOL *FXFormOverridesSelector(id<FXForm> form, SEL selector)
     return NO;
 }
 
-static BOOL *FXFormCanGetValueForKey(id<FXForm> form, NSString *key)
+static BOOL FXFormCanGetValueForKey(id<FXForm> form, NSString *key)
 {
     //has key?
     if (![key length])
@@ -269,7 +269,7 @@ static BOOL *FXFormCanGetValueForKey(id<FXForm> form, NSString *key)
     return NO;
 }
 
-static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
+static BOOL FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
 {
     //has key?
     if (![key length])
@@ -302,31 +302,6 @@ static BOOL *FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     }
     
     //it will probably crash
-    return NO;
-}
-
-static BOOL *FXFormSetValueForKey(id<FXForm> form, id value, NSString *key)
-{
-    if (FXFormCanSetValueForKey(form, key))
-    {
-        if (!value)
-        {
-            for (NSDictionary *field in FXFormProperties(form))
-            {
-                if ([field[FXFormFieldKey] isEqualToString:key])
-                {
-                    if ([@[FXFormFieldTypeBoolean, FXFormFieldTypeInteger, FXFormFieldTypeFloat] containsObject:field[FXFormFieldType]])
-                    {
-                        //prevents NSInvalidArgumentException in setNilValueForKey: method
-                        value = @0;
-                    }
-                    break;
-                }
-            }
-        }
-        [(NSObject *)form setValue:value forKey:key];
-        return YES;
-    }
     return NO;
 }
 
@@ -485,7 +460,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @interface FXFormField ()
 
 @property (nonatomic, strong) Class valueClass;
-@property (nonatomic, strong) Class cell;
+@property (nonatomic, strong) Class cellClass;
 @property (nonatomic, readwrite) NSString *key;
 @property (nonatomic, readwrite) NSArray *options;
 @property (nonatomic, readwrite) NSDictionary *fieldTemplate;
@@ -758,9 +733,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if (FXFormCanGetValueForKey(self.form, self.key))
     {
         id value = [(NSObject *)self.form valueForKey:self.key];
-        if (!value && [self isIndexedType])
+        if ([self isIndexedType] && [value isEqual:@(NSNotFound)])
         {
-            value = @(NSNotFound);
+            value = nil;
         }
         return value;
     }
@@ -769,37 +744,52 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setValue:(id)value
 {
-    if (self.reverseValueTransformer)
+    if (FXFormCanSetValueForKey(self.form, self.key))
     {
-        value = self.reverseValueTransformer;
-    }
-    else if ([value isKindOfClass:[NSString class]])
-    {
-        if ([self.type isEqualToString:FXFormFieldTypeNumber])
+        if (self.reverseValueTransformer)
         {
-            value = @([value doubleValue]);
+            value = self.reverseValueTransformer;
         }
-        else if ([self.type isEqualToString:FXFormFieldTypeInteger])
+        else if ([value isKindOfClass:[NSString class]])
         {
-            value = @([value longLongValue]);
+            if ([self.type isEqualToString:FXFormFieldTypeNumber])
+            {
+                value = @([value doubleValue]);
+            }
+            else if ([self.type isEqualToString:FXFormFieldTypeInteger])
+            {
+                value = @([value longLongValue]);
+            }
+            else if ([self.valueClass isSubclassOfClass:[NSURL class]])
+            {
+                value = [self.valueClass URLWithString:value];
+            }
+            
+            //handle case where value is numeric but value class is string
+            if (![value isKindOfClass:[NSString class]] && [self.valueClass isSubclassOfClass:[NSString class]])
+            {
+                value = [self.valueClass stringWithString:[value description]];
+            }
         }
-        else if ([self.valueClass isSubclassOfClass:[NSURL class]])
+
+        if (!value)
         {
-            value = [self.valueClass URLWithString:value];
+            for (NSDictionary *field in FXFormProperties(self.form))
+            {
+                if ([field[FXFormFieldKey] isEqualToString:self.key])
+                {
+                    if ([@[FXFormFieldTypeBoolean, FXFormFieldTypeInteger, FXFormFieldTypeFloat] containsObject:field[FXFormFieldType]])
+                    {
+                        //prevents NSInvalidArgumentException in setNilValueForKey: method
+                        value = [self isIndexedType]? @(NSNotFound): @0;
+                    }
+                    break;
+                }
+            }
         }
         
-        //handle case where value is numeric but value class is string
-        if (![value isKindOfClass:[NSString class]] && [self.valueClass isSubclassOfClass:[NSString class]])
-        {
-            value = [self.valueClass stringWithString:[value description]];
-        }
+        [(NSObject *)self.form setValue:value forKey:self.key];
     }
-    else if (!value && [self isIndexedType])
-    {
-        value = @(NSNotFound);
-    }
-    
-    FXFormSetValueForKey(self.form, value, self.key);
 }
 
 - (void)setValueTransformer:(id)valueTransformer
@@ -861,6 +851,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)setClass:(Class)valueClass
 {
     _valueClass = valueClass;
+}
+
+- (void)setCellClass:(Class)cellClass
+{
+    _cellClass = cellClass;
 }
 
 - (void)setInline:(BOOL)isInline
@@ -1760,7 +1755,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
-    Class cellClass = field.cell ?: [self cellClassForField:field];
+    Class cellClass = field.cellClass ?: [self cellClassForField:field];
     if ([cellClass respondsToSelector:@selector(heightForField:width:)])
     {
         return [cellClass heightForField:field width:self.tableView.frame.size.width];
@@ -1777,7 +1772,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     FXFormField *field = [self fieldForIndexPath:indexPath];
 
     //don't recycle cells - it would make things complicated
-    Class cellClass = field.cell ?: [self cellClassForField:field];
+    Class cellClass = field.cellClass ?: [self cellClassForField:field];
     NSString *nibName = NSStringFromClass(cellClass);
     if ([[NSBundle mainBundle] pathForResource:nibName ofType:@"nib"])
     {
