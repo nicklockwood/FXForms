@@ -2072,7 +2072,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     _field = field;
     
-    id<FXForm> form = self.field.value;
+    id<FXForm> form = nil;
     if ([field.options count])
     {
         form = [[FXOptionsForm alloc] initWithField:field];
@@ -2083,7 +2083,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     else if ([field.valueClass conformsToProtocol:@protocol(FXForm)])
     {
-        if (![field.valueClass isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
+        if (!field.value && ![field.valueClass isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
         {
             //create a new instance of the form automatically
             field.value = [[field.valueClass alloc] init];
