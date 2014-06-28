@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 6
+//  Version 1.2 beta 7
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -490,7 +490,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @property (nonatomic, strong) NSMutableArray *fields;
 @property (nonatomic, assign) BOOL isSortable;
 
-- (BOOL)addNewField;
+- (void)addNewField;
 
 @end
 
@@ -592,7 +592,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (BOOL)isOrderedCollectionType
 {
-    for (Class valueClass in @[[NSArray class], [NSOrderedSet class]])
+    for (Class valueClass in @[[NSArray class], [NSOrderedSet class], [NSIndexSet class]])
     {
         if ([self.valueClass isSubclassOfClass:valueClass]) return YES;
     }
@@ -604,7 +604,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return (![self.type isEqualToString:FXFormFieldTypeLabel] &&
             ([self.valueClass conformsToProtocol:@protocol(FXForm)] ||
              [self.valueClass isSubclassOfClass:[UIViewController class]] ||
-             [self.options count] || [self isOrderedCollectionType] || self.viewController));
+             [self.options count] || [self isCollectionType] || self.viewController));
 }
 
 - (NSString *)valueDescription:(id)value
@@ -1180,7 +1180,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @interface FXTemplateForm : NSObject <FXForm>
 
 @property (nonatomic, strong) FXFormField *field;
-@property (nonatomic, assign) BOOL hasNilLastValue;
+@property (nonatomic, strong) NSMutableArray *fields;
+@property (nonatomic, strong) NSMutableArray *values;
 
 @end
 
@@ -1192,66 +1193,120 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if ((self = [super init]))
     {
         _field = field;
+        _fields = [NSMutableArray array];
+        _values = [NSMutableArray array];
+        [self updateFields];
     }
     return self;
 }
 
-- (NSArray *)fields
+- (NSMutableDictionary *)newFieldDictionary
 {
-    //TODO: - could we put this in the init and just update whenever values are added?
-    NSMutableArray *fields = [NSMutableArray array];
+    //TODO: is there a better way to handle default template fallback?
+    //TODO: can we infer default template from existing values instead of having string fallback?
+    NSMutableDictionary *field = [NSMutableDictionary dictionaryWithDictionary:self.field.fieldTemplate];
+    if (!field[FXFormFieldType]) field[FXFormFieldType] = FXFormFieldTypeText;
+    if (!field[FXFormFieldClass]) field[FXFormFieldClass] = [NSString class];
+    field[FXFormFieldTitle] = @"";
+    return field;
+}
+
+- (void)updateFields
+{
+    //set fields
+    [self.fields removeAllObjects];
     NSUInteger count = [(NSArray *)self.field.value count];
-    if (_hasNilLastValue) count ++;
     for (NSUInteger i = 0; i < count; i++)
     {
-        //TODO: is there a better way to handle default template fallback?
-        //TODO: can we infer default template from existing values instead of having string fallback?
-        NSMutableDictionary *field = [NSMutableDictionary dictionaryWithDictionary:self.field.fieldTemplate];
-        if (!field[FXFormFieldType]) field[FXFormFieldType] = FXFormFieldTypeText;
-        if (!field[FXFormFieldClass]) field[FXFormFieldClass] = [NSString class];
+        NSMutableDictionary *field = [self newFieldDictionary];
         field[FXFormFieldKey] = [@(i) description];
-        field[FXFormFieldTitle] = @"";
-        [fields addObject:field];
+        [_fields addObject:field];
     }
     
-    [fields addObject:@{FXFormFieldTitle: self.field.fieldTemplate[FXFormFieldTitle] ?: NSLocalizedString(@"Add Item", nil),
-                        FXFormFieldCell: [FXFormBaseCell class],
-                        @"textLabel.textAlignment": @(NSTextAlignmentLeft),
-                        FXFormFieldAction: ^(UITableViewCell<FXFormFieldCell> *cell) {
+    //create add button
+    NSString *addButtonTitle = self.field.fieldTemplate[FXFormFieldTitle] ?: NSLocalizedString(@"Add Item", nil);
+    [_fields addObject:@{FXFormFieldTitle: addButtonTitle,
+                         FXFormFieldCell: [FXFormBaseCell class],
+                         @"textLabel.textAlignment": @(NSTextAlignmentLeft),
+                         FXFormFieldAction: ^(UITableViewCell<FXFormFieldCell> *cell) {
         
         FXFormField *field = cell.field;
         FXFormController *formController = field.formController;
         UITableView *tableView = formController.tableView;
         NSIndexPath *indexPath = [tableView indexPathForCell:cell];
         FXFormSection *section = formController.sections[indexPath.section];
-        if ([section addNewField])
-        {
-            [tableView deselectRowAtIndexPath:indexPath animated:YES];
-            [tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            [[tableView cellForRowAtIndexPath:indexPath] becomeFirstResponder];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [formController tableView:tableView didSelectRowAtIndexPath:indexPath];
-                [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+        [section addNewField];
 
-            });
-        }
-
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        [tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        [[tableView cellForRowAtIndexPath:indexPath] becomeFirstResponder];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [formController tableView:tableView didSelectRowAtIndexPath:indexPath];
+            [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+            
+        });
+        
     }}];
     
-    return fields;
+    //converts values to an ordered array
+    if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
+    {
+        [self.fields removeAllObjects];
+        [(NSIndexSet *)self.field.value enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL *stop) {
+            [self.fields addObject:@(idx)];
+        }];
+    }
+    else if ([self.field.valueClass isSubclassOfClass:[NSArray class]])
+    {
+        [self.values setArray:self.field.value];
+    }
+    else
+    {
+        [self.values setArray:[self.field.value allValues]];
+    }
+}
+
+- (void)updateFormValue
+{
+    //create collection of correct type
+    BOOL copyNeeded = ([NSStringFromClass(self.field.valueClass) rangeOfString:@"Mutable"].location == NSNotFound);
+    id collection = [[self.field.valueClass alloc] init];
+    if (copyNeeded) collection = [collection mutableCopy];
+    
+    //convert values back to original type
+    if ([self.field.valueClass isSubclassOfClass:[NSIndexSet class]])
+    {
+        for (id object in self.values)
+        {
+            [collection addIndex:[object integerValue]];
+        }
+    }
+    else if ([self.field.valueClass isSubclassOfClass:[NSDictionary class]])
+    {
+        [self.values enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, __unused BOOL *stop) {
+            collection[@(idx)] = obj;
+        }];
+    }
+    else
+    {
+        [collection addObjectsFromArray:self.values];
+    }
+    
+    //set field value
+    if (copyNeeded) collection = [collection copy];
+    self.field.value = collection;
 }
 
 - (id)valueForKey:(NSString *)key
 {
-    //TODO: handle collection types other than NSArray and NSOrderedSet
-    
     NSUInteger index = [key integerValue];
     if (index != NSNotFound)
     {
-        if ([self.field.value isKindOfClass:[NSArray class]] || [self.field.value isKindOfClass:[NSOrderedSet class]])
+        id value = self.values[index];
+        if (value != [NSNull null])
         {
-            return (index >= [(NSArray *)self.field.value count])? nil: [self.field.value objectAtIndex:index];
+            return value;
         }
     }
     return nil;
@@ -1259,55 +1314,65 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    BOOL copyNeeded = ([NSStringFromClass(self.field.valueClass) rangeOfString:@"Mutable"].location == NSNotFound);
-    
-    id collection = self.field.value ?: [[self.field.valueClass alloc] init];
-    if (copyNeeded) collection = [collection mutableCopy];
-    
-    //TODO: handle collection types other than NSArray and NSOrderedSet
-    
+    //set value
+    if (!value) value = [NSNull null];
     NSUInteger index = [key integerValue];
-    if ([self.field.valueClass isSubclassOfClass:[NSOrderedSet class]])
+    if (index >= [self.values count])
     {
-        if ([collection containsObject:value])
-        {
-            //adding this value will have no affect
-            return;
-        }
+        [self.values addObject:value];
     }
-    
-    if (collection && value)
+    else
     {
-        if (index >= [(NSArray *)collection count])
-        {
-            [collection addObject:value];
-            self.hasNilLastValue = NO;
-        }
-        else
-        {
-            
-            [collection replaceObjectAtIndex:index withObject:value];
-        }
+        self.values[index] = value;
     }
-    
-    if (copyNeeded) collection = [collection copy];
-    self.field.value = collection;
+    [self updateFormValue];
+}
+
+- (void)addNewField
+{
+    NSUInteger index = [self.values count];
+    NSMutableDictionary *field = [self newFieldDictionary];
+    field[FXFormFieldKey] = [@(index) description];
+    [self.fields insertObject:field atIndex:index];
+    [self.values addObject:[NSNull null]];
 }
 
 - (void)removeFieldAtIndex:(NSUInteger)index
 {
-    NSMutableArray *mutableValue = [self.field.value mutableCopy];
-    [mutableValue removeObjectAtIndex:index];
-    self.field.value = mutableValue;
+    [self.fields removeObjectAtIndex:index];
+    [self.values removeObjectAtIndex:index];
+    for (NSUInteger i = index; i < [self.values count]; i++)
+    {
+        self.fields[index][FXFormFieldKey] = [@(i) description];
+    }
+    [self updateFormValue];
 }
 
 - (void)moveFieldAtIndex:(NSUInteger)index1 toIndex:(NSUInteger)index2
 {
-    NSMutableArray *mutableValue = [self.field.value mutableCopy];
-    id value = mutableValue[index1];
-    [mutableValue removeObjectAtIndex:index1];
-    [mutableValue insertObject:value atIndex:index2];
-    self.field.value = mutableValue;
+    NSMutableDictionary *field = self.fields[index1];
+    [self.fields removeObjectAtIndex:index1];
+
+    id value = self.values[index1];
+    [self.values removeObjectAtIndex:index1];
+    
+    if (index2 >= [self.fields count])
+    {
+        [self.fields addObject:field];
+        [self.values addObject:value];
+    }
+    else
+    {
+        [self.fields insertObject:field atIndex:index2];
+        [self.values insertObject:value atIndex:index2];
+    }
+    
+    for (NSUInteger i = MIN(index1, index2); i < [self.values count]; i++)
+    {
+        self.fields[i][FXFormFieldKey] = [@(i) description];
+    }
+    
+    [self updateFormValue];
 }
 
 - (BOOL)respondsToSelector:(SEL)selector
@@ -1335,7 +1400,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             subform = [[FXOptionsForm alloc] initWithField:field];
         }
-        else if ([field isOrderedCollectionType] && field.isInline)
+        else if ([field isCollectionType] && field.isInline)
         {
             subform = [[FXTemplateForm alloc] initWithField:field];
         }
@@ -1389,16 +1454,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return _fields;
 }
 
-- (BOOL)addNewField
+- (void)addNewField
 {
-    if (!((FXTemplateForm *)self.form).hasNilLastValue)
-    {
-        ((FXTemplateForm *)self.form).hasNilLastValue = YES;
-        FXFormController *controller = [[_fields lastObject] formController];
-        [ _fields setArray:[FXFormField fieldsWithForm:self.form controller:controller]];
-        return YES;
-    }
-    return NO;
+    FXFormController *controller = [[_fields lastObject] formController];
+    [(FXTemplateForm *)self.form addNewField];
+    [_fields setArray:[FXFormField fieldsWithForm:self.form controller:controller]];
 }
 
 - (void)removeFieldAtIndex:(NSUInteger)index
@@ -1807,7 +1867,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         }
 
         //don't recycle cells - it would make things complicated
-        return [[cellClass alloc] initWithStyle:style reuseIdentifier:nil];
+        return [[cellClass alloc] initWithStyle:style reuseIdentifier:NSStringFromClass(cellClass)];
     }
 }
 
@@ -1827,16 +1887,27 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     [section moveFieldAtIndex:sourceIndexPath.row toIndex:destinationIndexPath.row];
 }
 
+- (NSIndexPath *)tableView:(__unused UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+{
+    FXFormSection *section = [self sectionAtIndex:sourceIndexPath.section];
+    if (sourceIndexPath.section == proposedDestinationIndexPath.section &&
+        proposedDestinationIndexPath.row < (NSInteger)[section.fields count] - 1)
+    {
+        return proposedDestinationIndexPath;
+    }
+    return sourceIndexPath;
+}
+
 - (BOOL)tableView:(__unused UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormSection *section = [self sectionAtIndex:indexPath.section];
     if ([section.form isKindOfClass:[FXTemplateForm class]])
     {
-        if (indexPath.row == (NSInteger)[section.fields count] - 1)
+        if (indexPath.row < (NSInteger)[section.fields count] - 1)
         {
-            return NO;
+            FXFormField *field = ((FXTemplateForm *)section.form).field;
+            return [field isOrderedCollectionType] && field.isSortable;
         }
-        return section.isSortable;
     }
     return NO;
 }
@@ -1896,17 +1967,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         return UITableViewCellEditingStyleDelete;
     }
     return UITableViewCellEditingStyleNone;
-}
-
-- (NSIndexPath *)tableView:(__unused UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
-{
-    FXFormSection *section = [self sectionAtIndex:sourceIndexPath.section];
-    if (sourceIndexPath.section == proposedDestinationIndexPath.section &&
-        proposedDestinationIndexPath.row < (NSInteger)[section.fields count] - 1)
-    {
-        return proposedDestinationIndexPath;
-    }
-    return sourceIndexPath;
 }
 
 - (BOOL)tableView:(__unused UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(__unused NSIndexPath *)indexPath
@@ -2017,7 +2077,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         form = [[FXOptionsForm alloc] initWithField:field];
     }
-    else if ([field isOrderedCollectionType])
+    else if ([field isCollectionType])
     {
         form = [[FXTemplateForm alloc] initWithField:field];
     }
@@ -2104,7 +2164,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
-    if ((self = [super initWithStyle:style reuseIdentifier:reuseIdentifier ?: NSStringFromClass([self class])]))
+    if ((self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]))
     {
         self.textLabel.font = [UIFont boldSystemFontOfSize:17];
         FXFormLabelSetMinFontSize(self.textLabel, FXFormFieldMinFontSize);

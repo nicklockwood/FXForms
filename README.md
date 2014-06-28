@@ -509,7 +509,7 @@ Release notes
 Version 1.2 beta
 
 - Fields of type NSArray and NSOrderedSet can now be edited by adding, removing and sorting items
-- Added FXFormFieldTemplate for creating template values for NSArray and NSOrderedSet
+- Added FXFormFieldTemplate for creating template values for collections
 - Added FXFormFieldSegue property for specifying a segue to perform when field is tapped
 - Added FXFormFieldTypePhone field type
 - Added FXFormOptionSegmentsCell class
