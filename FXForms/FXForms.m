@@ -335,8 +335,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     //use base cell for subforms
     NSString *type = dictionary[FXFormFieldType];
     if (([options count] || dictionary[FXFormFieldViewController] || dictionary[FXFormFieldTemplate]) &&
-        !type && ![dictionary[FXFormFieldInline] boolValue])
+        ![type isEqualToString:FXFormFieldTypeBitfield] && ![dictionary[FXFormFieldInline] boolValue])
     {
+        //TODO: is there a good way to support custom type for non-inline options cells?
         //TODO: is there a better way to force non-inline cells to use base cell?
         dictionary[FXFormFieldType] = type = FXFormFieldTypeDefault;
     }
@@ -468,6 +469,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @property (nonatomic, readwrite) BOOL isInline;
 @property (nonatomic, readonly) id (^valueTransformer)(id input);
 @property (nonatomic, readonly) id (^reverseValueTransformer)(id input);
+@property (nonatomic, strong) id defaultValue;
 @property (nonatomic, copy) NSString *header;
 @property (nonatomic, copy) NSString *footer;
 
@@ -737,15 +739,22 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             value = nil;
         }
+        if (!value && self.defaultValue)
+        {
+            self.value = value = self.defaultValue;
+        }
         return value;
     }
-    return nil;
+    return self.defaultValue;
 }
 
 - (void)setValue:(id)value
 {
     if (FXFormCanSetValueForKey(self.form, self.key))
     {
+        //use default value if available
+        value = value ?: self.defaultValue;
+        
         if (self.reverseValueTransformer)
         {
             value = self.reverseValueTransformer;
@@ -856,6 +865,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)setCell:(Class)cellClass
 {
     _cellClass = cellClass;
+}
+
+- (void)setDefault:(id)defaultValue
+{
+    _defaultValue = defaultValue;
 }
 
 - (void)setInline:(BOOL)isInline
@@ -1023,10 +1037,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             self.value = @(index);
         }
-        else if ([self.value integerValue] == (NSInteger)index)
-        {
-            self.value = nil;
-        }
+        //cannot deselect
     }
     else if (index != NSNotFound)
     {
@@ -1034,10 +1045,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             self.value = self.options[index];
         }
-        else if ([self.value isEqual:self.options[index]])
-        {
-            self.value = nil;
-        }
+        //cannot deselect
     }
     else
     {
@@ -2586,7 +2594,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)updateFieldValue
 {
-    self.field.value = [self.textField.text length]? self.textField.text: nil;
+    self.field.value = self.textField.text;
 }
 
 - (BOOL)canBecomeFirstResponder
@@ -2765,7 +2773,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)updateFieldValue
 {
-    self.field.value = [self.textView.text length]? self.textView.text: nil;
+    self.field.value = self.textView.text;
 }
 
 - (BOOL)canBecomeFirstResponder

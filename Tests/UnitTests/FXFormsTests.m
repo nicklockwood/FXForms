@@ -21,6 +21,8 @@
 @property (nonatomic, assign) NSInteger options6;
 @property (nonatomic, strong) NSNumber *options7;
 @property (nonatomic, strong) NSNumber *options8;
+@property (nonatomic, strong) NSArray *options9;
+@property (nonatomic, strong) NSNumber *options10;
 
 @end
 
@@ -67,6 +69,16 @@
     return @{FXFormFieldOptions: @[@"Foo", @"Bar", @"Baz"], FXFormFieldPlaceholder: @"Nope"};
 }
 
+- (NSDictionary *)options9Field
+{
+    return @{FXFormFieldOptions: @[@"Foo", @"Bar", @"Baz"], FXFormFieldPlaceholder: @"Nope"};
+}
+
+- (NSDictionary *)options10Field
+{
+    return @{FXFormFieldOptions: @[@"Foo", @"Bar", @"Baz"], FXFormFieldDefaultValue: @1};
+}
+
 @end
 
 
@@ -101,8 +113,10 @@
     [field setOptionSelected:YES atIndex:2];
     XCTAssertEqualObjects(field.value, @2, @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:2];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @2, @"");
 }
 
 - (void)testIndexedOptionsWithPlaceholder
@@ -124,8 +138,10 @@
     [field setOptionSelected:YES atIndex:3];
     XCTAssertEqualObjects(field.value, @2, @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:3];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @2, @"");
 }
 
 - (void)testStringOptions
@@ -144,8 +160,10 @@
     [field setOptionSelected:YES atIndex:2];
     XCTAssertEqualObjects(field.value, @"Baz", @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:2];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @"Baz", @"");
 }
 
 - (void)testStringOptionsWithPlaceholder
@@ -167,8 +185,10 @@
     [field setOptionSelected:YES atIndex:3];
     XCTAssertEqualObjects(field.value, @"Baz", @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:3];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @"Baz", @"");
 }
 
 - (void)testNumberOptions
@@ -187,8 +207,10 @@
     [field setOptionSelected:YES atIndex:2];
     XCTAssertEqualObjects(field.value, @15, @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:2];
-    XCTAssertEqualObjects(field.value, @0, @"");
+    XCTAssertEqualObjects(field.value, @15, @"");
 }
 
 - (void)testNumberOptionsWithPlaceholder
@@ -210,8 +232,10 @@
     [field setOptionSelected:YES atIndex:3];
     XCTAssertEqualObjects(field.value, @15, @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:3];
-    XCTAssertEqualObjects(field.value, @0, @"");
+    XCTAssertEqualObjects(field.value, @15, @"");
 }
 
 - (void)testIndexedOptionsWithNSNumber
@@ -230,8 +254,10 @@
     [field setOptionSelected:YES atIndex:2];
     XCTAssertEqualObjects(field.value, @2, @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:2];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @2, @"");
 }
 
 - (void)testIndexedOptionsWithNSNumberWithPlaceholder
@@ -253,20 +279,22 @@
     [field setOptionSelected:YES atIndex:3];
     XCTAssertEqualObjects(field.value, @2, @"");
     
+    //trying to unset an index has no effect
+    //unless it's a multiselect field
     [field setOptionSelected:NO atIndex:3];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @2, @"");
 }
 
 - (void)testOptions1Type
 {
     FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    XCTAssertEqualObjects(field.type, FXFormFieldTypeInteger, @"");
+    XCTAssertEqualObjects(field.type, FXFormFieldTypeDefault, @"");
     XCTAssertEqualObjects(field.valueClass, [NSNumber class], @"");
 }
 
 - (void)testToggleOptions
 {
-    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:8 inSection:0]];
     
     [field setOptionSelected:YES atIndex:0];
     XCTAssertNil(field.value, @"");
@@ -275,16 +303,25 @@
     XCTAssertNil(field.value, @"");
     
     [field setOptionSelected:YES atIndex:1];
-    XCTAssertEqualObjects(field.value, @0, @"");
+    XCTAssertEqualObjects(field.value, @[@"Foo"], @"");
     
     [field setOptionSelected:NO atIndex:1];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @[], @"");
     
     [field setOptionSelected:YES atIndex:2];
-    XCTAssertEqualObjects(field.value, @1, @"");
+    XCTAssertEqualObjects(field.value, @[@"Bar"], @"");
     
     [field setOptionSelected:NO atIndex:2];
-    XCTAssertNil(field.value, @"");
+    XCTAssertEqualObjects(field.value, @[], @"");
+}
+
+- (void)testDefaultValue
+{
+    NSString *defaultValue = [(Form *)self.controller.form options10Field][FXFormFieldDefaultValue];
+    FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:9 inSection:0]];
+    XCTAssertEqual([field optionCount], 3, @"");
+    XCTAssertEqualObjects([field optionDescriptionAtIndex:0], @"Foo", @"");
+    XCTAssertEqualObjects(field.value, defaultValue);
 }
 
 @end

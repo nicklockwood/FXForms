@@ -261,6 +261,12 @@ static NSString *const FXFormFieldPlaceholder = @"placeholder";
 This is the placeholder value to display when the field value is nil or empty. This is typically a string, but doesn't have to be, for example it could be an NSDate for a date field, or a UIImage for an image field. When used with an options or multi-select field, the placeholder will appear as the first item in the options list, and can be used to reset the field to nil / no value.
     
 ```objc
+static NSString *const FXFormFieldDefaultValue = @"default";
+```
+
+This is a default value to use when the field value is nil. This can be useful when creating forms dynamically as the default values can be set directly in the fields array instead of separately in the form's values. It's also a way to ensure that a field value can never be set to nil by the user. Note that the default value is different from the placeholder value, as it will actually be stored in the form itself. If a default value is set, the placeholder will never appear. Default values only work reliably for object types - since zero is potentially a meaningful value for an integer or float property, it will not be replaced by the default value.
+
+```objc
 static NSString *const FXFormFieldOptions = @"options";
 ```
     
@@ -513,6 +519,7 @@ Version 1.2 beta
 - Added FXFormFieldSegue property for specifying a segue to perform when field is tapped
 - Added FXFormFieldTypePhone field type
 - Added FXFormOptionSegmentsCell class
+- Added FXFormFieldDefault for specifying a default value for form fields
 - Added ability to register cell and controller classes based on field value class as well as type
 - Fixed bug in stepper field where labels didn't resize after value change
 - Fixed bug where image preview in FXImagePickerCell would be displayed with incorrect width

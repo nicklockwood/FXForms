@@ -43,6 +43,7 @@ static NSString *const FXFormFieldClass = @"class";
 static NSString *const FXFormFieldCell = @"cell";
 static NSString *const FXFormFieldTitle = @"title";
 static NSString *const FXFormFieldPlaceholder = @"placeholder";
+static NSString *const FXFormFieldDefaultValue = @"default";
 static NSString *const FXFormFieldOptions = @"options";
 static NSString *const FXFormFieldTemplate = @"template";
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";

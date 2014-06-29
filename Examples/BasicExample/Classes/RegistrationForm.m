@@ -60,7 +60,7 @@
              
              @{FXFormFieldKey: @"country",
                FXFormFieldOptions: @[@"us", @"ca", @"gb", @"sa", @"be"],
-               FXFormFieldPlaceholder: @"None",
+               FXFormFieldDefaultValue: @"us",
                FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]},
              
              //this is an options field that uses a FXFormOptionPickerCell to display the available
@@ -68,13 +68,14 @@
              
              @{FXFormFieldKey: @"language",
                FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"],
-               FXFormFieldPlaceholder: @"None",
+               FXFormFieldDefaultValue: @"English",
                FXFormFieldCell: [FXFormOptionPickerCell class]},
              
              //this is a multi-select options field - FXForms knows this because the
              //class of the field property is a collection (in this case, NSArray)
              
-             @{FXFormFieldKey: @"interests", FXFormFieldPlaceholder: @"None",
+             @{FXFormFieldKey: @"interests",
+               FXFormFieldDefaultValue: @[@"Videogames"],
                FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
              
              //this is another multi-select options field, but in this case it's represented
@@ -83,7 +84,7 @@
              
              @{FXFormFieldKey: @"otherInterests",
                FXFormFieldType: FXFormFieldTypeBitfield,
-               FXFormFieldPlaceholder: @"None",
+               FXFormFieldDefaultValue: @(InterestComputers),
                FXFormFieldOptions: @[@"Computers", @"Socializing", @"Sports"]},
 
              //this is a multiline text view that grows to fit its contents
