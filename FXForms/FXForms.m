@@ -1241,13 +1241,18 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         FXFormField *field = cell.field;
         FXFormController *formController = field.formController;
         UITableView *tableView = formController.tableView;
+        
+        [tableView beginUpdates];
+        
         NSIndexPath *indexPath = [tableView indexPathForCell:cell];
         FXFormSection *section = formController.sections[indexPath.section];
         [section addNewField];
 
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
         [tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        [[tableView cellForRowAtIndexPath:indexPath] becomeFirstResponder];
+        
+        [tableView endUpdates];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             
             [formController tableView:tableView didSelectRowAtIndexPath:indexPath];
@@ -1883,9 +1888,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
+        [tableView beginUpdates];
+        
         FXFormSection *section = [self sectionAtIndex:indexPath.section];
         [section removeFieldAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        [tableView endUpdates];
     }
 }
 
