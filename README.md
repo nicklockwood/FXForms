@@ -172,13 +172,25 @@ Alternatively, you can return a dictionary in the `-fields` array instead of a s
 
 These two approaches are equivalent.
 
-Finally, you may wish to add additional, virtual form fields (e.g. buttons or labels) that don't correspond to any properties on your form class. You can do this by implementing the `-fields` method, but if you're happy with the default fields and just want to add some extra fields at the end, you can override the `-extraFields` method instead, which works the same way, but leaves in place the default fields inferred from the form class:
+You may wish to add additional, virtual form fields (e.g. buttons or labels) that don't correspond to any properties on your form class. You can do this by implementing the `-fields` method, but if you're happy with the default fields and just want to add some extra fields at the end, you can override the `-extraFields` method instead, which works the same way, but leaves in place the default fields inferred from the form class:
 
 ```objc
 - (NSArray *)extraFields
 {
     return @[
              @{FXFormFieldTitle: @"Extra Field"},
+            ];
+}
+```
+
+Similarly, if you only want to display a subset of the form object's properties in your form, but don't want to have to list all the properties you want to keep in the `-fields` method just for the sake of excluding a few of them, you can use the `-excludedFields` method to specify just the names of properties you *don't* want to include.
+
+```objc
+- (NSArray *)excludedFields
+{
+    return @[
+             @"someProperty",
+             @"someOtherProperty",
             ];
 }
 ```
@@ -530,6 +542,7 @@ Version 1.2 beta
 - FXForm tableView is now always in edit mode - this may affect layout for custom cells
 - Specified FXFormFieldValueTransformer object can now be reversible
 - Textfield form values are now updated live during editing
+- Added -excludedFields method for excluding certain fields from form
 
 Version 1.1.6
 

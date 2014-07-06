@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 7
+//  Version 1.2 beta 8
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -530,8 +530,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         }
         if ([dictionaryOrKey isKindOfClass:[NSDictionary class]])
         {
-            dictionary = [NSMutableDictionary dictionary];
             NSString *key = dictionaryOrKey[FXFormFieldKey];
+            if ([[form excludedFields] containsObject:key])
+            {
+                //skip this field
+                continue;
+            }
+            dictionary = [NSMutableDictionary dictionary];
             [dictionary addEntriesFromDictionary:fieldDictionariesByKey[key]];
             [dictionary addEntriesFromDictionary:dictionaryOrKey];
             NSString *selector = [key stringByAppendingString:@"Field"];
@@ -1536,6 +1541,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 }
 
 - (NSArray *)extraFields
+{
+    return nil;
+}
+
+- (NSArray *)excludedFields
 {
     return nil;
 }

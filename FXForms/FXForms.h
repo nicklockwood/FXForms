@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2 beta 7
+//  Version 1.2 beta 8
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -93,6 +93,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 
 - (NSArray *)fields;
 - (NSArray *)extraFields;
+- (NSArray *)excludedFields;
 
 // informal protocol:
 
