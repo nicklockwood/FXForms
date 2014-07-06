@@ -2703,8 +2703,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
-    self.detailTextLabel.text = self.field.placeholder;
     self.textView.text = [self.field fieldDescription];
+    self.detailTextLabel.text = self.field.placeholder;
+    self.detailTextLabel.hidden = ([self.textView.text length] > 0);
     
     self.textView.returnKeyType = UIReturnKeyDefault;
     self.textView.textAlignment = NSTextAlignmentLeft;

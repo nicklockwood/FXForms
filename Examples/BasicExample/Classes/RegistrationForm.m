@@ -89,7 +89,7 @@
 
              //this is a multiline text view that grows to fit its contents
              
-             @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText},
+             @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText, FXFormFieldPlaceholder: @"Text..."},
              
              //this is an options field that uses a FXFormOptionSegmentsCell to display the available
              //options in a UIPickerView
