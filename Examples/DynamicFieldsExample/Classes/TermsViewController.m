@@ -1,14 +1,14 @@
 //
-//  PrivacyPolicyViewController.m
-//  BasicExample
+//  TermsViewController.h
+//  DynamicFieldsExample
 //
 //  Created by Nick Lockwood on 08/03/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
 //
 
-#import "PrivacyPolicyViewController.h"
+#import "TermsViewController.h"
 
-@implementation PrivacyPolicyViewController
+@implementation TermsViewController
 
 //nothing to see here
 

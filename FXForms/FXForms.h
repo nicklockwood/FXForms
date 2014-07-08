@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.1.6
+//  Version 1.2 beta 8
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -43,12 +43,16 @@ static NSString *const FXFormFieldClass = @"class";
 static NSString *const FXFormFieldCell = @"cell";
 static NSString *const FXFormFieldTitle = @"title";
 static NSString *const FXFormFieldPlaceholder = @"placeholder";
+static NSString *const FXFormFieldDefaultValue = @"default";
 static NSString *const FXFormFieldOptions = @"options";
+static NSString *const FXFormFieldTemplate = @"template";
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 static NSString *const FXFormFieldAction = @"action";
+static NSString *const FXFormFieldSegue = @"segue";
 static NSString *const FXFormFieldHeader = @"header";
 static NSString *const FXFormFieldFooter = @"footer";
 static NSString *const FXFormFieldInline = @"inline";
+static NSString *const FXFormFieldSortable = @"sortable";
 static NSString *const FXFormFieldViewController = @"viewController";
 
 static NSString *const FXFormFieldTypeDefault = @"default";
@@ -57,6 +61,7 @@ static NSString *const FXFormFieldTypeText = @"text";
 static NSString *const FXFormFieldTypeLongText = @"longtext";
 static NSString *const FXFormFieldTypeURL = @"url";
 static NSString *const FXFormFieldTypeEmail = @"email";
+static NSString *const FXFormFieldTypePhone = @"phone";
 static NSString *const FXFormFieldTypePassword = @"password";
 static NSString *const FXFormFieldTypeNumber = @"number";
 static NSString *const FXFormFieldTypeInteger = @"integer";
@@ -88,6 +93,7 @@ static NSString *const FXFormFieldTypeImage = @"image";
 
 - (NSArray *)fields;
 - (NSArray *)extraFields;
+- (NSArray *)excludedFields;
 
 // informal protocol:
 
@@ -104,10 +110,19 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) id placeholder;
-@property (nonatomic, readonly) NSArray *options;
+@property (nonatomic, readonly) NSDictionary *fieldTemplate;
+@property (nonatomic, readonly) BOOL isSortable;
+@property (nonatomic, readonly) BOOL isInline;
+@property (nonatomic, readonly) Class valueClass;
 @property (nonatomic, readonly) Class viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
+@property (nonatomic, readonly) id segue;
 @property (nonatomic, strong) id value;
+
+- (NSUInteger)optionCount;
+- (NSString *)optionDescriptionAtIndex:(NSUInteger)index;
+- (void)setOptionSelected:(BOOL)selected atIndex:(NSUInteger)index;
+- (BOOL)isOptionSelectedAtIndex:(NSUInteger)index;
 
 @end
 
@@ -131,15 +146,19 @@ static NSString *const FXFormFieldTypeImage = @"image";
 - (NSUInteger)numberOfSections;
 - (NSUInteger)numberOfFieldsInSection:(NSUInteger)section;
 - (FXFormField *)fieldForIndexPath:(NSIndexPath *)indexPath;
+- (NSIndexPath *)indexPathForField:(FXFormField *)field;
 - (void)enumerateFieldsWithBlock:(void (^)(FXFormField *field, NSIndexPath *indexPath))block;
 
-- (Class)cellClassForFieldType:(NSString *)fieldType;
+- (Class)cellClassForField:(FXFormField *)field;
 - (void)registerDefaultFieldCellClass:(Class)cellClass;
 - (void)registerCellClass:(Class)cellClass forFieldType:(NSString *)fieldType;
+- (void)registerCellClass:(Class)cellClass forFieldClass:(Class)fieldClass;
 
-- (Class)viewControllerClassForFieldType:(NSString *)fieldType;
+- (Class)viewControllerClassForField:(FXFormField *)field;
 - (void)registerDefaultViewControllerClass:(Class)controllerClass;
 - (void)registerViewControllerClass:(Class)controllerClass forFieldType:(NSString *)fieldType;
+- (void)registerViewControllerClass:(Class)controllerClass forFieldClass:(Class)fieldClass;
+
 
 @end
 
@@ -234,6 +253,13 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @interface FXFormOptionPickerCell : FXFormBaseCell
 
 @property (nonatomic, readonly) UIPickerView *pickerView;
+
+@end
+
+
+@interface FXFormOptionSegmentsCell : FXFormBaseCell
+
+@property (nonatomic, readonly) UISegmentedControl *segmentedControl;
 
 @end
 

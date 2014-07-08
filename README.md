@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/nicklockwood/FXForms.svg)](https://travis-ci.org/nicklockwood/FXForms)
+
+
 Purpose
 --------------
 
@@ -169,13 +172,25 @@ Alternatively, you can return a dictionary in the `-fields` array instead of a s
 
 These two approaches are equivalent.
 
-Finally, you may wish to add additional, virtual form fields (e.g. buttons or labels) that don't correspond to any properties on your form class. You can do this by implementing the `-fields` method, but if you're happy with the default fields and just want to add some extra fields at the end, you can override the `-extraFields` method instead, which works the same way, but leaves in place the default fields inferred from the form class:
+You may wish to add additional, virtual form fields (e.g. buttons or labels) that don't correspond to any properties on your form class. You can do this by implementing the `-fields` method, but if you're happy with the default fields and just want to add some extra fields at the end, you can override the `-extraFields` method instead, which works the same way, but leaves in place the default fields inferred from the form class:
 
 ```objc
 - (NSArray *)extraFields
 {
     return @[
              @{FXFormFieldTitle: @"Extra Field"},
+            ];
+}
+```
+
+Similarly, if you only want to display a subset of the form object's properties in your form, but don't want to have to list all the properties you want to keep in the `-fields` method just for the sake of excluding a few of them, you can use the `-excludedFields` method to specify just the names of properties you *don't* want to include.
+
+```objc
+- (NSArray *)excludedFields
+{
+    return @[
+             @"someProperty",
+             @"someOtherProperty",
             ];
 }
 ```
@@ -258,24 +273,46 @@ static NSString *const FXFormFieldPlaceholder = @"placeholder";
 This is the placeholder value to display when the field value is nil or empty. This is typically a string, but doesn't have to be, for example it could be an NSDate for a date field, or a UIImage for an image field. When used with an options or multi-select field, the placeholder will appear as the first item in the options list, and can be used to reset the field to nil / no value.
     
 ```objc
+static NSString *const FXFormFieldDefaultValue = @"default";
+```
+
+This is a default value to use when the field value is nil. This can be useful when creating forms dynamically as the default values can be set directly in the fields array instead of separately in the form's values. It's also a way to ensure that a field value can never be set to nil by the user. Note that the default value is different from the placeholder value, as it will actually be stored in the form itself. If a default value is set, the placeholder will never appear. Default values only work reliably for object types - since zero is potentially a meaningful value for an integer or float property, it will not be replaced by the default value.
+
+```objc
 static NSString *const FXFormFieldOptions = @"options";
 ```
     
 For any field type, you can supply an array of supported values, which will override the standard field with a checklist of options to be selected instead. The options can be NSStrings, NSNumbers or any other object type. You can supply an `FXFormFieldValueTransformer` to control how the option values are displayed in the list. Alternatively, if you use a custom object for the values, you can implement the `-(NSString *)fieldDescription;` method to control how it is displayed. See Form field options below for more details.
 
 ```objc
+static NSString *const FXFormFieldTemplate = @"template";
+```
+
+If the field is an NSArray or NSOrderedSet, FXForms allows the user to add, edit and remove items. By default FXForms assumes that the values in the collection are of type FXFormFieldTypeText, however you can override this using the FXFormFieldTemplate dictionary. The FXFormFieldTemplate dictionary can contains most of the same types of value as an ordinary field dictionary, and should be used to describe all the attributes of the elements in the collection.
+
+
+```objc
 static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
 ```
 
-Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The `FXFormFieldValueTransformer` property lets you specify either a conversion block or an `NSValueTransformer` to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance of `NSValueTransformer` or the name of an `NSValueTransformer` subclass. If the form field has an options array, the value transformer will also be used to control how the options are displayed in the list.
+Sometimes the value you wish to display for a field may not match the value you store. For example, you might want to display a date in a  particular format, or convert a locale code into its human-readable equivalent. The `FXFormFieldValueTransformer` property lets you specify either a conversion block or an `NSValueTransformer` to use for converting the field value to a string. If a value transformer is provided, it will be used instead of calling the `-fieldDescription` method of the field's value object. You can supply either an instance of `NSValueTransformer` or the name of an `NSValueTransformer` subclass. If the form field has an options array, the value transformer will also be used to control how the options are displayed in the list. The `FXFormFieldValueTransformer` can be reversible, in which case it will be also be used to convert input values before storing them in the form.
 
 ```objc
 static NSString *const FXFormFieldAction = @"action";
 ```
     
-This is an optional action to be performed when by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, it's superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
+This is an optional action to be performed by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, it's superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
 
 For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the field model, and from that the form itself.
+
+```objc
+static NSString *const FXFormFieldSegue = @"segue";
+```
+    
+This is a `UIStoryboardSegue` to be performed when the field is tapped. This can be either be a `UIStoryboardSegue` subclass (or a string containing the name of a `UIStoryboardSegue` subclass), an instance of a `UIStoryboardSegue` subclass, or a string representing the identifier of a segue attached to the form view controller. Note that in the latter case, the segue *must* be attached to the same controller as the form, or it will crash when invoked.
+
+If the FXFormFieldSegue property is a segue instance or identifier, it will be invoked when the field is tapped. If it is a segue subclass, this segue will be instantiated and used to handle the transition when displaying a subform or sub-controller.
+
 
 ```objc
 static NSString *const FXFormFieldHeader = @"header";
@@ -294,6 +331,12 @@ static NSString *const FXFormFieldInline = @"inline";
 ```
 
 Fields whose values is another FXForm, or which have a supplied options array, will normally be displayed in a new FXFormViewController, which is pushed onto the navigation stack when you tap the field. You may wish to display such fields inline within same tableView instead. You can do this by setting the `FXFormFieldInline` property to `@YES`.
+
+```objc
+static NSString *const FXFormFieldSortable = @"sortable";
+```
+
+Fields of type NSArray or NSOrderedSet can optionally display sorting controls so that the user can change the item order. Set the FXFormFieldSortable property to YES to enabled this feature.
 
 ```objc
 static NSString *const FXFormFieldViewController = @"controller";
@@ -474,11 +517,32 @@ Once you have created your custom cell, you can use it as follows:
 
 * If your cell is used only for a few specific fields, you can use the `FXFormFieldCell` property to use it for a particular form field
 * If your cell is designed to handle a particular field type (or types), you can tell the formController to use your custom cell class for a particular type using the `-registerCellClass:forFieldType:` method of FXFormController.
+* If your cell is designed to handle a particular field value class (or subclass), you can tell the formController to use your custom cell class for a particular value class using the `-registerCellClass:forFieldClass:` method of FXFormController.
 * If you want to completely replace all cells with your own classes, use the `-registerDefaultFieldCellClass:` method of `FXFormController`. This replaces all default cell associations for all field types with your new cell class. You can then use `-registerCellClass:forFieldType:` to add additional cell classes for specific types.
 
 
 Release notes
 --------------
+
+Version 1.2 beta
+
+- Fields of type NSArray and NSOrderedSet can now be edited by adding, removing and sorting items
+- Added FXFormFieldTemplate for creating template values for collections
+- Added FXFormFieldSegue property for specifying a segue to perform when field is tapped
+- Added FXFormFieldTypePhone field type
+- Added FXFormOptionSegmentsCell class
+- Added FXFormFieldDefault for specifying a default value for form fields
+- Added ability to register cell and controller classes based on field value class as well as type
+- Fixed bug in stepper field where labels didn't resize after value change
+- Fixed bug where image preview in FXImagePickerCell would be displayed with incorrect width
+- Fixed handling of NSURL fields
+- Type inference now works better for dynamic fields
+- Added dynamic fields example (loading form field descriptions from a JSON file)
+- Added indexPathForField: method to FXFormController
+- FXForm tableView is now always in edit mode - this may affect layout for custom cells
+- Specified FXFormFieldValueTransformer object can now be reversible
+- Textfield form values are now updated live during editing
+- Added -excludedFields method for excluding certain fields from form
 
 Version 1.1.6
 

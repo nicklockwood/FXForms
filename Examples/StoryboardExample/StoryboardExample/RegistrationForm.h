@@ -7,8 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TermsViewController.h"
-#import "PrivacyPolicyViewController.h"
 #import "FXForms.h"
 
 
@@ -58,8 +56,6 @@ typedef NS_OPTIONS(NSInteger, ServicePlan)
 
 @property (nonatomic, copy) NSString *notifications;
 
-@property (nonatomic, readonly) TermsViewController *termsAndConditions;
-@property (nonatomic, readonly) PrivacyPolicyViewController *privacyPolicy;
 @property (nonatomic, assign) BOOL agreedToTerms;
 
 @end

@@ -60,7 +60,7 @@
              
              @{FXFormFieldKey: @"country",
                FXFormFieldOptions: @[@"us", @"ca", @"gb", @"sa", @"be"],
-               FXFormFieldDefaultValue: @"us",
+               FXFormFieldPlaceholder: @"None",
                FXFormFieldValueTransformer: [[ISO3166CountryValueTransformer alloc] init]},
              
              //this is an options field that uses a FXFormOptionPickerCell to display the available
@@ -68,14 +68,13 @@
              
              @{FXFormFieldKey: @"language",
                FXFormFieldOptions: @[@"English", @"Spanish", @"French", @"Dutch"],
-               FXFormFieldDefaultValue: @"English",
+               FXFormFieldPlaceholder: @"None",
                FXFormFieldCell: [FXFormOptionPickerCell class]},
              
              //this is a multi-select options field - FXForms knows this because the
              //class of the field property is a collection (in this case, NSArray)
              
-             @{FXFormFieldKey: @"interests",
-               FXFormFieldDefaultValue: @[@"Videogames"],
+             @{FXFormFieldKey: @"interests", FXFormFieldPlaceholder: @"None",
                FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
              
              //this is another multi-select options field, but in this case it's represented
@@ -84,12 +83,12 @@
              
              @{FXFormFieldKey: @"otherInterests",
                FXFormFieldType: FXFormFieldTypeBitfield,
-               FXFormFieldDefaultValue: @(InterestComputers),
+               FXFormFieldPlaceholder: @"None",
                FXFormFieldOptions: @[@"Computers", @"Socializing", @"Sports"]},
 
              //this is a multiline text view that grows to fit its contents
              
-             @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText, FXFormFieldPlaceholder: @"Text..."},
+             @{FXFormFieldKey: @"about", FXFormFieldType: FXFormFieldTypeLongText},
              
              //this is an options field that uses a FXFormOptionSegmentsCell to display the available
              //options in a UIPickerView
@@ -101,16 +100,16 @@
                FXFormFieldOptions: @[@"Micro", @"Normal", @"Maxi"],
                FXFormFieldCell: [FXFormOptionSegmentsCell class]},
              
-             //we want to add a section header here, so we use another config dictionary
+             //we've implemented the terms and privacy policy as segues, which means that
+             //they have to be set up with configuration dictionaries, as there's no way
+             //to infer them from the form properties
              
-             @{FXFormFieldKey: @"termsAndConditions", FXFormFieldHeader: @"Legal"},
+             @{FXFormFieldHeader: @"Legal",
+               FXFormFieldTitle: @"Terms And Conditions",
+               FXFormFieldSegue: @"TermsSegue"},
              
-             //another regular field. note that we haven't actually instantiated the terms
-             //and conditions or privacy policy view controllers - FXForms will instantiate
-             //view controllers automatically if the value is nil, or will used the supplied
-             //controller instance if there is one
-             
-             @"privacyPolicy",
+             @{FXFormFieldTitle: @"Privacy Policy",
+               FXFormFieldSegue: @"PrivacyPolicySegue"},
              
              //the automatically generated title (Agreed To Terms) and cell (FXFormSwitchCell)
              //don't really work for this field, so we'll override them both (a type of

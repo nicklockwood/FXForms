@@ -1,0 +1,27 @@
+[
+ 
+ {"header": "Account", "key": "email"},
+ "password",
+ "repeatPassword",
+ 
+ {"header": "Details", "key": "name", "textField.autocapitalizationType": 1},
+ {"key": "gender", "options": ["Male", "Female", "It's Complicated"]},
+ {"key": "dateOfBirth", "type": "date"},
+ {"key": "age", "type": "integer", "cell": "FXFormStepperCell"},
+ {"key": "profilePhoto", "type": "image"},
+ "phone",
+ {"key": "country", "options": ["us", "ca", "gb", "be"], "placeholder": "None", "valueTransformer": "ISO3166CountryValueTransformer"},
+ {"key": "language", "options": ["English", "Spanish", "French", "Dutch"], "placeholder": "None", "cell": "FXFormOptionPickerCell"},
+ {"key": "interests", "class": "NSArray", "placeholder": "None", "options": ["Videogames", "Animals", "Cooking"]},
+ {"key": "otherInterests", "type": "bitfield", "placeholder": "None", "options": ["Computers", "Socializing", "Sports"]},
+ {"key": "about", "type": "longtext"},
+ 
+ {"header": "Plan", "key": "plan", "title": "", "placeholder": "Free", "options": ["Micro", "Normal", "Maxi"], "cell": "FXFormOptionSegmentsCell"},
+ 
+ {"header": "Legal", "key": "termsAndConditions", "class": "TermsViewController"},
+ {"key": "privacyPolicy", "class": "PrivacyPolicyViewController"},
+ {"key": "agreedToTerms", "title": "I Agree To These Terms", "type": "option"},
+ 
+ {"header": "", "title": "Submit", "action": "submitRegistrationForm:"}
+
+]
