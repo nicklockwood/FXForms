@@ -336,6 +336,15 @@
 				INFOPLIST_FILE = "UnitTests/UnitTests-Info.plist";
 				PRODUCT_NAME = UnitTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-variadic-macros",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-gnu-statement-expression",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-sign-compare",
+					"-Wno-documentation-unknown-command",
+				);
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -352,6 +361,15 @@
 				INFOPLIST_FILE = "UnitTests/UnitTests-Info.plist";
 				PRODUCT_NAME = UnitTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-variadic-macros",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-gnu-statement-expression",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-sign-compare",
+					"-Wno-documentation-unknown-command",
+				);
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;

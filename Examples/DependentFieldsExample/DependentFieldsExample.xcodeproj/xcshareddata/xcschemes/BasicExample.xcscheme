@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0169994518A1663700E7085F"
-               BuildableName = "BasicExample.app"
+               BuildableName = "DependentFieldsExample.app"
                BlueprintName = "DependentFieldsExample"
                ReferencedContainer = "container:DependentFieldsExample.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0169994518A1663700E7085F"
-            BuildableName = "BasicExample.app"
+            BuildableName = "DependentFieldsExample.app"
             BlueprintName = "DependentFieldsExample"
             ReferencedContainer = "container:DependentFieldsExample.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0169994518A1663700E7085F"
-            BuildableName = "BasicExample.app"
+            BuildableName = "DependentFieldsExample.app"
             BlueprintName = "DependentFieldsExample"
             ReferencedContainer = "container:DependentFieldsExample.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0169994518A1663700E7085F"
-            BuildableName = "BasicExample.app"
+            BuildableName = "DependentFieldsExample.app"
             BlueprintName = "DependentFieldsExample"
             ReferencedContainer = "container:DependentFieldsExample.xcodeproj">
          </BuildableReference>

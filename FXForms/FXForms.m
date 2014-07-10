@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 8
+//  Version 1.2 beta 9
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -611,7 +611,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return (![self.type isEqualToString:FXFormFieldTypeLabel] &&
             ([self.valueClass conformsToProtocol:@protocol(FXForm)] ||
              [self.valueClass isSubclassOfClass:[UIViewController class]] ||
-             [self.options count] || [self isCollectionType] || self.viewController));
+             self.options || [self isCollectionType] || self.viewController));
 }
 
 - (NSString *)valueDescription:(id)value
@@ -740,9 +740,17 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if (FXFormCanGetValueForKey(self.form, self.key))
     {
         id value = [(NSObject *)self.form valueForKey:self.key];
-        if ([self isIndexedType] && [value isEqual:@(NSNotFound)])
+        if (value && self.options)
         {
-            value = nil;
+            if ([self isIndexedType])
+            {
+                if ([value unsignedIntegerValue] >= [self.options count]) value = nil;
+            }
+            else if (![self isCollectionType])
+            {
+                //TODO: should we validate collection types too, or is that overkill?
+                if (![self.options containsObject:value]) value = nil;
+            }
         }
         if (!value && self.defaultValue)
         {
@@ -1105,7 +1113,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     else if ([self isIndexedType])
     {
-        return index == (option? (NSUInteger)[self.value integerValue]: NSNotFound);
+        return self.value? [self.value unsignedIntegerValue] == index: !option;
     }
     else
     {
@@ -1231,6 +1239,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     NSUInteger count = [(NSArray *)self.field.value count];
     for (NSUInteger i = 0; i < count; i++)
     {
+        //TODO: do we need to do something special with the action to ensure the
+        //correct cell is passed as the sender, as we do for options fields?
         NSMutableDictionary *field = [self newFieldDictionary];
         field[FXFormFieldKey] = [@(i) description];
         [_fields addObject:field];
@@ -1262,7 +1272,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             
             [formController tableView:tableView didSelectRowAtIndexPath:indexPath];
             [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
-            
         });
         
     }}];
@@ -1414,7 +1423,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     for (FXFormField *field in [FXFormField fieldsWithForm:form controller:formController])
     {
         id<FXForm> subform = nil;
-        if ([field.options count] && field.isInline)
+        if (field.options && field.isInline)
         {
             subform = [[FXOptionsForm alloc] initWithField:field];
         }
@@ -2100,7 +2109,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     _field = field;
     
     id<FXForm> form = nil;
-    if ([field.options count])
+    if (field.options)
     {
         form = [[FXOptionsForm alloc] initWithField:field];
     }
@@ -2370,9 +2379,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
         }
     }
-    else if (self.field.action)
+    else if (self.field.action && (![self.field isSubform] || !self.field.optionCount))
     {
         //action takes precendence over segue or subform - you can implement these yourself in the action
+        //the exception is for options fields, where the action will be called when the option is tapped
+        //TODO: do we need to make other exceptions? Or is there a better way to handle actions for subforms?
         [FXFormsFirstResponder(tableView) resignFirstResponder];
         self.field.action(self);
         [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
