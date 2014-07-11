@@ -534,6 +534,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             if ([[form excludedFields] containsObject:key])
             {
                 //skip this field
+                [fields removeObjectAtIndex:i];
                 continue;
             }
             dictionary = [NSMutableDictionary dictionary];
