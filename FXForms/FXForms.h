@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2 beta 9
+//  Version 1.2 beta 10
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -189,13 +189,21 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @optional
 
 + (CGFloat)heightForField:(FXFormField *)field width:(CGFloat)width;
-+ (CGFloat)heightForField:(FXFormField *)field;
-- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
-
+- (void)didSelectWithTableView:(UITableView *)tableView
+                    controller:(UIViewController *)controller;
 @end
 
 
 @interface FXFormBaseCell : UITableViewCell <FXFormFieldCell>
+
+- (void)setUp;
+- (void)update;
+- (void)didSelectWithTableView:(UITableView *)tableView
+                    controller:(UIViewController *)controller;
+@end
+
+
+@interface FXFormDefaultCell : FXFormBaseCell
 
 @end
 
