@@ -2638,6 +2638,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return [self.textField becomeFirstResponder];
 }
 
+- (BOOL)resignFirstResponder
+{
+    return [self.textField resignFirstResponder];
+}
+
 @end
 
 
@@ -2816,6 +2821,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (BOOL)becomeFirstResponder
 {
     return [self.textView becomeFirstResponder];
+}
+
+- (BOOL)resignFirstResponder
+{
+    return [self.textView resignFirstResponder];
 }
 
 @end
