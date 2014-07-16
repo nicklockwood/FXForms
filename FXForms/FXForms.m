@@ -747,7 +747,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             {
                 if ([value unsignedIntegerValue] >= [self.options count]) value = nil;
             }
-            else if (![self isCollectionType])
+            else if (![self isCollectionType] && ![self.type isEqualToString:FXFormFieldTypeBitfield])
             {
                 //TODO: should we validate collection types too, or is that overkill?
                 if (![self.options containsObject:value]) value = nil;
@@ -1699,7 +1699,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)registerViewControllerClass:(Class)controllerClass forFieldClass:(__unsafe_unretained Class)fieldClass
 {
     NSParameterAssert([controllerClass conformsToProtocol:@protocol(FXFormFieldViewController)]);
-    self.controllerClassesForFieldClasses[NSStringFromClass(fieldClass)] = fieldClass;
+    self.controllerClassesForFieldClasses[NSStringFromClass(fieldClass)] = controllerClass;
 }
 
 - (void)setDelegate:(id<FXFormControllerDelegate>)delegate
