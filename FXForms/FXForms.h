@@ -120,6 +120,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, strong) id value;
 
 - (NSUInteger)optionCount;
+- (id)optionAtIndex:(NSUInteger)index;
+- (NSUInteger)indexOfOption:(id)option;
 - (NSString *)optionDescriptionAtIndex:(NSUInteger)index;
 - (void)setOptionSelected:(BOOL)selected atIndex:(NSUInteger)index;
 - (BOOL)isOptionSelectedAtIndex:(NSUInteger)index;
