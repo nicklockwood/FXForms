@@ -403,6 +403,13 @@ static NSString *const FXFormFieldTypeInteger = @"integer";
 Like `FXFormFieldTypeNumber`, but restricted to integer input.
 
 ```objc
+static NSString *const FXFormFieldTypeUnsigned = @"unsigned";
+```
+ 
+Like `FXFormFieldTypeInteger`, but for unsigned values. Uses number pad by default.
+
+ 
+```objc
 static NSString *const FXFormFieldTypeFloat = @"float";
 ```
     
@@ -412,13 +419,13 @@ Like `FXFormFieldTypeNumber`, but indicates value is primitive (not-nillable)
 static NSString *const FXFormFieldTypeBoolean = @"boolean";
 ```
     
-A boolean value, set using a `UISwitch` control.
+A boolean value, set using a `UISwitch` control by default.
 
 ```objc
 static NSString *const FXFormFieldTypeOption = @"option";
 ```
 
-Like `FXFormFieldTypeBoolean`, but this type is used for toggle options and by default is creates a checkmark control instead of a switch.
+Like `FXFormFieldTypeBoolean`, but this type is used for toggle options and by default it creates a checkmark control instead of a switch.
     
 ```objc
 static NSString *const FXFormFieldTypeDate = @"date";
@@ -528,12 +535,13 @@ Release notes
 
 Version 1.2 beta
 
-- Fields of type NSArray and NSOrderedSet can now be edited by adding, removing and sorting items
+- Collection fields types, such as NSArray, NSSet, NSOrderedSet, etc. can now be edited by adding, removing and sorting items
 - Exposed the setUp and update methods of FXFormsBaseCell for simpler subclassing
 - Added FXFormsDefaultCell that implements standard behaviors (for simpler subclassing)
 - Added FXFormFieldTemplate for creating template values for collections
 - Added FXFormFieldSegue property for specifying a segue to perform when field is tapped
 - Added FXFormFieldTypePhone field type
+- Added FXFormFieldTypeUnsigned field type
 - Added FXFormOptionSegmentsCell class
 - Added FXFormFieldDefault for specifying a default value for form fields
 - Added ability to register cell and controller classes based on field value class as well as type

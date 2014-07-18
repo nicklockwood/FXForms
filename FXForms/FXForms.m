@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 10
+//  Version 1.2 beta 11
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -164,6 +164,11 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                     case 's':
                     case 'l':
                     case 'q':
+                    {
+                        valueClass = [NSNumber class];
+                        valueType = FXFormFieldTypeInteger;
+                        break;
+                    }
                     case 'C':
                     case 'I':
                     case 'S':
@@ -171,7 +176,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                     case 'Q':
                     {
                         valueClass = [NSNumber class];
-                        valueType = FXFormFieldTypeInteger;
+                        valueType = FXFormFieldTypeUnsigned;
                         break;
                     }
                     case 'f':
@@ -775,12 +780,15 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         }
         else if ([value isKindOfClass:[NSString class]])
         {
-            if ([self.type isEqualToString:FXFormFieldTypeNumber])
+            if ([self.type isEqualToString:FXFormFieldTypeNumber] ||
+                [self.type isEqualToString:FXFormFieldTypeFloat])
             {
                 value = @([value doubleValue]);
             }
-            else if ([self.type isEqualToString:FXFormFieldTypeInteger])
+            else if ([self.type isEqualToString:FXFormFieldTypeInteger] ||
+                     [self.type isEqualToString:FXFormFieldTypeUnsigned])
             {
+                //NOTE: unsignedLongLongValue doesn't exist on NSString
                 value = @([value longLongValue]);
             }
             else if ([self.valueClass isSubclassOfClass:[NSURL class]])
@@ -801,7 +809,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             {
                 if ([field[FXFormFieldKey] isEqualToString:self.key])
                 {
-                    if ([@[FXFormFieldTypeBoolean, FXFormFieldTypeInteger, FXFormFieldTypeFloat] containsObject:field[FXFormFieldType]])
+                    if ([@[FXFormFieldTypeBoolean, FXFormFieldTypeInteger,
+                           FXFormFieldTypeUnsigned, FXFormFieldTypeFloat] containsObject:field[FXFormFieldType]])
                     {
                         //prevents NSInvalidArgumentException in setNilValueForKey: method
                         value = [self isIndexedType]? @(NSNotFound): @0;
@@ -1583,6 +1592,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                                        FXFormFieldTypeNumber: [FXFormTextFieldCell class],
                                        FXFormFieldTypeFloat: [FXFormTextFieldCell class],
                                        FXFormFieldTypeInteger: [FXFormTextFieldCell class],
+                                       FXFormFieldTypeUnsigned: [FXFormTextFieldCell class],
                                        FXFormFieldTypeBoolean: [FXFormSwitchCell class],
                                        FXFormFieldTypeDate: [FXFormDatePickerCell class],
                                        FXFormFieldTypeTime: [FXFormDatePickerCell class],
@@ -2547,6 +2557,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
         self.textField.keyboardType = UIKeyboardTypeDefault;
     }
+    else if ([self.field.type isEqualToString:FXFormFieldTypeUnsigned])
+    {
+        self.textField.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textField.keyboardType = UIKeyboardTypeNumberPad;
+        self.textField.textAlignment = NSTextAlignmentRight;
+    }
     else if ([@[FXFormFieldTypeNumber, FXFormFieldTypeInteger, FXFormFieldTypeFloat] containsObject:self.field.type])
     {
         self.textField.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -2750,7 +2767,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.textView.autocapitalizationType = UITextAutocapitalizationTypeSentences;
         self.textView.keyboardType = UIKeyboardTypeDefault;
     }
-    else if ([self.field.type isEqualToString:FXFormFieldTypeNumber] || [self.field.type isEqualToString:FXFormFieldTypeInteger])
+    else if ([self.field.type isEqualToString:FXFormFieldTypeUnsigned])
+    {
+        self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        self.textView.keyboardType = UIKeyboardTypeNumberPad;
+    }
+    else if ([@[FXFormFieldTypeNumber, FXFormFieldTypeInteger, FXFormFieldTypeFloat] containsObject:self.field.type])
     {
         self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
         self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
