@@ -130,6 +130,11 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                 objc_property_t property = propertyList[i];
                 const char *propertyName = property_getName(property);
                 NSString *key = @(propertyName);
+
+		if ([[[NSString stringWithUTF8String:property_getAttributes(property)] componentsSeparatedByString:@","] containsObject:@"R"]) {
+			//skip readonly properties
+			continue;
+		}
                 
                 //get property type
                 Class valueClass = nil;
