@@ -555,6 +555,7 @@ Version 1.2 beta
 - Specified FXFormFieldValueTransformer object can now be reversible
 - Textfield form values are now updated live during editing
 - Added -excludedFields method for excluding certain fields from form
+- Now ignores standard @properties such as `hash` and `description`, introduced in iOS 8
 
 Version 1.1.6
 

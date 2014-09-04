@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 11
+//  Version 1.2 beta 12
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -130,6 +130,17 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                 objc_property_t property = propertyList[i];
                 const char *propertyName = property_getName(property);
                 NSString *key = @(propertyName);
+                
+                //ignore NSObject properties
+                char *readonly = property_copyAttributeValue(property, "R");
+                if (readonly)
+                {
+                    free(readonly);
+                    if ([@[@"hash", @"superclass", @"description", @"debugDescription"] containsObject:key])
+                    {
+                        continue;
+                    }
+                }
                 
                 //get property type
                 Class valueClass = nil;
