@@ -403,6 +403,13 @@ static NSString *const FXFormFieldTypeInteger = @"integer";
 Like `FXFormFieldTypeNumber`, but restricted to integer input.
 
 ```objc
+static NSString *const FXFormFieldTypeUnsigned = @"unsigned";
+```
+ 
+Like `FXFormFieldTypeInteger`, but for unsigned values. Uses number pad by default.
+
+ 
+```objc
 static NSString *const FXFormFieldTypeFloat = @"float";
 ```
     
@@ -412,13 +419,13 @@ Like `FXFormFieldTypeNumber`, but indicates value is primitive (not-nillable)
 static NSString *const FXFormFieldTypeBoolean = @"boolean";
 ```
     
-A boolean value, set using a `UISwitch` control.
+A boolean value, set using a `UISwitch` control by default.
 
 ```objc
 static NSString *const FXFormFieldTypeOption = @"option";
 ```
 
-Like `FXFormFieldTypeBoolean`, but this type is used for toggle options and by default is creates a checkmark control instead of a switch.
+Like `FXFormFieldTypeBoolean`, but this type is used for toggle options and by default it creates a checkmark control instead of a switch.
     
 ```objc
 static NSString *const FXFormFieldTypeDate = @"date";
@@ -507,11 +514,13 @@ Custom cells
 
 FXForms provides default cell implementations for all supported fields. You may wish to provide additional cell classes for custom field types, or even replace all of the FXForm cells with custom versions for your application.
 
-There are two levels of customisation possible for cells. The simplest option is to subclass one of the existing `FXFormCell` classes, which all inherit from `FXFormBaseCell`. These cell classes contain a lot of logic for handling the various different field types, but expose the views and controls used, for easy customisation.
+There are two levels of customisation possible for cells. The simplest option is to subclass one of the existing `FXFormCell` classes, which all inherit from `FXFormBaseCell`. These cell classes contain a lot of logic for handling the various different field types, but also expose the views and controls used, for easy customisation.
+
+When subclassing an existing cell type, you can override the `setUp`, `update` and `didSelectWithTableView:controller:` methods (optionally calling [super …] if you want to inherit the original cell's behaviors). The `setUp` method will be called once when the cell is created, and the `update` method will be called each time the field value is updated.
 
 If you already have a base cell class and don't want to base your cells on `FXFormBaseCell`, you can create an FXForms-compatible cell from scratch by subclassing `UITableViewCell` and adopting the `FXFormFieldCell` protocol.
 
-Your custom cell must have a property called field, of type `FXFormField`. `FXFormField` is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate `FXFormField` wrappers directly, however the can be accessed and enumerated via methods on the `FXFormController`. `FXFormField` also provides the `-performActionWithResponder:sender:` that you can use to replicate the cascading action selector behavior of the default cells.
+Your custom cell must have a property called field, of type `FXFormField`. `FXFormField` is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate `FXFormField` objects directly, however they can be accessed and enumerated via methods on the `FXFormController`.
 
 Once you have created your custom cell, you can use it as follows:
 
@@ -526,10 +535,13 @@ Release notes
 
 Version 1.2 beta
 
-- Fields of type NSArray and NSOrderedSet can now be edited by adding, removing and sorting items
+- Collection fields types, such as NSArray, NSSet, NSOrderedSet, etc. can now be edited by adding, removing and sorting items
+- Exposed the setUp and update methods of FXFormsBaseCell for simpler subclassing
+- Added FXFormsDefaultCell that implements standard behaviors (for simpler subclassing)
 - Added FXFormFieldTemplate for creating template values for collections
 - Added FXFormFieldSegue property for specifying a segue to perform when field is tapped
 - Added FXFormFieldTypePhone field type
+- Added FXFormFieldTypeUnsigned field type
 - Added FXFormOptionSegmentsCell class
 - Added FXFormFieldDefault for specifying a default value for form fields
 - Added ability to register cell and controller classes based on field value class as well as type
@@ -543,6 +555,7 @@ Version 1.2 beta
 - Specified FXFormFieldValueTransformer object can now be reversible
 - Textfield form values are now updated live during editing
 - Added -excludedFields method for excluding certain fields from form
+- Now ignores standard @properties such as `hash` and `description`, introduced in iOS 8
 
 Version 1.1.6
 

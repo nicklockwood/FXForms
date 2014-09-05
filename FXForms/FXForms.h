@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2 beta 8
+//  Version 1.2 beta 12
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -65,6 +65,7 @@ static NSString *const FXFormFieldTypePhone = @"phone";
 static NSString *const FXFormFieldTypePassword = @"password";
 static NSString *const FXFormFieldTypeNumber = @"number";
 static NSString *const FXFormFieldTypeInteger = @"integer";
+static NSString *const FXFormFieldTypeUnsigned = @"unsigned";
 static NSString *const FXFormFieldTypeFloat = @"float";
 static NSString *const FXFormFieldTypeBitfield = @"bitfield";
 static NSString *const FXFormFieldTypeBoolean = @"boolean";
@@ -120,6 +121,8 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @property (nonatomic, strong) id value;
 
 - (NSUInteger)optionCount;
+- (id)optionAtIndex:(NSUInteger)index;
+- (NSUInteger)indexOfOption:(id)option;
 - (NSString *)optionDescriptionAtIndex:(NSUInteger)index;
 - (void)setOptionSelected:(BOOL)selected atIndex:(NSUInteger)index;
 - (BOOL)isOptionSelectedAtIndex:(NSUInteger)index;
@@ -189,13 +192,21 @@ static NSString *const FXFormFieldTypeImage = @"image";
 @optional
 
 + (CGFloat)heightForField:(FXFormField *)field width:(CGFloat)width;
-+ (CGFloat)heightForField:(FXFormField *)field;
-- (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller;
-
+- (void)didSelectWithTableView:(UITableView *)tableView
+                    controller:(UIViewController *)controller;
 @end
 
 
 @interface FXFormBaseCell : UITableViewCell <FXFormFieldCell>
+
+- (void)setUp;
+- (void)update;
+- (void)didSelectWithTableView:(UITableView *)tableView
+                    controller:(UIViewController *)controller;
+@end
+
+
+@interface FXFormDefaultCell : FXFormBaseCell
 
 @end
 

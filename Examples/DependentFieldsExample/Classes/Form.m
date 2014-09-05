@@ -14,7 +14,7 @@
 {
     if ((self = [super init]))
     {
-        _year = NSNotFound;
+        _year = 0;
         _month = NSNotFound;
     }
     return self;
@@ -56,7 +56,7 @@
 - (NSDictionary *)dayField
 {
     NSMutableArray *days = [NSMutableArray array];
-    if (self.year != NSNotFound && self.month != NSNotFound)
+    if (self.year != 0 && self.month != NSNotFound)
     {
         NSArray *daysPerMonth = @[@31, @28, @31, @30, @31, @30, @31, @31, @30, @31, @30, @31];
         NSInteger max = [daysPerMonth[self.month] integerValue];

@@ -196,7 +196,7 @@
     FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:4 inSection:0]];
     XCTAssertEqual([field optionCount], 3, @"");
     XCTAssertEqualObjects([field optionDescriptionAtIndex:0], @"5", @"");
-    XCTAssertEqualObjects(field.value, @0, @""); //defaults to zero
+    XCTAssertNil(field.value, @""); //defaults to nil/zero
     
     [field setOptionSelected:YES atIndex:0];
     XCTAssertEqualObjects(field.value, @5, @"");
@@ -218,10 +218,10 @@
     FXFormField *field = [self.controller fieldForIndexPath:[NSIndexPath indexPathForRow:5 inSection:0]];
     XCTAssertEqual([field optionCount], 4, @"");
     XCTAssertEqualObjects([field optionDescriptionAtIndex:0], @"Nope", @"");
-    XCTAssertEqualObjects(field.value, @0, @""); //defaults to zero
+    XCTAssertNil(field.value, @""); //defaults to nil/zero
     
     [field setOptionSelected:NO atIndex:0];
-    XCTAssertEqualObjects(field.value, @0,@"");
+    XCTAssertNil(field.value, @"");
     
     [field setOptionSelected:YES atIndex:1];
     XCTAssertEqualObjects(field.value, @5, @"");
