@@ -794,26 +794,39 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             if ([self.type isEqualToString:FXFormFieldTypeNumber] ||
                 [self.type isEqualToString:FXFormFieldTypeFloat])
             {
-                value = @([value doubleValue]);
+                value = [(NSString *)value length]? @([value doubleValue]): nil;
             }
             else if ([self.type isEqualToString:FXFormFieldTypeInteger] ||
                      [self.type isEqualToString:FXFormFieldTypeUnsigned])
             {
                 //NOTE: unsignedLongLongValue doesn't exist on NSString
-                value = @([value longLongValue]);
+                value = [(NSString *)value length]? @([value longLongValue]): nil;
             }
             else if ([self.valueClass isSubclassOfClass:[NSURL class]])
             {
                 value = [self.valueClass URLWithString:value];
             }
-            
+        }
+        else if ([self.valueClass isSubclassOfClass:[NSString class]])
+        {
             //handle case where value is numeric but value class is string
-            if (![value isKindOfClass:[NSString class]] && [self.valueClass isSubclassOfClass:[NSString class]])
+            value = [value description];
+        }
+      
+        if ([self.valueClass isSubclassOfClass:[NSMutableString class]])
+        {
+            //replace string or make mutable copy of it
+            if (self.value)
             {
-                value = [self.valueClass stringWithString:[value description]];
+                [(NSMutableString *)self.value setString:value];
+                value = self.value;
+            }
+            else
+            {
+                value = [NSMutableString stringWithString:value];
             }
         }
-
+      
         if (!value)
         {
             for (NSDictionary *field in FXFormProperties(self.form))
