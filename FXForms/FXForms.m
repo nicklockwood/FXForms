@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2 beta 12
+//  Version 1.2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -486,8 +486,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @property (nonatomic, readonly) id (^valueTransformer)(id input);
 @property (nonatomic, readonly) id (^reverseValueTransformer)(id input);
 @property (nonatomic, strong) id defaultValue;
-@property (nonatomic, copy) NSString *header;
-@property (nonatomic, copy) NSString *footer;
+@property (nonatomic, strong) id header;
+@property (nonatomic, strong) id footer;
 
 @property (nonatomic, weak) FXFormController *formController;
 @property (nonatomic, strong) NSMutableDictionary *cellConfig;
@@ -503,8 +503,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 + (NSArray *)sectionsWithForm:(id<FXForm>)form controller:(FXFormController *)formController;
 
 @property (nonatomic, strong) id<FXForm> form;
-@property (nonatomic, strong) NSString *header;
-@property (nonatomic, strong) NSString *footer;
+@property (nonatomic, strong) id header;
+@property (nonatomic, strong) id footer;
 @property (nonatomic, strong) NSMutableArray *fields;
 @property (nonatomic, assign) BOOL isSortable;
 
@@ -937,6 +937,48 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)setSortable:(BOOL)sortable
 {
     _isSortable = sortable;
+}
+
+- (void)setHeader:(id)header
+{
+    if ([header isKindOfClass:[NSString class]])
+    {
+        Class viewClass = NSClassFromString(header);
+        if ([viewClass isSubclassOfClass:[UIView class]])
+        {
+            header = viewClass;
+        }
+        else
+        {
+            header = [header copy];
+        }
+    }
+    if ([header class] == header)
+    {
+        header = [[header alloc] init];
+    }
+    _header = header;
+}
+
+- (void)setFooter:(id)footer
+{
+    if ([footer isKindOfClass:[NSString class]])
+    {
+        Class viewClass = NSClassFromString(footer);
+        if ([viewClass isSubclassOfClass:[UIView class]])
+        {
+            footer = viewClass;
+        }
+        else
+        {
+            footer = [footer copy];
+        }
+    }
+    if ([footer class] == footer)
+    {
+        footer = [[footer alloc] init];
+    }
+    _footer = footer;
 }
 
 - (BOOL)isSortable
@@ -1880,12 +1922,12 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (NSString *)tableView:(__unused UITableView *)tableView titleForHeaderInSection:(NSInteger)index
 {
-    return [self sectionAtIndex:index].header;
+    return [[self sectionAtIndex:index].header description];
 }
 
 - (NSString *)tableView:(__unused UITableView *)tableView titleForFooterInSection:(NSInteger)index
 {
-    return [self sectionAtIndex:index].footer;
+    return [[self sectionAtIndex:index].footer description];
 }
 
 - (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)index
@@ -1981,6 +2023,74 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 #pragma mark -
 #pragma mark Delegate methods
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)index
+{
+    //forward to delegate
+    if ([self.delegate respondsToSelector:_cmd])
+    {
+        return [self.delegate tableView:tableView viewForHeaderInSection:index];
+    }
+    
+    //handle view or class
+    id header = [self sectionAtIndex:index].header;
+    if ([header isKindOfClass:[UIView class]])
+    {
+        return header;
+    }
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)index
+{
+    //forward to delegate
+    if ([self.delegate respondsToSelector:_cmd])
+    {
+        return [self.delegate tableView:tableView heightForHeaderInSection:index];
+    }
+    
+    //handle view or class
+    UIView *header = [self sectionAtIndex:index].header;
+    if ([header isKindOfClass:[UIView class]])
+    {
+        return header.frame.size.height ?: 56; //standard height for header views
+    }
+    return 38; //standard height for text headers
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)index
+{
+    //forward to delegate
+    if ([self.delegate respondsToSelector:_cmd])
+    {
+        return [self.delegate tableView:tableView viewForFooterInSection:index];
+    }
+    
+    //handle view or class
+    id footer = [self sectionAtIndex:index].footer;
+    if ([footer isKindOfClass:[UIView class]])
+    {
+        return footer;
+    }
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)index
+{
+    //forward to delegate
+    if ([self.delegate respondsToSelector:_cmd])
+    {
+        return [self.delegate tableView:tableView heightForFooterInSection:index];
+    }
+    
+    //handle view or class
+    UIView *footer = [self sectionAtIndex:index].footer;
+    if ([footer isKindOfClass:[UIView class]])
+    {
+        return footer.frame.size.height ?: 46; //standard height for footer views
+    }
+    return 30; //standard height for text footers
+}
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
