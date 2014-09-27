@@ -2055,7 +2055,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         return header.frame.size.height ?: 56; //standard height for header views
     }
-    return 38; //standard height for text headers
+    return UITableViewAutomaticDimension;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)index
@@ -2089,7 +2089,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         return footer.frame.size.height ?: 46; //standard height for footer views
     }
-    return 30; //standard height for text footers
+    return UITableViewAutomaticDimension;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
