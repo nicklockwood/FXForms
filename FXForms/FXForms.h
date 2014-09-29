@@ -38,43 +38,43 @@
 #import <UIKit/UIKit.h>
 
 
-extern NSString *const FXFormFieldKey; //key
-extern NSString *const FXFormFieldType; //type
-extern NSString *const FXFormFieldClass; //class
-extern NSString *const FXFormFieldCell; //cell
-extern NSString *const FXFormFieldTitle; //title
-extern NSString *const FXFormFieldPlaceholder; //placeholder
-extern NSString *const FXFormFieldDefaultValue; //default
-extern NSString *const FXFormFieldOptions; //options
-extern NSString *const FXFormFieldTemplate; //template
-extern NSString *const FXFormFieldValueTransformer; //valueTransformer
-extern NSString *const FXFormFieldAction; //action
-extern NSString *const FXFormFieldSegue; //segue
-extern NSString *const FXFormFieldHeader; //header
-extern NSString *const FXFormFieldFooter; //footer
-extern NSString *const FXFormFieldInline; //inline
-extern NSString *const FXFormFieldSortable; //sortable
-extern NSString *const FXFormFieldViewController; //viewController
+UIKIT_EXTERN NSString *const FXFormFieldKey; //key
+UIKIT_EXTERN NSString *const FXFormFieldType; //type
+UIKIT_EXTERN NSString *const FXFormFieldClass; //class
+UIKIT_EXTERN NSString *const FXFormFieldCell; //cell
+UIKIT_EXTERN NSString *const FXFormFieldTitle; //title
+UIKIT_EXTERN NSString *const FXFormFieldPlaceholder; //placeholder
+UIKIT_EXTERN NSString *const FXFormFieldDefaultValue; //default
+UIKIT_EXTERN NSString *const FXFormFieldOptions; //options
+UIKIT_EXTERN NSString *const FXFormFieldTemplate; //template
+UIKIT_EXTERN NSString *const FXFormFieldValueTransformer; //valueTransformer
+UIKIT_EXTERN NSString *const FXFormFieldAction; //action
+UIKIT_EXTERN NSString *const FXFormFieldSegue; //segue
+UIKIT_EXTERN NSString *const FXFormFieldHeader; //header
+UIKIT_EXTERN NSString *const FXFormFieldFooter; //footer
+UIKIT_EXTERN NSString *const FXFormFieldInline; //inline
+UIKIT_EXTERN NSString *const FXFormFieldSortable; //sortable
+UIKIT_EXTERN NSString *const FXFormFieldViewController; //viewController
 
-extern NSString *const FXFormFieldTypeDefault; //default
-extern NSString *const FXFormFieldTypeLabel; //label
-extern NSString *const FXFormFieldTypeText; //text
-extern NSString *const FXFormFieldTypeLongText; //longtext
-extern NSString *const FXFormFieldTypeURL; //url
-extern NSString *const FXFormFieldTypeEmail; //email
-extern NSString *const FXFormFieldTypePhone; //phone
-extern NSString *const FXFormFieldTypePassword; //password
-extern NSString *const FXFormFieldTypeNumber; //number
-extern NSString *const FXFormFieldTypeInteger; //integer
-extern NSString *const FXFormFieldTypeUnsigned; //unsigned
-extern NSString *const FXFormFieldTypeFloat; //float
-extern NSString *const FXFormFieldTypeBitfield; //bitfield
-extern NSString *const FXFormFieldTypeBoolean; //boolean
-extern NSString *const FXFormFieldTypeOption; //option
-extern NSString *const FXFormFieldTypeDate; //date
-extern NSString *const FXFormFieldTypeTime; //time
-extern NSString *const FXFormFieldTypeDateTime; //datetime
-extern NSString *const FXFormFieldTypeImage; //image
+UIKIT_EXTERN NSString *const FXFormFieldTypeDefault; //default
+UIKIT_EXTERN NSString *const FXFormFieldTypeLabel; //label
+UIKIT_EXTERN NSString *const FXFormFieldTypeText; //text
+UIKIT_EXTERN NSString *const FXFormFieldTypeLongText; //longtext
+UIKIT_EXTERN NSString *const FXFormFieldTypeURL; //url
+UIKIT_EXTERN NSString *const FXFormFieldTypeEmail; //email
+UIKIT_EXTERN NSString *const FXFormFieldTypePhone; //phone
+UIKIT_EXTERN NSString *const FXFormFieldTypePassword; //password
+UIKIT_EXTERN NSString *const FXFormFieldTypeNumber; //number
+UIKIT_EXTERN NSString *const FXFormFieldTypeInteger; //integer
+UIKIT_EXTERN NSString *const FXFormFieldTypeUnsigned; //unsigned
+UIKIT_EXTERN NSString *const FXFormFieldTypeFloat; //float
+UIKIT_EXTERN NSString *const FXFormFieldTypeBitfield; //bitfield
+UIKIT_EXTERN NSString *const FXFormFieldTypeBoolean; //boolean
+UIKIT_EXTERN NSString *const FXFormFieldTypeOption; //option
+UIKIT_EXTERN NSString *const FXFormFieldTypeDate; //date
+UIKIT_EXTERN NSString *const FXFormFieldTypeTime; //time
+UIKIT_EXTERN NSString *const FXFormFieldTypeDateTime; //datetime
+UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 
 
 #pragma mark -
