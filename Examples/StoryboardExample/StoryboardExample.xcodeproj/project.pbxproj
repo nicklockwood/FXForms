@@ -507,6 +507,7 @@
 				01D5750619596F0C00370762 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		01D5750719596F0C00370762 /* Build configuration list for PBXNativeTarget "StoryboardExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -515,6 +516,7 @@
 				01D5750919596F0C00370762 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

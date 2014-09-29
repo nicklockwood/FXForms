@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="6Qp-N6-t1c">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Registration Form View Controller-->
+        <scene sceneID="2yB-VR-gNQ">
+            <objects>
+                <viewController id="ArL-ot-mBy" customClass="RegistrationFormViewController" customModule="SwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="dgs-z6-HEp"/>
+                        <viewControllerLayoutGuide type="bottom" id="XYx-4Z-juZ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ruM-SB-297">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="y2r-Wn-W9H"/>
+                    <connections>
+                        <segue destination="cZo-mk-bp5" kind="show" identifier="TermsSegue" id="Pq3-RV-qcP"/>
+                        <segue destination="wMl-1O-xRJ" kind="show" identifier="PrivacyPolicySegue" id="tVt-vK-71W"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iI8-GQ-ynO" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="542" y="106"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="0hv-vE-1yX">
+            <objects>
+                <viewController id="wMl-1O-xRJ" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="M44-Rc-gqi"/>
+                        <viewControllerLayoutGuide type="bottom" id="CDN-va-c7I"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="dwQ-RT-C3l">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="kQQ-fg-kUZ">
+                                <rect key="frame" x="20" y="91" width="564" height="263"/>
+                                <string key="text">Blah Blah Blah
+
+We take our customers' privacy very seriously, which is why we store all passwords using ROT13 encoding in a text file on our server.  We have every intention of selling your data to advertisers and/or handing your details to the NSA. Hope that's OK.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="kQQ-fg-kUZ" firstAttribute="top" secondItem="M44-Rc-gqi" secondAttribute="bottom" constant="27" id="8en-Mf-GvG"/>
+                            <constraint firstItem="kQQ-fg-kUZ" firstAttribute="leading" secondItem="dwQ-RT-C3l" secondAttribute="leadingMargin" constant="4" id="Cxu-q0-RzX"/>
+                            <constraint firstItem="CDN-va-c7I" firstAttribute="top" secondItem="kQQ-fg-kUZ" secondAttribute="bottom" constant="246" id="Fdn-Yt-156"/>
+                            <constraint firstItem="kQQ-fg-kUZ" firstAttribute="trailing" secondItem="dwQ-RT-C3l" secondAttribute="trailingMargin" id="yez-Ib-szy"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="5NB-mb-xWj"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FfR-EZ-5CS" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1363" y="781"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="4Rw-RO-Tkd">
+            <objects>
+                <viewController id="cZo-mk-bp5" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Mln-3w-Q3u"/>
+                        <viewControllerLayoutGuide type="bottom" id="Jju-A6-gjR"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="HNT-xV-gcg">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="Hqw-Qs-3kb">
+                                <rect key="frame" x="20" y="88" width="564" height="230"/>
+                                <string key="text">Blah Blah Blah  By registering for this product or service you agree that all your base are belong to us.  SCARY LEGAL MUMBO JUMBO IN ALL CAPS FOR SOME REASON. ON PENALTY OF DEATH.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Jju-A6-gjR" firstAttribute="top" secondItem="Hqw-Qs-3kb" secondAttribute="bottom" constant="282" id="4E9-uS-XpB"/>
+                            <constraint firstItem="Hqw-Qs-3kb" firstAttribute="trailing" secondItem="HNT-xV-gcg" secondAttribute="trailingMargin" id="4NX-fl-zDw"/>
+                            <constraint firstItem="Hqw-Qs-3kb" firstAttribute="leading" secondItem="HNT-xV-gcg" secondAttribute="leadingMargin" constant="4" id="PYB-kG-ERq"/>
+                            <constraint firstItem="Hqw-Qs-3kb" firstAttribute="top" secondItem="Mln-3w-Q3u" secondAttribute="bottom" constant="24" id="lon-rN-ttJ"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="2WI-6E-Ng9"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DdI-Dm-gxM" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1363" y="-84"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Zkh-Tk-3d3">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="6Qp-N6-t1c" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="17p-rs-Gf9">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="ArL-ot-mBy" kind="relationship" relationship="rootViewController" id="I3h-Tl-3I7"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Zw9-kf-hGu" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-223" y="106"/>
+        </scene>
+    </scenes>
+</document>

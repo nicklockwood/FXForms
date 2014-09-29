@@ -199,7 +199,7 @@ Similarly, if you only want to display a subset of the form object's properties 
 Grouping fields
 ---------------------
 
-You may wish to group your form fields into sections in the form to make it ease to use. FXForms handles grouping in a very simple way - you just add an `FXFormFieldHeader` or `FXFormFieldFooter` attribute to any field and it will start/end the section at that point. The `FXFormFieldHeader/Footer` can be either a string that will be displayed as the header or footer text for the section, or a custom UIView instance or subclass. If you don't want a header or foooter, just supply an empty string.
+You may wish to group your form fields into sections in the form to make it ease to use. FXForms handles grouping in a very simple way - you just add an `FXFormFieldHeader` or `FXFormFieldFooter` attribute to any field and it will start/end the section at that point. The `FXFormFieldHeader/Footer` can be either a string that will be displayed as the header or footer text for the section, or a custom UIView instance or subclass. If you don't want a header or foooter, just supply an empty string or `NSNull` value.
 
 In the following example, we have four fields, and we've split them into two groups, each with a header:
 
@@ -318,13 +318,13 @@ If the FXFormFieldSegue property is a segue instance or identifier, it will be i
 static NSString *const FXFormFieldHeader = @"header";
 ```
     
-This property provides an optional section header to display before the field. The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the header will be inferred from the view, or you can override it using the UITableViewDelegate. Supply an empty string to create a section partition without a title.
+This property provides an optional section header to display before the field.The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the header will be inferred from the view, or you can override it using the UITableViewDelegate. By default, it's value wll be inferred automatically for subforms based on the name of the subform property. Supply an empty string or `NSNull` value to create a section partition without a title.
     
 ```objc
 static NSString *const FXFormFieldFooter = @"footer";
 ```
     
-This property provides an optional section footer string to display after the field. The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the footer will be inferred from the view, or you can override it using the UITableViewDelegate. Supply an empty string to create a section partition without a footer.
+This property provides an optional section footer string to display after the field. The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the footer will be inferred from the view, or you can override it using the UITableViewDelegate. Supply an empty string or `NSNull` value to create a section partition without a footer, or just omit the `FXFormFieldFooter` key altogether.
     
 ```objc
 static NSString *const FXFormFieldInline = @"inline";
@@ -533,6 +533,12 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.2.1
+ 
+- Fixed issue where table footer spacing would incorrectly be shown even no footer text was set
+- Maded a small compatibility fix for Swift
+- Added Swift example project
+ 
 Version 1.2
 
 - Collection fields types, such as NSArray, NSSet, NSOrderedSet, etc. can now be edited by adding, removing and sorting items

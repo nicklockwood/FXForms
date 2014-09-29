@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2
+//  Version 1.2.1
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -37,43 +37,43 @@
 
 #ifndef FXForms
 
-static NSString *const FXFormFieldKey = @"key";
-static NSString *const FXFormFieldType = @"type";
-static NSString *const FXFormFieldClass = @"class";
-static NSString *const FXFormFieldCell = @"cell";
-static NSString *const FXFormFieldTitle = @"title";
-static NSString *const FXFormFieldPlaceholder = @"placeholder";
-static NSString *const FXFormFieldDefaultValue = @"default";
-static NSString *const FXFormFieldOptions = @"options";
-static NSString *const FXFormFieldTemplate = @"template";
-static NSString *const FXFormFieldValueTransformer = @"valueTransformer";
-static NSString *const FXFormFieldAction = @"action";
-static NSString *const FXFormFieldSegue = @"segue";
-static NSString *const FXFormFieldHeader = @"header";
-static NSString *const FXFormFieldFooter = @"footer";
-static NSString *const FXFormFieldInline = @"inline";
-static NSString *const FXFormFieldSortable = @"sortable";
-static NSString *const FXFormFieldViewController = @"viewController";
+NSString *const FXFormFieldKey = @"key";
+NSString *const FXFormFieldType = @"type";
+NSString *const FXFormFieldClass = @"class";
+NSString *const FXFormFieldCell = @"cell";
+NSString *const FXFormFieldTitle = @"title";
+NSString *const FXFormFieldPlaceholder = @"placeholder";
+NSString *const FXFormFieldDefaultValue = @"default";
+NSString *const FXFormFieldOptions = @"options";
+NSString *const FXFormFieldTemplate = @"template";
+NSString *const FXFormFieldValueTransformer = @"valueTransformer";
+NSString *const FXFormFieldAction = @"action";
+NSString *const FXFormFieldSegue = @"segue";
+NSString *const FXFormFieldHeader = @"header";
+NSString *const FXFormFieldFooter = @"footer";
+NSString *const FXFormFieldInline = @"inline";
+NSString *const FXFormFieldSortable = @"sortable";
+NSString *const FXFormFieldViewController = @"viewController";
 
-static NSString *const FXFormFieldTypeDefault = @"default";
-static NSString *const FXFormFieldTypeLabel = @"label";
-static NSString *const FXFormFieldTypeText = @"text";
-static NSString *const FXFormFieldTypeLongText = @"longtext";
-static NSString *const FXFormFieldTypeURL = @"url";
-static NSString *const FXFormFieldTypeEmail = @"email";
-static NSString *const FXFormFieldTypePhone = @"phone";
-static NSString *const FXFormFieldTypePassword = @"password";
-static NSString *const FXFormFieldTypeNumber = @"number";
-static NSString *const FXFormFieldTypeInteger = @"integer";
-static NSString *const FXFormFieldTypeUnsigned = @"unsigned";
-static NSString *const FXFormFieldTypeFloat = @"float";
-static NSString *const FXFormFieldTypeBitfield = @"bitfield";
-static NSString *const FXFormFieldTypeBoolean = @"boolean";
-static NSString *const FXFormFieldTypeOption = @"option";
-static NSString *const FXFormFieldTypeDate = @"date";
-static NSString *const FXFormFieldTypeTime = @"time";
-static NSString *const FXFormFieldTypeDateTime = @"datetime";
-static NSString *const FXFormFieldTypeImage = @"image";
+NSString *const FXFormFieldTypeDefault = @"default";
+NSString *const FXFormFieldTypeLabel = @"label";
+NSString *const FXFormFieldTypeText = @"text";
+NSString *const FXFormFieldTypeLongText = @"longtext";
+NSString *const FXFormFieldTypeURL = @"url";
+NSString *const FXFormFieldTypeEmail = @"email";
+NSString *const FXFormFieldTypePhone = @"phone";
+NSString *const FXFormFieldTypePassword = @"password";
+NSString *const FXFormFieldTypeNumber = @"number";
+NSString *const FXFormFieldTypeInteger = @"integer";
+NSString *const FXFormFieldTypeUnsigned = @"unsigned";
+NSString *const FXFormFieldTypeFloat = @"float";
+NSString *const FXFormFieldTypeBitfield = @"bitfield";
+NSString *const FXFormFieldTypeBoolean = @"boolean";
+NSString *const FXFormFieldTypeOption = @"option";
+NSString *const FXFormFieldTypeDate = @"date";
+NSString *const FXFormFieldTypeTime = @"time";
+NSString *const FXFormFieldTypeDateTime = @"datetime";
+NSString *const FXFormFieldTypeImage = @"image";
 
 #endif
 
