@@ -32,50 +32,49 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
+#pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
+
+
 #import <UIKit/UIKit.h>
 
 
-#ifndef FXForms
+extern NSString *const FXFormFieldKey; //key
+extern NSString *const FXFormFieldType; //type
+extern NSString *const FXFormFieldClass; //class
+extern NSString *const FXFormFieldCell; //cell
+extern NSString *const FXFormFieldTitle; //title
+extern NSString *const FXFormFieldPlaceholder; //placeholder
+extern NSString *const FXFormFieldDefaultValue; //default
+extern NSString *const FXFormFieldOptions; //options
+extern NSString *const FXFormFieldTemplate; //template
+extern NSString *const FXFormFieldValueTransformer; //valueTransformer
+extern NSString *const FXFormFieldAction; //action
+extern NSString *const FXFormFieldSegue; //segue
+extern NSString *const FXFormFieldHeader; //header
+extern NSString *const FXFormFieldFooter; //footer
+extern NSString *const FXFormFieldInline; //inline
+extern NSString *const FXFormFieldSortable; //sortable
+extern NSString *const FXFormFieldViewController; //viewController
 
-NSString *const FXFormFieldKey = @"key";
-NSString *const FXFormFieldType = @"type";
-NSString *const FXFormFieldClass = @"class";
-NSString *const FXFormFieldCell = @"cell";
-NSString *const FXFormFieldTitle = @"title";
-NSString *const FXFormFieldPlaceholder = @"placeholder";
-NSString *const FXFormFieldDefaultValue = @"default";
-NSString *const FXFormFieldOptions = @"options";
-NSString *const FXFormFieldTemplate = @"template";
-NSString *const FXFormFieldValueTransformer = @"valueTransformer";
-NSString *const FXFormFieldAction = @"action";
-NSString *const FXFormFieldSegue = @"segue";
-NSString *const FXFormFieldHeader = @"header";
-NSString *const FXFormFieldFooter = @"footer";
-NSString *const FXFormFieldInline = @"inline";
-NSString *const FXFormFieldSortable = @"sortable";
-NSString *const FXFormFieldViewController = @"viewController";
-
-NSString *const FXFormFieldTypeDefault = @"default";
-NSString *const FXFormFieldTypeLabel = @"label";
-NSString *const FXFormFieldTypeText = @"text";
-NSString *const FXFormFieldTypeLongText = @"longtext";
-NSString *const FXFormFieldTypeURL = @"url";
-NSString *const FXFormFieldTypeEmail = @"email";
-NSString *const FXFormFieldTypePhone = @"phone";
-NSString *const FXFormFieldTypePassword = @"password";
-NSString *const FXFormFieldTypeNumber = @"number";
-NSString *const FXFormFieldTypeInteger = @"integer";
-NSString *const FXFormFieldTypeUnsigned = @"unsigned";
-NSString *const FXFormFieldTypeFloat = @"float";
-NSString *const FXFormFieldTypeBitfield = @"bitfield";
-NSString *const FXFormFieldTypeBoolean = @"boolean";
-NSString *const FXFormFieldTypeOption = @"option";
-NSString *const FXFormFieldTypeDate = @"date";
-NSString *const FXFormFieldTypeTime = @"time";
-NSString *const FXFormFieldTypeDateTime = @"datetime";
-NSString *const FXFormFieldTypeImage = @"image";
-
-#endif
+extern NSString *const FXFormFieldTypeDefault; //default
+extern NSString *const FXFormFieldTypeLabel; //label
+extern NSString *const FXFormFieldTypeText; //text
+extern NSString *const FXFormFieldTypeLongText; //longtext
+extern NSString *const FXFormFieldTypeURL; //url
+extern NSString *const FXFormFieldTypeEmail; //email
+extern NSString *const FXFormFieldTypePhone; //phone
+extern NSString *const FXFormFieldTypePassword; //password
+extern NSString *const FXFormFieldTypeNumber; //number
+extern NSString *const FXFormFieldTypeInteger; //integer
+extern NSString *const FXFormFieldTypeUnsigned; //unsigned
+extern NSString *const FXFormFieldTypeFloat; //float
+extern NSString *const FXFormFieldTypeBitfield; //bitfield
+extern NSString *const FXFormFieldTypeBoolean; //boolean
+extern NSString *const FXFormFieldTypeOption; //option
+extern NSString *const FXFormFieldTypeDate; //date
+extern NSString *const FXFormFieldTypeTime; //time
+extern NSString *const FXFormFieldTypeDateTime; //datetime
+extern NSString *const FXFormFieldTypeImage; //image
 
 
 #pragma mark -
