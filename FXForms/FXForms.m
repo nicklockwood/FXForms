@@ -808,6 +808,28 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     _cellConfig[key] = value;
 }
 
+- (id)valueWithoutDefaultSubstitution
+{
+    if (FXFormCanGetValueForKey(self.form, self.key))
+    {
+        id value = [(NSObject *)self.form valueForKey:self.key];
+        if (value && self.options)
+        {
+            if ([self isIndexedType])
+            {
+                if ([value unsignedIntegerValue] >= [self.options count]) value = nil;
+            }
+            else if (![self isCollectionType] && ![self.type isEqualToString:FXFormFieldTypeBitfield])
+            {
+                //TODO: should we validate collection types too, or is that overkill?
+                if (![self.options containsObject:value]) value = nil;
+            }
+        }
+        return value;
+    }
+    return nil;
+}
+
 - (id)value
 {
     if (FXFormCanGetValueForKey(self.form, self.key))
@@ -869,13 +891,14 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             value = [value description];
         }
       
-        if ([self.valueClass isSubclassOfClass:[NSMutableString class]])
+        if (self.valueClass == [NSMutableString class])
         {
             //replace string or make mutable copy of it
-            if (self.value)
+            id _value = [self valueWithoutDefaultSubstitution];
+            if (_value)
             {
-                [(NSMutableString *)self.value setString:value];
-                value = self.value;
+                [(NSMutableString *)_value setString:value];
+                value = _value;
             }
             else
             {

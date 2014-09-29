@@ -536,6 +536,7 @@ Release notes
 Version 1.2.1
  
 - Fixed issue where table footer spacing would incorrectly be shown even no footer text was set
+- Fixed crash relating to the use of default values
 - Maded a small compatibility fix for Swift
 - Added Swift example project
  
