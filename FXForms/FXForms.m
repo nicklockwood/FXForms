@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.1
+//  Version 1.2.2
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -1596,7 +1596,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         }
         else if ([field.valueClass conformsToProtocol:@protocol(FXForm)] && field.isInline)
         {
-            if (![field.valueClass isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
+            if (!field.value && [field respondsToSelector:@selector(init)] &&
+                ![field.valueClass isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
             {
                 //create a new instance of the form automatically
                 field.value = [[field.valueClass alloc] init];

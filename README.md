@@ -533,6 +533,10 @@ Once you have created your custom cell, you can use it as follows:
 Release notes
 --------------
 
+Version 1.2.2
+ 
+- Fixed bug where subforms would be overwritten by a new instance
+ 
 Version 1.2.1
  
 - Fixed issue where table footer spacing would incorrectly be shown even when no footer text was set
