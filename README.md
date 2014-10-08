@@ -8,7 +8,7 @@ FXForms is an Objective-C library for easily creating table-based forms on iOS. 
 
 Unlike other solutions, FXForms works directly with strongly-typed data models that you supply (instead of dictionaries or complicated dataSource protocols), and infers as much information as possible from your models using introspection, to avoid the need for tedious duplication of type information.
 
-![Screenshot of BasicExample](https://raw.github.com/nicklockwood/FXForms/1.0.2/Examples/BasicExample/Screenshot.png)
+![Screenshot of BasicExample](https://raw.github.com/nicklockwood/FXForms/1.2.3/Examples/BasicExample/Screenshot.png)
 
 Supported iOS & SDK Versions
 -----------------------------
@@ -529,9 +529,30 @@ Once you have created your custom cell, you can use it as follows:
 * If your cell is designed to handle a particular field value class (or subclass), you can tell the formController to use your custom cell class for a particular value class using the `-registerCellClass:forFieldClass:` method of FXFormController.
 * If you want to completely replace all cells with your own classes, use the `-registerDefaultFieldCellClass:` method of `FXFormController`. This replaces all default cell associations for all field types with your new cell class. You can then use `-registerCellClass:forFieldType:` to add additional cell classes for specific types.
 
+ 
+Swift Compatibility
+--------------------
+
+FXForms is fully compatible with Swift, with the following caveats:
+
+* Your forms objects must inherit from `NSObject`, or de declared using the `@objc` qualifier.
+* For collection fields, you must use `NSArray`, `NSDictionary`, `NSOrderedSet`, etc. Swift's strongly typed collections won't work.
+* If your form objects are declared in a different module to your main app, FXForm's field value class inference may not work correctly, in which case you can explicitly specify the field class by adding the following method to your form object for each field that doesn't work:
+
+```swift
+func fieldThatDoesntWorkField() -> NSDictionary {
+    return [FXFormFieldClass: fieldThatDoesntWork.dynamicType]
+}
+```
+
 
 Release notes
 --------------
+
+Version 1.2.3
+
+- Added a fix when using Swift to allow FXForms to automatically infer the types of forms and controllers, as it can with Objective-C
+- Now throws an exception if you try to present a subform when not embedded inside a UINavigationController
 
 Version 1.2.2
  

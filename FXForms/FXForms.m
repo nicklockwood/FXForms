@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.2
+//  Version 1.2.3
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -93,6 +93,20 @@ static const CGFloat FXFormFieldPaddingRight = 10;
 static const CGFloat FXFormFieldPaddingTop = 12;
 static const CGFloat FXFormFieldPaddingBottom = 12;
 
+
+static Class FXFormClassFromString(NSString *className)
+{
+    Class cls = NSClassFromString(className);
+    if (className && !cls)
+    {
+        //might be a Swift class; time for some hackery!
+        className = [@[[[NSBundle mainBundle] objectForInfoDictionaryKey:(id)kCFBundleNameKey],
+                       className] componentsJoinedByString:@"."];
+        //try again
+        cls = NSClassFromString(className);
+    }
+    return cls;
+}
 
 static UIView *FXFormsFirstResponder(UIView *view)
 {
@@ -215,7 +229,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
                             {
                                 name = [name substringToIndex:range.location];
                             }
-                            valueClass = NSClassFromString(name) ?: [NSObject class];
+                            valueClass = FXFormClassFromString(name) ?: [NSObject class];
                             free(className);
                         }
                         break;
@@ -382,7 +396,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     //convert value class from string
     if ([dictionary[FXFormFieldClass] isKindOfClass:[NSString class]])
     {
-        dictionary[FXFormFieldClass] = NSClassFromString(dictionary[FXFormFieldClass]);
+        dictionary[FXFormFieldClass] = FXFormClassFromString(dictionary[FXFormFieldClass]);
     }
     
     //determine value class
@@ -467,13 +481,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     //convert cell from string to class
     if ([dictionary[FXFormFieldCell] isKindOfClass:[NSString class]])
     {
-        dictionary[FXFormFieldCell] = NSClassFromString(dictionary[FXFormFieldCell]);
+        dictionary[FXFormFieldCell] = FXFormClassFromString(dictionary[FXFormFieldCell]);
     }
     
     //convert view controller from string to class
     if ([dictionary[FXFormFieldViewController] isKindOfClass:[NSString class]])
     {
-        dictionary[FXFormFieldViewController] = NSClassFromString(dictionary[FXFormFieldViewController]);
+        dictionary[FXFormFieldViewController] = FXFormClassFromString(dictionary[FXFormFieldViewController]);
     }
     
     //preprocess template dictionary
@@ -931,7 +945,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if ([valueTransformer isKindOfClass:[NSString class]])
     {
-        valueTransformer = NSClassFromString(valueTransformer);
+        valueTransformer = FXFormClassFromString(valueTransformer);
     }
     if ([valueTransformer class] == valueTransformer)
     {
@@ -975,7 +989,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if ([segue isKindOfClass:[NSString class]])
     {
-        segue = NSClassFromString(segue) ?: [segue copy];
+        segue = FXFormClassFromString(segue) ?: [segue copy];
     }
     
     NSAssert(segue != [UIStoryboardPopoverSegue class], @"Unfortunately displaying subcontrollers using UIStoryboardPopoverSegue is not supported, as doing so would require calling private methods. To display using a popover, create a custom UIStoryboard subclass instead.");
@@ -1022,7 +1036,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if ([header isKindOfClass:[NSString class]])
     {
-        Class viewClass = NSClassFromString(header);
+        Class viewClass = FXFormClassFromString(header);
         if ([viewClass isSubclassOfClass:[UIView class]])
         {
             header = viewClass;
@@ -1047,7 +1061,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if ([footer isKindOfClass:[NSString class]])
     {
-        Class viewClass = NSClassFromString(footer);
+        Class viewClass = FXFormClassFromString(footer);
         if ([viewClass isSubclassOfClass:[UIView class]])
         {
             footer = viewClass;
@@ -1597,7 +1611,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         else if ([field.valueClass conformsToProtocol:@protocol(FXForm)] && field.isInline)
         {
             if (!field.value && [field respondsToSelector:@selector(init)] &&
-                ![field.valueClass isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
+                ![field.valueClass isSubclassOfClass:FXFormClassFromString(@"NSManagedObject")])
             {
                 //create a new instance of the form automatically
                 field.value = [[field.valueClass alloc] init];
@@ -2348,7 +2362,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     else if ([field.valueClass conformsToProtocol:@protocol(FXForm)])
     {
-        if (!field.value && ![field.valueClass isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
+        if (!field.value && ![field.valueClass isSubclassOfClass:FXFormClassFromString(@"NSManagedObject")])
         {
             //create a new instance of the form automatically
             field.value = [[field.valueClass alloc] init];
@@ -2663,6 +2677,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         }
         else
         {
+            NSAssert(controller.navigationController != nil, @"Attempted to push a sub-viewController from a form that is not embedded inside a UINavigationController. That won't work!");
             [controller.navigationController pushViewController:subcontroller animated:YES];
         }
     }
