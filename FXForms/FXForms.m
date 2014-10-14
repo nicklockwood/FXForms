@@ -2663,6 +2663,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             subcontroller = self.field.value ?: [[self.field.valueClass alloc] init];
         }
+        else if ([self.field.viewController isKindOfClass:[UIViewController class]])
+        {
+            subcontroller = self.field.viewController;
+            ((id <FXFormFieldViewController>)subcontroller).field = self.field;
+        }
         else
         {
             subcontroller = [[self.field.viewController ?: [FXFormViewController class] alloc] init];
