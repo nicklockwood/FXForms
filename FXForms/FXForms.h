@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2.3
+//  Version 1.2.4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -30,9 +30,9 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
-#pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-missing-property-synthesis"
+#pragma clang diagnostic ignored "-Wmissing-variable-declarations"
 
 
 #import <UIKit/UIKit.h>
@@ -114,7 +114,7 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 @property (nonatomic, readonly) BOOL isSortable;
 @property (nonatomic, readonly) BOOL isInline;
 @property (nonatomic, readonly) Class valueClass;
-@property (nonatomic, readonly) Class viewController;
+@property (nonatomic, readonly) id viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
 @property (nonatomic, readonly) id segue;
 @property (nonatomic, strong) id value;
@@ -274,5 +274,5 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 @end
 
 
-#pragma GCC diagnostic pop
+#pragma clang diagnostic pop
 

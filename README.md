@@ -13,7 +13,7 @@ Unlike other solutions, FXForms works directly with strongly-typed data models t
 Supported iOS & SDK Versions
 -----------------------------
 
-* Supported build target - iOS 8.0 (Xcode 6.0, Apple LLVM compiler 6.0)
+* Supported build target - iOS 8.1 (Xcode 6.1, Apple LLVM compiler 6.0)
 * Earliest supported deployment target - iOS 5.0
 * Earliest compatible deployment target - iOS 5.0
 
@@ -342,7 +342,7 @@ Fields of type NSArray or NSOrderedSet can optionally display sorting controls s
 static NSString *const FXFormFieldViewController = @"controller";
 ```
 
-Some types of field may be displayed in another view controller, which will be pushed onto the navigation stack when the field is selected. By default this class is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to controller classes, which allows you to override the default controller used to display a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off controller type, the FXFormFieldViewController property lets you specify the controller to be used on a per-field basis. The controller specified must conform to the `FXFormFieldViewController` protocol. By default, such fields will be displayed using the `FXFormViewController` class.
+Some types of field may be displayed in another view controller, which will be pushed onto the navigation stack when the field is selected. By default this class is not specified on the field-level; instead, the `FXFormController` maintains a map of fields types to controller classes, which allows you to override the default controller used to display a given field type on a per-form level rather than having to do it per-field. If you *do* need to provide a special one-off controller type, the FXFormFieldViewController property lets you specify the controller to be used on a per-field basis. `FXFormViewController` can be either a `UIViewController` instance or class (or a string containing the name of a class). The controller specified must conform to the `FXFormFieldViewController` protocol. By default, such fields will be displayed using the `FXFormViewController` class.
 
 
 Form field types
@@ -549,6 +549,11 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.4
+ 
+- `hash`, `description`, etc. no longer show up on iOS7 for builds built with the 8.1 SDK
+- `FXFormViewController` can now be either a view controller class or instance
+ 
 Version 1.2.3
 
 - Added a fix when using Swift to allow FXForms to automatically infer the types of forms and controllers, as it can with Objective-C

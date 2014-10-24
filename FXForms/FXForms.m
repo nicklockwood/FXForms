@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.3
+//  Version 1.2.4
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -34,12 +34,12 @@
 #import <objc/runtime.h>
 
 
-#pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
-#pragma GCC diagnostic ignored "-Wdirect-ivar-access"
-#pragma GCC diagnostic ignored "-Warc-repeated-use-of-weak"
-#pragma GCC diagnostic ignored "-Wreceiver-is-weak"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wgnu"
+#pragma clang diagnostic ignored "-Wobjc-missing-property-synthesis"
+#pragma clang diagnostic ignored "-Wdirect-ivar-access"
+#pragma clang diagnostic ignored "-Warc-repeated-use-of-weak"
+#pragma clang diagnostic ignored "-Wreceiver-is-weak"
+#pragma clang diagnostic ignored "-Wconversion"
+#pragma clang diagnostic ignored "-Wgnu"
 
 
 NSString *const FXFormFieldKey = @"key";
@@ -174,7 +174,7 @@ static inline NSArray *FXFormProperties(id<FXForm> form)
         static NSSet *NSObjectProperties;
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            NSObjectProperties = [NSMutableSet set];
+            NSObjectProperties = [NSMutableSet setWithArray:@[@"description", @"debugDescription", @"hash", @"superclass"]];
             unsigned int propertyCount;
             objc_property_t *propertyList = class_copyPropertyList([NSObject class], &propertyCount);
             for (unsigned int i = 0; i < propertyCount; i++)
@@ -488,6 +488,44 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if ([dictionary[FXFormFieldViewController] isKindOfClass:[NSString class]])
     {
         dictionary[FXFormFieldViewController] = FXFormClassFromString(dictionary[FXFormFieldViewController]);
+    }
+    
+    //convert header from string to class
+    id header = dictionary[FXFormFieldHeader];
+    if ([header isKindOfClass:[NSString class]])
+    {
+        Class viewClass = FXFormClassFromString(header);
+        if ([viewClass isSubclassOfClass:[UIView class]])
+        {
+            dictionary[FXFormFieldHeader] = viewClass;
+        }
+        else
+        {
+            dictionary[FXFormFieldHeader] = [header copy];
+        }
+    }
+    else if ([header isKindOfClass:[NSNull class]])
+    {
+        dictionary[FXFormFieldHeader] = @"";
+    }
+
+    //convert footer from string to class
+    id footer = dictionary[FXFormFieldFooter];
+    if ([footer isKindOfClass:[NSString class]])
+    {
+        Class viewClass = FXFormClassFromString(footer);
+        if ([viewClass isSubclassOfClass:[UIView class]])
+        {
+            dictionary[FXFormFieldFooter] = viewClass;
+        }
+        else
+        {
+            dictionary[FXFormFieldFooter] = [header copy];
+        }
+    }
+    else if ([footer isKindOfClass:[NSNull class]])
+    {
+        dictionary[FXFormFieldFooter] = @"";
     }
     
     //preprocess template dictionary
@@ -1034,23 +1072,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setHeader:(id)header
 {
-    if ([header isKindOfClass:[NSString class]])
-    {
-        Class viewClass = FXFormClassFromString(header);
-        if ([viewClass isSubclassOfClass:[UIView class]])
-        {
-            header = viewClass;
-        }
-        else
-        {
-            header = [header copy];
-        }
-    }
-    if ([header isKindOfClass:[NSNull class]])
-    {
-        header = @"";
-    }
-    else if ([header class] == header)
+    if ([header class] == header)
     {
         header = [[header alloc] init];
     }
@@ -1059,23 +1081,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setFooter:(id)footer
 {
-    if ([footer isKindOfClass:[NSString class]])
-    {
-        Class viewClass = FXFormClassFromString(footer);
-        if ([viewClass isSubclassOfClass:[UIView class]])
-        {
-            footer = viewClass;
-        }
-        else
-        {
-            footer = [footer copy];
-        }
-    }
-    if ([footer isKindOfClass:[NSNull class]])
-    {
-        footer = @"";
-    }
-    else if ([footer class] == footer)
+    if ([footer class] == footer)
     {
         footer = [[footer alloc] init];
     }
@@ -1991,12 +1997,12 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         if ([responder respondsToSelector:selector])
         {
             
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
             
             [responder performSelector:selector withObject:sender];
             
-#pragma GCC diagnostic pop
+#pragma clang diagnostic pop
             
             return;
         }
@@ -2663,9 +2669,14 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         {
             subcontroller = self.field.value ?: [[self.field.valueClass alloc] init];
         }
-        else if ([self.field.viewController isKindOfClass:[UIViewController class]])
+        else if (self.field.viewController && self.field.viewController == [self.field.viewController class])
         {
             subcontroller = [[self.field.viewController alloc] init];
+            ((id <FXFormFieldViewController>)subcontroller).field = self.field;
+        }
+        else if ([self.field.viewController isKindOfClass:[UIViewController class]])
+        {
+            subcontroller = self.field.viewController;
             ((id <FXFormFieldViewController>)subcontroller).field = self.field;
         }
         else
