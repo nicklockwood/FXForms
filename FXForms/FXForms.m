@@ -520,7 +520,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         }
         else
         {
-            dictionary[FXFormFieldFooter] = [header copy];
+            dictionary[FXFormFieldFooter] = [footer copy];
         }
     }
     else if ([footer isKindOfClass:[NSNull class]])
