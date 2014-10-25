@@ -549,6 +549,10 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.5
+ 
+- Fixed crash when form section has a footer but no header
+ 
 Version 1.2.4
  
 - `hash`, `description`, etc. no longer show up on iOS7 for builds built with the 8.1 SDK
