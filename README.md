@@ -551,7 +551,8 @@ Release notes
 
 Version 1.2.6
  
-- Fixed valueClass inference, especially for template fields
+- Improved `valueClass` inference, especially for template fields
+- `FXFormImagePickerCell` now lets you select camera or photo library
  
 Version 1.2.5
  

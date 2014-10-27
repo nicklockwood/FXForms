@@ -3321,7 +3321,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @interface FXFormImagePickerCell () <UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
-@property (nonatomic, strong) UIActionSheet *actionSheet;
 @property (nonatomic, weak) UIViewController *controller;
 
 @end
@@ -3343,7 +3342,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)dealloc
 {
     _imagePickerController.delegate = nil;
-    _actionSheet.delegate = nil;
 }
 
 - (void)layoutSubviews
@@ -3393,14 +3391,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return _imagePickerController;
 }
 
-- (UIActionSheet *)actionSheet
-{
-    if (!_actionSheet) {
-        _actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Camera", nil), NSLocalizedString(@"Library", nil), nil];
-    }
-    return _actionSheet;
-}
-
 - (UIImageView *)imagePickerView
 {
     return (UIImageView *)self.accessoryView;
@@ -3420,7 +3410,28 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     [self becomeFirstResponder];
     [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
-    [self.actionSheet showInView:controller.view];
+    if ([UIAlertController class])
+    {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Take Photo", nil) style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *action) {
+            [self actionSheet:nil didDismissWithButtonIndex:0];
+        }]];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Photo Library", nil) style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *action) {
+            [self actionSheet:nil didDismissWithButtonIndex:1];
+        }]];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:NULL]];
+        
+        [controller presentViewController:alert animated:YES completion:NULL];
+    }
+    else
+    {
+        [[[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Take Photo", nil), NSLocalizedString(@"Photo Library", nil), nil] showInView:controller.view];
+    }
     self.controller = controller;
 }
 
@@ -3439,21 +3450,21 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)actionSheet:(__unused UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     BOOL sourceTypeAvailable = NO;
-    switch (buttonIndex) {
-        case 0: {
+    switch (buttonIndex)
+    {
+        case 0:
+        {
             sourceTypeAvailable = [self setSourceType:UIImagePickerControllerSourceTypeCamera];
             break;
         }
-        case 1: {
+        case 1:
+        {
             sourceTypeAvailable = [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
             break;
         }
-        default: {
-            return;
-        }
     }
-    
-    if (sourceTypeAvailable) {
+    if (sourceTypeAvailable)
+    {
         [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
     }
 }
