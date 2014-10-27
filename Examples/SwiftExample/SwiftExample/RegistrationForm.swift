@@ -56,7 +56,7 @@ class RegistrationForm: NSObject, FXForm {
             //we want to add another group header here, and modify the auto-capitalization
             
             [FXFormFieldKey: "name", FXFormFieldHeader: "Details",
-                "textField.autocapitalizationType": UITextAutocapitalizationType.Words.toRaw()],
+                "textField.autocapitalizationType": UITextAutocapitalizationType.Words.rawValue],
 
             //this is a multiple choice field, so we'll need to provide some options
             //because this is an enum property, the indexes of the options should match enum values
