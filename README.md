@@ -549,6 +549,10 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.6
+ 
+- Fixed valueClass inference, especially for template fields
+ 
 Version 1.2.5
  
 - Fixed crash when form section has a footer but no header

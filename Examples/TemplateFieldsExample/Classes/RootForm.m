@@ -30,13 +30,15 @@
 
 - (NSDictionary *)arrayWithTemplateField
 {
-    return @{FXFormFieldTemplate: @{FXFormFieldType: FXFormFieldTypeText}};
+    return @{FXFormFieldTemplate: @{FXFormFieldType: FXFormFieldTypeImage,
+                                    FXFormFieldCell: [FXFormImagePickerCell class]}};
 }
 
 - (NSDictionary *)sortableArrayWithTemplateField
 {
-    return @{FXFormFieldSortable: @YES, FXFormFieldTemplate: @{
-                     FXFormFieldType: FXFormFieldTypeDate}
+    return @{FXFormFieldSortable: @YES,
+             FXFormFieldTemplate: @{FXFormFieldType: FXFormFieldTypeImage,
+                                    FXFormFieldCell: [FXFormImagePickerCell class]}
              };
 }
 
