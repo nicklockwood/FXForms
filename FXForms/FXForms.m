@@ -428,7 +428,14 @@ static NSString *FXFormFieldInferType(Class valueClass, NSString *key)
         return FXFormFieldTypeURL;
     }
     
-    return FXFormFieldTypeText;
+    if (!valueClass || [valueClass isSubclassOfClass:[NSString class]])
+    {
+        return FXFormFieldTypeText;
+    }
+    else
+    {
+        return FXFormFieldTypeDefault;
+    }
 }
 
 static Class FXFormFieldInferClass(NSString *type, NSString *key)
