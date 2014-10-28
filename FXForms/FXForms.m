@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.6
+//  Version 1.2.7
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -391,8 +391,10 @@ static BOOL FXFormCanSetValueForKey(id<FXForm> form, NSString *key)
     return NO;
 }
 
-static NSString *FXFormFieldInferType(Class valueClass, NSString *key)
+static NSString *FXFormFieldInferType(NSDictionary *dictionary)
 {
+    //guess type from class
+    Class valueClass = dictionary[FXFormFieldClass];
     if ([valueClass isSubclassOfClass:[NSURL class]])
     {
         return FXFormFieldTypeURL;
@@ -409,71 +411,84 @@ static NSString *FXFormFieldInferType(Class valueClass, NSString *key)
     {
         return FXFormFieldTypeImage;
     }
-
-    NSString *lowercaseKey = [key lowercaseString];
-    if ([lowercaseKey hasSuffix:@"password"])
+    
+    id action = dictionary[FXFormFieldAction];
+    if (!valueClass && !action)
     {
-        return FXFormFieldTypePassword;
-    }
-    else if ([lowercaseKey hasSuffix:@"email"] || [lowercaseKey hasSuffix:@"emailaddress"])
-    {
-        return FXFormFieldTypeEmail;
-    }
-    else if ([lowercaseKey hasSuffix:@"phone"] || [lowercaseKey hasSuffix:@"phonenumber"])
-    {
-        return FXFormFieldTypePhone;
-    }
-    else if ([lowercaseKey hasSuffix:@"url"] || [lowercaseKey hasSuffix:@"link"])
-    {
-        return FXFormFieldTypeURL;
+        //assume string if there's no action and nothing else to go on
+        valueClass = [NSString class];
     }
     
+    //guess type from key name
     if (!valueClass || [valueClass isSubclassOfClass:[NSString class]])
     {
-        return FXFormFieldTypeText;
+        NSString *key = dictionary[FXFormFieldKey];
+        NSString *lowercaseKey = [key lowercaseString];
+        if ([lowercaseKey hasSuffix:@"password"])
+        {
+            return FXFormFieldTypePassword;
+        }
+        else if ([lowercaseKey hasSuffix:@"email"] || [lowercaseKey hasSuffix:@"emailaddress"])
+        {
+            return FXFormFieldTypeEmail;
+        }
+        else if ([lowercaseKey hasSuffix:@"phone"] || [lowercaseKey hasSuffix:@"phonenumber"])
+        {
+            return FXFormFieldTypePhone;
+        }
+        else if ([lowercaseKey hasSuffix:@"url"] || [lowercaseKey hasSuffix:@"link"])
+        {
+            return FXFormFieldTypeURL;
+        }
+        else if (valueClass)
+        {
+            //only return text type if there's no action and no better guess
+            return FXFormFieldTypeText;
+        }
     }
-    else
-    {
-        return FXFormFieldTypeDefault;
-    }
+    
+    return FXFormFieldTypeDefault;
 }
 
-static Class FXFormFieldInferClass(NSString *type, NSString *key)
+static Class FXFormFieldInferClass(NSDictionary *dictionary)
 {
-    if (!type) type = FXFormFieldInferType(nil, key);
-    return  @{FXFormFieldTypeLabel: [NSString class],
-              FXFormFieldTypeText: [NSString class],
-              FXFormFieldTypeLongText: [NSString class],
-              FXFormFieldTypeURL: [NSURL class],
-              FXFormFieldTypeEmail: [NSString class],
-              FXFormFieldTypePhone: [NSString class],
-              FXFormFieldTypePassword: [NSString class],
-              FXFormFieldTypeNumber: [NSNumber class],
-              FXFormFieldTypeInteger: [NSNumber class],
-              FXFormFieldTypeUnsigned: [NSNumber class],
-              FXFormFieldTypeFloat: [NSNumber class],
-              FXFormFieldTypeBitfield: [NSNumber class],
-              FXFormFieldTypeBoolean: [NSNumber class],
-              FXFormFieldTypeOption: [NSNumber class],
-              FXFormFieldTypeDate: [NSDate class],
-              FXFormFieldTypeTime: [NSDate class],
-              FXFormFieldTypeDateTime: [NSDate class],
-              FXFormFieldTypeImage: [UIImage class]
-              }[type];
+    //if there are options, type should match first option
+    NSArray *options = dictionary[FXFormFieldOptions];
+    if ([options count])
+    {
+        //use same type as options
+        return [[options firstObject] classForCoder];
+    }
+    
+    //attempt to determine class from type
+    NSString *type = dictionary[FXFormFieldType] ?: FXFormFieldInferType(dictionary);
+    return @{FXFormFieldTypeLabel: [NSString class],
+             FXFormFieldTypeText: [NSString class],
+             FXFormFieldTypeLongText: [NSString class],
+             FXFormFieldTypeURL: [NSURL class],
+             FXFormFieldTypeEmail: [NSString class],
+             FXFormFieldTypePhone: [NSString class],
+             FXFormFieldTypePassword: [NSString class],
+             FXFormFieldTypeNumber: [NSNumber class],
+             FXFormFieldTypeInteger: [NSNumber class],
+             FXFormFieldTypeUnsigned: [NSNumber class],
+             FXFormFieldTypeFloat: [NSNumber class],
+             FXFormFieldTypeBitfield: [NSNumber class],
+             FXFormFieldTypeBoolean: [NSNumber class],
+             FXFormFieldTypeOption: [NSNumber class],
+             FXFormFieldTypeDate: [NSDate class],
+             FXFormFieldTypeTime: [NSDate class],
+             FXFormFieldTypeDateTime: [NSDate class],
+             FXFormFieldTypeImage: [UIImage class]
+             }[type];
 }
 
 static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
-    //convert value class from string
-    if ([dictionary[FXFormFieldClass] isKindOfClass:[NSString class]])
-    {
-        dictionary[FXFormFieldClass] = FXFormClassFromString(dictionary[FXFormFieldClass]);
-    }
-    
     //use base cell for subforms
     NSString *type = dictionary[FXFormFieldType];
     NSArray *options = dictionary[FXFormFieldOptions];
-    if (([options count] || dictionary[FXFormFieldViewController] || dictionary[FXFormFieldTemplate]) &&
+    if ((options || dictionary[FXFormFieldViewController] || dictionary[FXFormFieldTemplate]) &&
         ![type isEqualToString:FXFormFieldTypeBitfield] && ![dictionary[FXFormFieldInline] boolValue])
     {
         //TODO: is there a good way to support custom type for non-inline options cells?
@@ -481,40 +496,36 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         dictionary[FXFormFieldType] = type = FXFormFieldTypeDefault;
     }
     
-    //derive value type from key and/or value class
-    Class valueClass = dictionary[FXFormFieldClass];
-    NSString *key = dictionary[FXFormFieldKey];
-    if (!type)
+    //get field value class
+    id valueClass = dictionary[FXFormFieldClass];
+    if ([valueClass isKindOfClass:[NSString class]])
     {
-        dictionary[FXFormFieldType] = type = FXFormFieldInferType(valueClass, key);
+        dictionary[FXFormFieldClass] = valueClass = FXFormClassFromString(valueClass);
     }
-    
-    //determine value class
-    if (!valueClass)
+    else if (!valueClass && (valueClass = FXFormFieldInferClass(dictionary)))
     {
-        if ([options count])
-        {
-            //use same type as options
-            valueClass = [[options firstObject] classForCoder];
-        }
-        else
-        {
-            //infer class from type and key
-            valueClass = FXFormFieldInferClass(type, key) ?: [NSString class];
-        }
         dictionary[FXFormFieldClass] = valueClass;
     }
     
-    //convert cell from string to class
-    if ([dictionary[FXFormFieldCell] isKindOfClass:[NSString class]])
+    //get field type
+    NSString *key = dictionary[FXFormFieldKey];
+    if (!type)
     {
-        dictionary[FXFormFieldCell] = FXFormClassFromString(dictionary[FXFormFieldCell]);
+        dictionary[FXFormFieldType] = type = FXFormFieldInferType(dictionary);
+    }
+    
+    //convert cell from string to class
+    id cellClass = dictionary[FXFormFieldCell];
+    if ([cellClass isKindOfClass:[NSString class]])
+    {
+        dictionary[FXFormFieldCell] = cellClass = FXFormClassFromString(cellClass);
     }
     
     //convert view controller from string to class
-    if ([dictionary[FXFormFieldViewController] isKindOfClass:[NSString class]])
+    id viewController = dictionary[FXFormFieldViewController];
+    if ([viewController isKindOfClass:[NSString class]])
     {
-        dictionary[FXFormFieldViewController] = FXFormClassFromString(dictionary[FXFormFieldViewController]);
+        dictionary[FXFormFieldViewController] = viewController = FXFormClassFromString(viewController);
     }
     
     //convert header from string to class

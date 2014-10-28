@@ -549,6 +549,10 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.7
+ 
+- Fixed bug where button-type fields (ones with an action but no editable value) were not correctly inferred
+ 
 Version 1.2.6
  
 - Improved `valueClass` inference, especially for template fields
