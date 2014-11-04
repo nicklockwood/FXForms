@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2.7
+//  Version 1.2.8
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.

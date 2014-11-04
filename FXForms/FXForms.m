@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.7
+//  Version 1.2.8
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -412,15 +412,14 @@ static NSString *FXFormFieldInferType(NSDictionary *dictionary)
         return FXFormFieldTypeImage;
     }
     
-    id action = dictionary[FXFormFieldAction];
-    if (!valueClass && !action)
+    if (!valueClass && ! dictionary[FXFormFieldAction] && !dictionary[FXFormFieldSegue])
     {
         //assume string if there's no action and nothing else to go on
         valueClass = [NSString class];
     }
     
     //guess type from key name
-    if (!valueClass || [valueClass isSubclassOfClass:[NSString class]])
+    if ([valueClass isSubclassOfClass:[NSString class]])
     {
         NSString *key = dictionary[FXFormFieldKey];
         NSString *lowercaseKey = [key lowercaseString];
@@ -3322,7 +3321,14 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(__unused UIViewController *)controller
 {
-    [self becomeFirstResponder];
+    if (![self isFirstResponder])
+    {
+        [self becomeFirstResponder];
+    }
+    else
+    {
+        [self resignFirstResponder];
+    }
     [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
 }
 
