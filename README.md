@@ -199,7 +199,7 @@ Similarly, if you only want to display a subset of the form object's properties 
 Grouping fields
 ---------------------
 
-You may wish to group your form fields into sections in the form to make it ease to use. FXForms handles grouping in a very simple way - you just add an `FXFormFieldHeader` or `FXFormFieldFooter` attribute to any field and it will start/end the section at that point. The `FXFormFieldHeader/Footer` can be either a string that will be displayed as the header or footer text for the section, or a custom UIView instance or subclass. If you don't want a header or foooter, just supply an empty string or `NSNull` value.
+You may wish to group your form fields into sections in the form to make it ease to use. FXForms handles grouping in a very simple way - you just add an `FXFormFieldHeader` or `FXFormFieldFooter` attribute to any field and it will start/end the section at that point. The `FXFormFieldHeader/Footer` can be either a string that will be displayed as the header or footer text for the section, or a custom UIView instance or subclass. If you don't want a header or footer, just supply an empty string or `NSNull` value.
 
 In the following example, we have four fields, and we've split them into two groups, each with a header:
 
@@ -301,7 +301,7 @@ Sometimes the value you wish to display for a field may not match the value you 
 static NSString *const FXFormFieldAction = @"action";
 ```
     
-This is an optional action to be performed by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, it's superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
+This is an optional action to be performed by the field. The value can be either a string representing the name of a selector, or a block, and will be executed when the field is activated. If the action is specified as a selector, the target is determined by cascading up the responder chain from the cell until an object is encountered that responds to it. That means that you could choose to implement this action method on the tableview, its superview, the view controller, the app delegate, or even the window. If your form is presented as a subform of another form, you can also implement actions methods for subforms in the view controller for their parent form.
 
 For non-interactive fields, the action will be called when the cell is selected; for fields such as switches or textfields, it will fire when the value is changed. When using a selector, the action method can accept either zero or one argument. The argument supplied will be the sender, which is typically a form field cell, (a `UITableViewCell` conforming to the `FXFormFieldCell` protocol), from which you can access the field model, and from that the form itself.
 
@@ -318,7 +318,7 @@ If the FXFormFieldSegue property is a segue instance or identifier, it will be i
 static NSString *const FXFormFieldHeader = @"header";
 ```
     
-This property provides an optional section header to display before the field.The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the header will be inferred from the view, or you can override it using the UITableViewDelegate. By default, it's value wll be inferred automatically for subforms based on the name of the subform property. Supply an empty string or `NSNull` value to create a section partition without a title.
+This property provides an optional section header to display before the field.The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the header will be inferred from the view, or you can override it using the UITableViewDelegate. By default, its value will be inferred automatically for subforms based on the name of the subform property. Supply an empty string or `NSNull` value to create a section partition without a title.
     
 ```objc
 static NSString *const FXFormFieldFooter = @"footer";
@@ -516,11 +516,11 @@ FXForms provides default cell implementations for all supported fields. You may 
 
 There are two levels of customisation possible for cells. The simplest option is to subclass one of the existing `FXFormCell` classes, which all inherit from `FXFormBaseCell`. These cell classes contain a lot of logic for handling the various different field types, but also expose the views and controls used, for easy customisation.
 
-When subclassing an existing cell type, you can override the `setUp`, `update` and `didSelectWithTableView:controller:` methods (optionally calling [super …] if you want to inherit the original cell's behaviors). The `setUp` method will be called once when the cell is created, and the `update` method will be called each time the field value is updated.
+When subclassing an existing cell type, you can override the `setUp`, `update` and `didSelectWithTableView:tableView controller:controller` methods (optionally calling [super …] if you want to inherit the original cell's behaviors). The `setUp` method will be called once when the cell is created, and the `update` method will be called each time the field value is updated.
 
 If you already have a base cell class and don't want to base your cells on `FXFormBaseCell`, you can create an FXForms-compatible cell from scratch by subclassing `UITableViewCell` and adopting the `FXFormFieldCell` protocol.
 
-Your custom cell must have a property called field, of type `FXFormField`. `FXFormField` is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the field.value virtual property). You cannot instantiate `FXFormField` objects directly, however they can be accessed and enumerated via methods on the `FXFormController`.
+Your custom cell must have a property called field, of type `FXFormField`. `FXFormField` is a wrapper class used to encapsulate the properties of a field, and also provides a way to set and get the associated form value (via the `field.value` virtual property). You cannot instantiate `FXFormField` objects directly, however they can be accessed and enumerated via methods on the `FXFormController`.
 
 Once you have created your custom cell, you can use it as follows:
 
