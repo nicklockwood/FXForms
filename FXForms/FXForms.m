@@ -1786,7 +1786,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 #pragma mark Controllers
 
 
-@implementation FXFormController
+@implementation FXFormController {
+	NSMutableDictionary *_cellHeightCache;
+}
 
 - (instancetype)init
 {
@@ -1810,8 +1812,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                                        FXFormFieldTypeImage: [FXFormImagePickerCell class]} mutableCopy];
         
         _cellClassesForFieldClasses = [NSMutableDictionary dictionary];
-        
-        _controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
+		_cellHeightCache = [[NSMutableDictionary alloc] initWithCapacity:[_cellClassesForFieldTypes count]];
+
+		_controllerClassesForFieldTypes = [@{FXFormFieldTypeDefault: [FXFormViewController class]} mutableCopy];
         
         _controllerClassesForFieldClasses = [NSMutableDictionary dictionary];
         
@@ -2079,6 +2082,33 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return [self numberOfFieldsInSection:index];
 }
 
+- (UITableViewCell *)cellForField:(FXFormField *)field {
+	//don't recycle cells - it would make things complicated
+	Class cellClass = field.cellClass ?: [self cellClassForField:field];
+	NSString *nibName = NSStringFromClass(cellClass);
+	if ([[NSBundle mainBundle] pathForResource:nibName ofType:@"nib"])
+	{
+		//load cell from nib
+		return [[[NSBundle mainBundle] loadNibNamed:nibName owner:nil options:nil] firstObject];
+	}
+	else
+	{
+		//hackity-hack-hack
+		UITableViewCellStyle style = UITableViewCellStyleDefault;
+		if ([field valueForKeyPath:@"style"])
+		{
+			style = [[field valueForKeyPath:@"style"] integerValue];
+		}
+		else if (FXFormCanGetValueForKey(field.form, field.key))
+		{
+			style = UITableViewCellStyleValue1;
+		}
+
+		//don't recycle cells - it would make things complicated
+		return [[cellClass alloc] initWithStyle:style reuseIdentifier:NSStringFromClass(cellClass)];
+	}
+}
+
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     FXFormField *field = [self fieldForIndexPath:indexPath];
@@ -2087,37 +2117,21 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         return [cellClass heightForField:field width:self.tableView.frame.size.width];
     }
-    return self.tableView.rowHeight;
+
+	NSString *id = NSStringFromClass(cellClass);
+	NSNumber *cachedHeight = _cellHeightCache[id];
+	if (!(cachedHeight)) {
+		UITableViewCell *cell = [self cellForField:field];
+		cachedHeight = @(cell.bounds.size.height);
+		_cellHeightCache[id] = cachedHeight;
+	}
+
+	return [cachedHeight floatValue];
 }
 
 - (UITableViewCell *)tableView:(__unused UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    FXFormField *field = [self fieldForIndexPath:indexPath];
-
-    //don't recycle cells - it would make things complicated
-    Class cellClass = field.cellClass ?: [self cellClassForField:field];
-    NSString *nibName = NSStringFromClass(cellClass);
-    if ([[NSBundle mainBundle] pathForResource:nibName ofType:@"nib"])
-    {
-        //load cell from nib
-        return [[[NSBundle mainBundle] loadNibNamed:nibName owner:nil options:nil] firstObject];
-    }
-    else
-    {
-        //hackity-hack-hack
-        UITableViewCellStyle style = UITableViewCellStyleDefault;
-        if ([field valueForKeyPath:@"style"])
-        {
-            style = [[field valueForKeyPath:@"style"] integerValue];
-        }
-        else if (FXFormCanGetValueForKey(field.form, field.key))
-        {
-            style = UITableViewCellStyleValue1;
-        }
-
-        //don't recycle cells - it would make things complicated
-        return [[cellClass alloc] initWithStyle:style reuseIdentifier:NSStringFromClass(cellClass)];
-    }
+	return [self cellForField:[self fieldForIndexPath:indexPath]];
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
