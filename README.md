@@ -549,6 +549,11 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.9
+
+- Cells defined using nibs now infer their height form the nib unless overridden
+- Option picker can now be dismissed by tapping field again, like date picker
+ 
 Version 1.2.8
  
 - Fixed incorrect type inference for fields with a segue property
