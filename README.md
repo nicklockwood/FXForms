@@ -165,7 +165,7 @@ Alternatively, you can return a dictionary in the `-fields` array instead of a s
 {
     return @[
              @{FXFormFieldKey: @"email", FXFormFieldTitle: @"Email Address"},
-             …other fields…
+             ...other fields...
             ];
 }
 ```
@@ -318,7 +318,7 @@ If the FXFormFieldSegue property is a segue instance or identifier, it will be i
 static NSString *const FXFormFieldHeader = @"header";
 ```
     
-This property provides an optional section header to display before the field.The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the header will be inferred from the view, or you can override it using the UITableViewDelegate. By default, its value will be inferred automatically for subforms based on the name of the subform property. Supply an empty string or `NSNull` value to create a section partition without a title.
+This property provides an optional section header to display before the field. The value can be either a string or a UIView instance or subclass (or a string containing the name of a UIView subclass). The height of the header will be inferred from the view, or you can override it using the UITableViewDelegate. By default, its value will be inferred automatically for subforms based on the name of the subform property. Supply an empty string or `NSNull` value to create a section partition without a title.
     
 ```objc
 static NSString *const FXFormFieldFooter = @"footer";
@@ -516,7 +516,7 @@ FXForms provides default cell implementations for all supported fields. You may 
 
 There are two levels of customisation possible for cells. The simplest option is to subclass one of the existing `FXFormCell` classes, which all inherit from `FXFormBaseCell`. These cell classes contain a lot of logic for handling the various different field types, but also expose the views and controls used, for easy customisation.
 
-When subclassing an existing cell type, you can override the `setUp`, `update` and `didSelectWithTableView:tableView controller:controller` methods (optionally calling [super …] if you want to inherit the original cell's behaviors). The `setUp` method will be called once when the cell is created, and the `update` method will be called each time the field value is updated.
+When subclassing an existing cell type, you can override the `setUp`, `update` and `didSelectWithTableView:controller:` methods (optionally calling [super ...] if you want to inherit the original cell's behaviors). The `setUp` method will be called once when the cell is created, and the `update` method will be called each time the field value is updated.
 
 If you already have a base cell class and don't want to base your cells on `FXFormBaseCell`, you can create an FXForms-compatible cell from scratch by subclassing `UITableViewCell` and adopting the `FXFormFieldCell` protocol.
 
