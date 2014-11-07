@@ -3390,6 +3390,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     self.textLabel.text = self.field.title;
     self.imagePickerView.image = [self imageValue];
+    [self setNeedsLayout];
 }
 
 - (UIImage *)imageValue
@@ -3476,6 +3477,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     self.field.value = info[UIImagePickerControllerEditedImage] ?: info[UIImagePickerControllerOriginalImage];
     [picker dismissViewControllerAnimated:YES completion:NULL];
     if (self.field.action) self.field.action(self);
+    [self update];
 }
 
 - (void)actionSheet:(__unused UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
