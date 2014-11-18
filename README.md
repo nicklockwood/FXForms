@@ -549,6 +549,10 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.10
+ 
+- Fixed crash when displaying photo picker on iPad
+ 
 Version 1.2.9
 
 - Cells defined using nibs now infer their height form the nib unless overridden

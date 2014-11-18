@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.9
+//  Version 1.2.10
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -3416,7 +3416,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         _imagePickerController = [[UIImagePickerController alloc] init];
         _imagePickerController.delegate = self;
         _imagePickerController.allowsEditing = YES;
-        [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
     }
     return _imagePickerController;
 }
@@ -3426,25 +3425,20 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return (UIImageView *)self.accessoryView;
 }
 
-- (BOOL)setSourceType:(UIImagePickerControllerSourceType)sourceType
-{
-    if ([UIImagePickerController isSourceTypeAvailable:sourceType])
-    {
-        self.imagePickerController.sourceType = sourceType;
-        return YES;
-    }
-    return NO;
-}
-
 - (void)didSelectWithTableView:(UITableView *)tableView controller:(UIViewController *)controller
 {
-    [self becomeFirstResponder];
+    [FXFormsFirstResponder(tableView) resignFirstResponder];
     [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
-    if ([UIAlertController class])
+    
+    if (!TARGET_IPHONE_SIMULATOR && ![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
     {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
-                                                                       message:nil
-                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        [controller presentViewController:self.imagePickerController animated:YES completion:nil];
+    }
+    else if ([UIAlertController class])
+    {
+        UIAlertControllerStyle style = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)? UIAlertControllerStyleAlert: UIAlertControllerStyleActionSheet;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:style];
         
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Take Photo", nil) style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *action) {
             [self actionSheet:nil didDismissWithButtonIndex:0];
@@ -3456,13 +3450,14 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:NULL]];
         
+        self.controller = controller;
         [controller presentViewController:alert animated:YES completion:NULL];
     }
     else
     {
+        self.controller = controller;
         [[[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Take Photo", nil), NSLocalizedString(@"Photo Library", nil), nil] showInView:controller.view];
     }
-    self.controller = controller;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
@@ -3480,24 +3475,28 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)actionSheet:(__unused UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    BOOL sourceTypeAvailable = NO;
+    UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     switch (buttonIndex)
     {
         case 0:
         {
-            sourceTypeAvailable = [self setSourceType:UIImagePickerControllerSourceTypeCamera];
+            sourceType = UIImagePickerControllerSourceTypeCamera;
             break;
         }
         case 1:
         {
-            sourceTypeAvailable = [self setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+            sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
             break;
         }
     }
-    if (sourceTypeAvailable)
+    
+    if ([UIImagePickerController isSourceTypeAvailable:sourceType])
     {
+        self.imagePickerController.sourceType = sourceType;
         [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
     }
+    
+    self.controller = nil;
 }
 
 @end
