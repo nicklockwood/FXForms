@@ -22,7 +22,7 @@
 
 - (id)transformedValue:(id)value
 {
-    return value? [[NSLocale currentLocale] displayNameForKey:NSLocaleCountryCode value:value]: nil;
+    return value? [[NSLocale localeWithLocaleIdentifier:@"en_US"] displayNameForKey:NSLocaleCountryCode value:value]: nil;
 }
 
 @end

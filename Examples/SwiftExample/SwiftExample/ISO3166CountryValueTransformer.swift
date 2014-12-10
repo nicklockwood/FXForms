@@ -23,7 +23,7 @@ class ISO3166CountryValueTransformer: NSValueTransformer {
     override func transformedValue(value: AnyObject?) -> AnyObject? {
         
         if value != nil {
-            return NSLocale.currentLocale().displayNameForKey(NSLocaleCountryCode, value:value!)
+            return NSLocale(localeIdentifier: "en_US").displayNameForKey(NSLocaleCountryCode, value:value!) ?? value
         }
         return nil
     }
