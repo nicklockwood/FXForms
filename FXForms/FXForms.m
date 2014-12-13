@@ -3307,6 +3307,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     else
     {
         self.datePicker.datePickerMode = UIDatePickerModeDateAndTime;
+        self.datePicker.minimumDate = [NSDate date];
     }
     
     self.datePicker.date = self.field.value ?: ([self.field.placeholder isKindOfClass:[NSDate class]]? self.field.placeholder: [NSDate date]);
