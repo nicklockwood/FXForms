@@ -75,7 +75,7 @@
              //class of the field property is a collection (in this case, NSArray)
              
              @{FXFormFieldKey: @"interests",
-               FXFormFieldDefaultValue: @[@"Videogames"],
+               FXFormFieldDefaultValue: @"Videogames",
                FXFormFieldOptions: @[@"Videogames", @"Animals", @"Cooking"]},
              
              //this is another multi-select options field, but in this case it's represented

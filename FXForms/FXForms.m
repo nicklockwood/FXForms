@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.10
+//  Version 1.2.11
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -830,12 +830,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                 return [self.placeholder fieldDescription];
             }
         }
-        
-        //TODO: should we pass the results of these transforms to the
-        //valueTransformer afterwards? seems dangerous since
-        //the type won't match that of the options, and people
-        //probably won't be expecting it
-        
+      
         if ([self isCollectionType])
         {
             id value = self.value;
@@ -855,9 +850,17 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
                     }
                 }];
                 
-                return value = [options count]? options: nil;
+                value = [options count]? options: nil;
             }
-            
+            else if (value && self.valueTransformer)
+            {
+                NSMutableArray *options = [NSMutableArray array];
+                for (id option in value) {
+                  [options addObject:self.valueTransformer(option)];
+                }
+                value = [options count]? options: nil;
+            }
+          
             return [value fieldDescription] ?: [self.placeholder fieldDescription];
         }
         else if ([self.type isEqual:FXFormFieldTypeBitfield])
@@ -1085,6 +1088,21 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setDefault:(id)defaultValue
 {
+    if ([[self valueClass] isSubclassOfClass:[NSArray class]] && ![defaultValue isKindOfClass:[NSArray class]])
+    {
+        //workaround for common mistake where type is collection, but default value is a single value
+        defaultValue = [[self valueClass] arrayWithObject:defaultValue];
+    }
+    else if ([[self valueClass] isSubclassOfClass:[NSSet class]] && ![defaultValue isKindOfClass:[NSSet class]])
+    {
+        //as above, but for NSSet
+        defaultValue = [[self valueClass] setWithObject:defaultValue];
+    }
+    else if ([[self valueClass] isSubclassOfClass:[NSOrderedSet class]] && ![defaultValue isKindOfClass:[NSOrderedSet class]])
+    {
+        //as above, but for NSOrderedSet
+        defaultValue = [[self valueClass] orderedSetWithObject:defaultValue];
+    }
     _defaultValue = defaultValue;
 }
 

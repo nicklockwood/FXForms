@@ -549,6 +549,11 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.11
+
+- Field descriptions for collections now respect FXFieldValueTransformer
+- Using Scalar values as default value for collection type fields now works transparently
+
 Version 1.2.10
  
 - Fixed crash when displaying photo picker on iPad
