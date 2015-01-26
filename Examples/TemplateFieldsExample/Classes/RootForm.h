@@ -22,4 +22,6 @@
 @property (nonatomic, strong) NSArray *inlineArrayWithTemplate;
 @property (nonatomic, strong) NSArray *inlineSortableArrayWithTemplate;
 
+@property (nonatomic, strong) NSArray *otherEmails;
+
 @end

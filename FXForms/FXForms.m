@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.11
+//  Version 1.2.12
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -505,7 +505,29 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         dictionary[FXFormFieldClass] = valueClass;
     }
-    
+  
+    //get default value
+    id defaultValue = dictionary[FXFormFieldDefaultValue];
+    if (defaultValue)
+    {
+        if ([valueClass isSubclassOfClass:[NSArray class]] && ![defaultValue isKindOfClass:[NSArray class]])
+        {
+          //workaround for common mistake where type is collection, but default value is a single value
+          defaultValue = [valueClass arrayWithObject:defaultValue];
+        }
+        else if ([valueClass isSubclassOfClass:[NSSet class]] && ![defaultValue isKindOfClass:[NSSet class]])
+        {
+          //as above, but for NSSet
+          defaultValue = [valueClass setWithObject:defaultValue];
+        }
+        else if ([valueClass isSubclassOfClass:[NSOrderedSet class]] && ![defaultValue isKindOfClass:[NSOrderedSet class]])
+        {
+          //as above, but for NSOrderedSet
+          defaultValue = [valueClass orderedSetWithObject:defaultValue];
+        }
+        dictionary[FXFormFieldDefaultValue] = defaultValue;
+    }
+  
     //get field type
     NSString *key = dictionary[FXFormFieldKey];
     if (!type)
@@ -581,12 +603,12 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         NSString *keyOrAction = key;
         if (!keyOrAction && [dictionary[FXFormFieldAction] isKindOfClass:[NSString class]])
         {
-            keyOrAction = dictionary[FXFormFieldAction];
+          keyOrAction = dictionary[FXFormFieldAction];
         }
-        NSMutableString *output = [NSMutableString string];
+        NSMutableString *output = nil;
         if (keyOrAction)
         {
-            [output appendString:[[keyOrAction substringToIndex:1] uppercaseString]];
+            output = [NSMutableString stringWithString:[[keyOrAction substringToIndex:1] uppercaseString]];
             for (NSUInteger j = 1; j < [keyOrAction length]; j++)
             {
                 unichar character = [keyOrAction characterAtIndex:j];
@@ -956,9 +978,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         //use default value if available
         value = value ?: self.defaultValue;
         
-        if (self.reverseValueTransformer)
+        if (self.reverseValueTransformer && ![self isCollectionType] && !self.options)
         {
-            value = self.reverseValueTransformer;
+            value = self.reverseValueTransformer(value);
         }
         else if ([value isKindOfClass:[NSString class]])
         {
@@ -1088,21 +1110,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setDefault:(id)defaultValue
 {
-    if ([[self valueClass] isSubclassOfClass:[NSArray class]] && ![defaultValue isKindOfClass:[NSArray class]])
-    {
-        //workaround for common mistake where type is collection, but default value is a single value
-        defaultValue = [[self valueClass] arrayWithObject:defaultValue];
-    }
-    else if ([[self valueClass] isSubclassOfClass:[NSSet class]] && ![defaultValue isKindOfClass:[NSSet class]])
-    {
-        //as above, but for NSSet
-        defaultValue = [[self valueClass] setWithObject:defaultValue];
-    }
-    else if ([[self valueClass] isSubclassOfClass:[NSOrderedSet class]] && ![defaultValue isKindOfClass:[NSOrderedSet class]])
-    {
-        //as above, but for NSOrderedSet
-        defaultValue = [[self valueClass] orderedSetWithObject:defaultValue];
-    }
     _defaultValue = defaultValue;
 }
 
@@ -1113,7 +1120,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)setOptions:(NSArray *)options
 {
-    _options = [options copy];
+    _options = [options count]? [options copy]: nil;
 }
 
 - (void)setTemplate:(NSDictionary *)template
@@ -1466,7 +1473,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     //TODO: can we infer default template from existing values instead of having string fallback?
     NSMutableDictionary *field = [NSMutableDictionary dictionaryWithDictionary:self.field.fieldTemplate];
     FXFormPreprocessFieldDictionary(field);
-    field[FXFormFieldTitle] = field[FXFormFieldTitle] ?: @"";
+    field[FXFormFieldTitle] = @""; // title is used for the "Add Item" button, not each field
     return field;
 }
 
@@ -2704,7 +2711,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             [tableView deselectRowAtIndexPath:tableView.indexPathForSelectedRow animated:YES];
         }
     }
-    else if (self.field.action && (![self.field isSubform] || !self.field.optionCount))
+    else if (self.field.action && (![self.field isSubform] || !self.field.options))
     {
         //action takes precendence over segue or subform - you can implement these yourself in the action
         //the exception is for options fields, where the action will be called when the option is tapped

@@ -17,12 +17,28 @@
 
 + (BOOL)allowsReverseTransformation
 {
-    return NO;
+    return YES;
 }
 
 - (id)transformedValue:(id)value
 {
     return value? [[NSLocale localeWithLocaleIdentifier:@"en_US"] displayNameForKey:NSLocaleCountryCode value:value]: nil;
+}
+
+- (id)reverseTransformedValue:(id)value
+{
+  static NSMutableDictionary *reverseLookup;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    reverseLookup = [NSMutableDictionary dictionary];
+    for (NSString *code in [NSLocale ISOCountryCodes])
+    {
+        NSString *countryName = [self transformedValue:code];
+        if (countryName) reverseLookup[countryName] = code;
+    }
+  });
+  
+  return reverseLookup[value];
 }
 
 @end
