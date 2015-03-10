@@ -2371,7 +2371,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     tableContentInset.bottom = heightOfTableViewThatIsCoveredByKeyboard;
     
     UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
-    tableScrollIndicatorInsets.bottom = heightOfTableViewThatIsCoveredByKeyboard;
+    tableScrollIndicatorInsets.bottom += heightOfTableViewThatIsCoveredByKeyboard;
     
     [UIView beginAnimations:nil context:nil];
     
@@ -2424,6 +2424,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         [UIView setAnimationDuration:[keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue]];
         self.tableView.contentInset = self.originalTableContentInset;
         self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
+        self.originalTableContentInset = UIEdgeInsetsZero;
         [UIView commitAnimations];
     }
 }
