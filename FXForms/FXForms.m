@@ -636,6 +636,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
 @property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldClasses;
 
+@property (nonatomic, assign) UIEdgeInsets originalTableContentInset;
+
 - (void)performAction:(SEL)selector withSender:(id)sender;
 - (UIViewController *)tableViewController;
 
@@ -2362,9 +2364,10 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
     CGFloat heightOfTableViewThatIsCoveredByKeyboard = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
-    CGFloat heightOfTableViewThatIsntCoveredByKeyboard = self.tableView.frame.size.height - heightOfTableViewThatIsCoveredByKeyboard;
+    CGFloat heightOfTableViewThatIsNotCoveredByKeyboard = self.tableView.frame.size.height - heightOfTableViewThatIsCoveredByKeyboard;
     
     UIEdgeInsets tableContentInset = self.tableView.contentInset;
+    self.originalTableContentInset = tableContentInset;
     tableContentInset.bottom = heightOfTableViewThatIsCoveredByKeyboard;
     
     UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
@@ -2392,7 +2395,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         
         // padding makes sure that the cursor isn't sitting just above the keyboard and will adjust to 3 lines of text worth above keyboard
         CGFloat padding = textView.font.lineHeight * 3;
-        CGFloat keyboardToCursorDifference = (caretViewFrame.origin.y + caretViewFrame.size.height) - heightOfTableViewThatIsntCoveredByKeyboard + padding;
+        CGFloat keyboardToCursorDifference = (caretViewFrame.origin.y + caretViewFrame.size.height) - heightOfTableViewThatIsNotCoveredByKeyboard + padding;
         
         // if there is a difference then we want to adjust the keyboard, otherwise the cursor is fine to stay where it is and the keyboard doesn't need to move
         if (keyboardToCursorDifference > 0.0f) {
@@ -2412,10 +2415,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if (cell && ![self.delegate isKindOfClass:[UITableViewController class]])
     {
         NSDictionary *keyboardInfo = [note userInfo];
-        
-        UIEdgeInsets tableContentInset = self.tableView.contentInset;
-        tableContentInset.bottom = 0;
-        
         UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
         tableScrollIndicatorInsets.bottom = 0;
         
@@ -2423,7 +2422,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         [UIView beginAnimations:nil context:nil];
         [UIView setAnimationCurve:(UIViewAnimationCurve)keyboardInfo[UIKeyboardAnimationCurveUserInfoKey]];
         [UIView setAnimationDuration:[keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue]];
-        self.tableView.contentInset = tableContentInset;
+        self.tableView.contentInset = self.originalTableContentInset;
         self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
         [UIView commitAnimations];
     }
