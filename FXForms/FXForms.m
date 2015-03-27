@@ -757,9 +757,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         _form = form;
         _formController = formController;
-        if (FXFormCanGetValueForKey(form, @"field") && FXFormCanGetValueForKey(form, @"field.cellConfig")) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wselector"
+        if (FXFormCanGetValueForKey(form, @"field")
+            && FXFormCanGetValueForKey(form, @"field.cellConfig")
+            && [[form performSelector:@selector(field)] performSelector:@selector(cellConfig)]) {
             _cellConfig = [[form performSelector:@selector(field)] performSelector:@selector(cellConfig)];
 #pragma clang diagnostic pop
         } else {
