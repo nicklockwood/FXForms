@@ -40,7 +40,10 @@
              //this is a multiple choice field, so we'll need to provide some options
              //because this is an enum property, the indexes of the options should match enum values
              
-             @{FXFormFieldKey: @"gender", FXFormFieldOptions: @[@"Male", @"Female", @"It's Complicated"]},
+             @{FXFormFieldKey: @"gender", FXFormFieldOptions: @[@"Male", @"Female", @"It's Complicated"],
+                   @"textLabel.color": [UIColor lightGrayColor],
+                   @"textLabel.font": [UIFont fontWithName:@"HelveticaNeue" size:16]
+                   },
              
              //another regular field
              
