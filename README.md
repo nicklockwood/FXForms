@@ -549,6 +549,17 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 Release notes
 --------------
 
+Version 1.2.12
+
+- Custom titles for template fields are no longer displayed inside each field item, they are only used for the "Add Item" button title.
+- Fixed another crash relating to using scalar default values for collection type fields
+- Reverse value transforms should now work correctly
+
+Version 1.2.11
+
+- Field descriptions for collections now respect FXFieldValueTransformer
+- Using Scalar values as default value for collection type fields now works transparently
+
 Version 1.2.10
  
 - Fixed crash when displaying photo picker on iPad

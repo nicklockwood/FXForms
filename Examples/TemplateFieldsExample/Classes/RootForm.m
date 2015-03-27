@@ -64,4 +64,15 @@
              };
 }
 
+- (NSDictionary *)otherEmailsField
+{
+  return @{
+           FXFormFieldInline: @YES,
+           FXFormFieldTemplate: @{
+               FXFormFieldType: FXFormFieldTypeEmail,
+               FXFormFieldTitle: @"Add another email",
+               }
+           };
+}
+
 @end
