@@ -35,15 +35,17 @@
 
 
 #pragma clang diagnostic ignored "-Wobjc-missing-property-synthesis"
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-#pragma clang diagnostic ignored "-Wcstring-format-directive"
 #pragma clang diagnostic ignored "-Wdirect-ivar-access"
 #pragma clang diagnostic ignored "-Warc-repeated-use-of-weak"
 #pragma clang diagnostic ignored "-Wreceiver-is-weak"
 #pragma clang diagnostic ignored "-Wconversion"
-#pragma clang diagnostic ignored "-Wnonnull"
 #pragma clang diagnostic ignored "-Wgnu"
 
+#ifdef __IPHONE_8_3
+#pragma clang diagnostic ignored "-Wcstring-format-directive"
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+#pragma clang diagnostic ignored "-Wnonnull"
+#endif
 
 NSString *const FXFormFieldKey = @"key";
 NSString *const FXFormFieldType = @"type";
