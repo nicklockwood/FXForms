@@ -13,7 +13,7 @@ Unlike other solutions, FXForms works directly with strongly-typed data models t
 Supported iOS & SDK Versions
 -----------------------------
 
-* Supported build target - iOS 8.1 (Xcode 6.1, Apple LLVM compiler 6.0)
+* Supported build target - iOS 8.3 (Xcode 6.3.1, Apple LLVM compiler 6.1)
 * Earliest supported deployment target - iOS 5.0
 * Earliest compatible deployment target - iOS 5.0
 
@@ -548,6 +548,15 @@ func fieldThatDoesntWorkField() -> NSDictionary {
 
 Release notes
 --------------
+
+Version 1.2.13
+
+- Exposed `nextCell` property on FXFormBaseCell
+- Fixed long UITextView's to scroll to the the cursor position instead of the bottom of the UITextView.
+- Made sure that when the keyboard is dismissed the former tableView contentInsets are restored.
+- Make custom cell config cascade down to options views
+- Fix to resolve crash bug when used with BaseModel
+- Fixed warnings on Xcode 7 beta (well, suppressed mostly)
 
 Version 1.2.12
 

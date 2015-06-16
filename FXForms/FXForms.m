@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.12
+//  Version 1.2.13
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -35,10 +35,13 @@
 
 
 #pragma clang diagnostic ignored "-Wobjc-missing-property-synthesis"
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+#pragma clang diagnostic ignored "-Wcstring-format-directive"
 #pragma clang diagnostic ignored "-Wdirect-ivar-access"
 #pragma clang diagnostic ignored "-Warc-repeated-use-of-weak"
 #pragma clang diagnostic ignored "-Wreceiver-is-weak"
 #pragma clang diagnostic ignored "-Wconversion"
+#pragma clang diagnostic ignored "-Wnonnull"
 #pragma clang diagnostic ignored "-Wgnu"
 
 
@@ -100,7 +103,7 @@ static Class FXFormClassFromString(NSString *className)
     if (className && !cls)
     {
         //might be a Swift class; time for some hackery!
-        className = [@[[[NSBundle mainBundle] objectForInfoDictionaryKey:(id)kCFBundleNameKey],
+        className = [@[[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"],
                        className] componentsJoinedByString:@"."];
         //try again
         cls = NSClassFromString(className);
@@ -757,13 +760,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         _form = form;
         _formController = formController;
-        BOOL canGetField = FXFormCanGetValueForKey(form, @"field");
-        BOOL canGetFieldConfig = FXFormCanGetValueForKey(form, @"field.cellConfig");
-        NSObject *typedObj = form;
-        id formField = canGetField ? [typedObj valueForKey:@"field"] : nil;
-        id formFieldConfig = canGetFieldConfig ? [typedObj valueForKey:@"field.cellConfig"] : nil;
-        if (formField && formFieldConfig) {
-            _cellConfig = formFieldConfig;
+        if ([form respondsToSelector:@selector(field)]) {
+            _cellConfig = ((FXFormField *)[(id)form field]).cellConfig;
         } else {
             _cellConfig = [NSMutableDictionary dictionary];
         }
@@ -847,7 +845,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     NSString *descriptionKey = [self.key stringByAppendingString:@"FieldDescription"];
     if (descriptionKey && [self.form respondsToSelector:NSSelectorFromString(descriptionKey)])
     {
-        return [(NSObject *)self.form valueForKey:descriptionKey];
+        return [(id)self.form valueForKey:descriptionKey];
     }
     
     if (self.options)
@@ -2128,9 +2126,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         //hackity-hack-hack
         UITableViewCellStyle style = UITableViewCellStyleDefault;
-        if ([field valueForKeyPath:@"style"])
+        if ([field valueForKey:@"style"])
         {
-            style = [[field valueForKeyPath:@"style"] integerValue];
+            style = [[field valueForKey:@"style"] integerValue];
         }
         else if (FXFormCanGetValueForKey(field.form, field.key))
         {
@@ -2962,7 +2960,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         //get return key type
         UIReturnKeyType returnKeyType = UIReturnKeyDone;
-        UITableViewCell <FXFormFieldCell> *nextCell = [self nextCell];
+        UITableViewCell <FXFormFieldCell> *nextCell = self.nextCell;
         if ([nextCell canBecomeFirstResponder])
         {
             returnKeyType = UIReturnKeyNext;
@@ -2987,7 +2985,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if (self.textField.returnKeyType == UIReturnKeyNext)
     {
-        [[self nextCell] becomeFirstResponder];
+        [self.nextCell becomeFirstResponder];
     }
     else
     {
@@ -3551,7 +3549,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.imagePickerController.sourceType = sourceType;
         [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
     }
-    
     self.controller = nil;
 }
 
