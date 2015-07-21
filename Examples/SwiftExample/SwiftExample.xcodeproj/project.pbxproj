@@ -15,6 +15,8 @@
 		01645D5D19D944080063EC7B /* FXForms.m in Sources */ = {isa = PBXBuildFile; fileRef = 01645D5C19D944080063EC7B /* FXForms.m */; };
 		01645D6219D944BE0063EC7B /* RegistrationForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01645D6119D944BE0063EC7B /* RegistrationForm.swift */; };
 		01645D6519D9559E0063EC7B /* ISO3166CountryValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01645D6419D9559E0063EC7B /* ISO3166CountryValueTransformer.swift */; };
+		1EF7B8EF1B5E9885000B19D6 /* SubmitButtonCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1EF7B8EE1B5E9885000B19D6 /* SubmitButtonCell.xib */; };
+		1EF7B8F11B5E991F000B19D6 /* SubmitButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF7B8F01B5E991F000B19D6 /* SubmitButtonCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,8 @@
 		01645D6119D944BE0063EC7B /* RegistrationForm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationForm.swift; sourceTree = "<group>"; };
 		01645D6319D9452A0063EC7B /* SwiftExample-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SwiftExample-Bridging-Header.h"; sourceTree = "<group>"; };
 		01645D6419D9559E0063EC7B /* ISO3166CountryValueTransformer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ISO3166CountryValueTransformer.swift; sourceTree = "<group>"; };
+		1EF7B8EE1B5E9885000B19D6 /* SubmitButtonCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SubmitButtonCell.xib; sourceTree = "<group>"; };
+		1EF7B8F01B5E991F000B19D6 /* SubmitButtonCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubmitButtonCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +67,7 @@
 		01645D3719D943F40063EC7B /* SwiftExample */ = {
 			isa = PBXGroup;
 			children = (
+				1EF7B8ED1B5E986F000B19D6 /* Cells */,
 				01645D5E19D944350063EC7B /* Transformers */,
 				01645D6019D9444F0063EC7B /* Models */,
 				01645D5F19D9443F0063EC7B /* Controllers */,
@@ -116,6 +121,15 @@
 				01645D6119D944BE0063EC7B /* RegistrationForm.swift */,
 			);
 			name = Models;
+			sourceTree = "<group>";
+		};
+		1EF7B8ED1B5E986F000B19D6 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				1EF7B8EE1B5E9885000B19D6 /* SubmitButtonCell.xib */,
+				1EF7B8F01B5E991F000B19D6 /* SubmitButtonCell.swift */,
+			);
+			name = Cells;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -176,6 +190,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				01645D4019D943F40063EC7B /* Main.storyboard in Resources */,
+				1EF7B8EF1B5E9885000B19D6 /* SubmitButtonCell.xib in Resources */,
 				01645D4519D943F40063EC7B /* LaunchScreen.xib in Resources */,
 				01645D4219D943F40063EC7B /* Images.xcassets in Resources */,
 			);
@@ -191,6 +206,7 @@
 				01645D6219D944BE0063EC7B /* RegistrationForm.swift in Sources */,
 				01645D6519D9559E0063EC7B /* ISO3166CountryValueTransformer.swift in Sources */,
 				01645D3D19D943F40063EC7B /* RegistrationFormViewController.swift in Sources */,
+				1EF7B8F11B5E991F000B19D6 /* SubmitButtonCell.swift in Sources */,
 				01645D5D19D944080063EC7B /* FXForms.m in Sources */,
 				01645D3B19D943F40063EC7B /* AppDelegate.swift in Sources */,
 			);
