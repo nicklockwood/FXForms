@@ -2119,6 +2119,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     //don't recycle cells - it would make things complicated
     Class cellClass = field.cellClass ?: [self cellClassForField:field];
     NSString *nibName = NSStringFromClass(cellClass);
+    if ([nibName rangeOfString:@"."].location != NSNotFound) {
+        nibName = nibName.pathExtension; //Removes Swift namespace
+    }
     if ([[NSBundle mainBundle] pathForResource:nibName ofType:@"nib"])
     {
         //load cell from nib
