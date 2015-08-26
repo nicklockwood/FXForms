@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.12
+//  Version 1.2.13
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -41,6 +41,11 @@
 #pragma clang diagnostic ignored "-Wconversion"
 #pragma clang diagnostic ignored "-Wgnu"
 
+#ifdef __IPHONE_8_3
+#pragma clang diagnostic ignored "-Wcstring-format-directive"
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+#pragma clang diagnostic ignored "-Wnonnull"
+#endif
 
 NSString *const FXFormFieldKey = @"key";
 NSString *const FXFormFieldType = @"type";
@@ -100,7 +105,7 @@ static Class FXFormClassFromString(NSString *className)
     if (className && !cls)
     {
         //might be a Swift class; time for some hackery!
-        className = [@[[[NSBundle mainBundle] objectForInfoDictionaryKey:(id)kCFBundleNameKey],
+        className = [@[[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"],
                        className] componentsJoinedByString:@"."];
         //try again
         cls = NSClassFromString(className);
@@ -636,6 +641,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 @property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldTypes;
 @property (nonatomic, strong) NSMutableDictionary *controllerClassesForFieldClasses;
 
+@property (nonatomic, assign) UIEdgeInsets originalTableContentInset;
+
 - (void)performAction:(SEL)selector withSender:(id)sender;
 - (UIViewController *)tableViewController;
 
@@ -755,7 +762,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         _form = form;
         _formController = formController;
-        _cellConfig = [NSMutableDictionary dictionary];
+        if ([form respondsToSelector:@selector(field)]) {
+            _cellConfig = ((FXFormField *)[(id)form field]).cellConfig;
+        } else {
+            _cellConfig = [NSMutableDictionary dictionary];
+        }
         [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, __unused BOOL *stop) {
             [self setValue:value forKey:key];
         }];
@@ -836,7 +847,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     NSString *descriptionKey = [self.key stringByAppendingString:@"FieldDescription"];
     if (descriptionKey && [self.form respondsToSelector:NSSelectorFromString(descriptionKey)])
     {
-        return [(NSObject *)self.form valueForKey:descriptionKey];
+        return [(id)self.form valueForKey:descriptionKey];
     }
     
     if (self.options)
@@ -1840,8 +1851,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         _controllerClassesForFieldClasses = [NSMutableDictionary dictionary];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(keyboardWillShow:)
-                                                     name:UIKeyboardWillShowNotification
+                                                 selector:@selector(keyboardDidShow:)
+                                                     name:UIKeyboardDidShowNotification
                                                    object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -2117,9 +2128,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         //hackity-hack-hack
         UITableViewCellStyle style = UITableViewCellStyleDefault;
-        if ([field valueForKeyPath:@"style"])
+        if ([field valueForKey:@"style"])
         {
-            style = [[field valueForKeyPath:@"style"] integerValue];
+            style = [[field valueForKey:@"style"] integerValue];
         }
         else if (FXFormCanGetValueForKey(field.form, field.key))
         {
@@ -2356,32 +2367,55 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return [self cellContainingView:view.superview];
 }
 
-- (void)keyboardWillShow:(NSNotification *)note
-{
-    UITableViewCell *cell = [self cellContainingView:FXFormsFirstResponder(self.tableView)];
-    if (cell && ![self.delegate isKindOfClass:[UITableViewController class]])
-    {
-        NSDictionary *keyboardInfo = [note userInfo];
-        CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-        keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
-        CGFloat inset = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
+- (void)keyboardDidShow:(NSNotification *)notification {
+    // calculate the size of the keyboard and how much is and isn't covering the tableview
+    NSDictionary *keyboardInfo = [notification userInfo];
+    CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
+    CGFloat heightOfTableViewThatIsCoveredByKeyboard = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
+    CGFloat heightOfTableViewThatIsNotCoveredByKeyboard = self.tableView.frame.size.height - heightOfTableViewThatIsCoveredByKeyboard;
+    
+    UIEdgeInsets tableContentInset = self.tableView.contentInset;
+    self.originalTableContentInset = tableContentInset;
+    tableContentInset.bottom = heightOfTableViewThatIsCoveredByKeyboard;
+    
+    UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
+    tableScrollIndicatorInsets.bottom += heightOfTableViewThatIsCoveredByKeyboard;
+    
+    [UIView beginAnimations:nil context:nil];
+    
+    // adjust the tableview insets by however much the keyboard is overlapping the tableview
+    self.tableView.contentInset = tableContentInset;
+    self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
+    
+    UIView *firstResponder = FXFormsFirstResponder(self.tableView);
+    if ([firstResponder isKindOfClass:[UITextView class]]) {
+        UITextView *textView = (UITextView *)firstResponder;
         
-        UIEdgeInsets tableContentInset = self.tableView.contentInset;
-        tableContentInset.bottom = inset;
+        // calculate the position of the cursor in the textView
+        NSRange range = textView.selectedRange;
+        UITextPosition *beginning = textView.beginningOfDocument;
+        UITextPosition *start = [textView positionFromPosition:beginning offset:range.location];
+        UITextPosition *end = [textView positionFromPosition:start offset:range.length];
+        CGRect caretFrame = [textView caretRectForPosition:end];
         
-        UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
-        tableScrollIndicatorInsets.bottom = inset;
+        // convert the cursor to the same coordinate system as the tableview
+        CGRect caretViewFrame = [textView convertRect:caretFrame toView:self.tableView.superview];
         
-        //animate insets
-        [UIView beginAnimations:nil context:nil];
-        [UIView setAnimationCurve:(UIViewAnimationCurve)keyboardInfo[UIKeyboardAnimationCurveUserInfoKey]];
-        [UIView setAnimationDuration:[keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue]];
-        self.tableView.contentInset = tableContentInset;
-        self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
-        NSIndexPath *selectedRow = [self.tableView indexPathForCell:cell];
-        [self.tableView scrollToRowAtIndexPath:selectedRow atScrollPosition:UITableViewScrollPositionBottom animated:NO];
-        [UIView commitAnimations];
+        // padding makes sure that the cursor isn't sitting just above the keyboard and will adjust to 3 lines of text worth above keyboard
+        CGFloat padding = textView.font.lineHeight * 3;
+        CGFloat keyboardToCursorDifference = (caretViewFrame.origin.y + caretViewFrame.size.height) - heightOfTableViewThatIsNotCoveredByKeyboard + padding;
+        
+        // if there is a difference then we want to adjust the keyboard, otherwise the cursor is fine to stay where it is and the keyboard doesn't need to move
+        if (keyboardToCursorDifference > 0.0f) {
+            // adjust offset by this difference
+            CGPoint contentOffset = self.tableView.contentOffset;
+            contentOffset.y += keyboardToCursorDifference;
+            [self.tableView setContentOffset:contentOffset animated:YES];
+        }
     }
+    
+    [UIView commitAnimations];
 }
 
 - (void)keyboardWillHide:(NSNotification *)note
@@ -2390,10 +2424,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if (cell && ![self.delegate isKindOfClass:[UITableViewController class]])
     {
         NSDictionary *keyboardInfo = [note userInfo];
-        
-        UIEdgeInsets tableContentInset = self.tableView.contentInset;
-        tableContentInset.bottom = 0;
-        
         UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
         tableScrollIndicatorInsets.bottom = 0;
         
@@ -2401,8 +2431,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         [UIView beginAnimations:nil context:nil];
         [UIView setAnimationCurve:(UIViewAnimationCurve)keyboardInfo[UIKeyboardAnimationCurveUserInfoKey]];
         [UIView setAnimationDuration:[keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue]];
-        self.tableView.contentInset = tableContentInset;
+        self.tableView.contentInset = self.originalTableContentInset;
         self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
+        self.originalTableContentInset = UIEdgeInsetsZero;
         [UIView commitAnimations];
     }
 }
@@ -2931,7 +2962,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         //get return key type
         UIReturnKeyType returnKeyType = UIReturnKeyDone;
-        UITableViewCell <FXFormFieldCell> *nextCell = [self nextCell];
+        UITableViewCell <FXFormFieldCell> *nextCell = self.nextCell;
         if ([nextCell canBecomeFirstResponder])
         {
             returnKeyType = UIReturnKeyNext;
@@ -2956,7 +2987,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     if (self.textField.returnKeyType == UIReturnKeyNext)
     {
-        [[self nextCell] becomeFirstResponder];
+        [self.nextCell becomeFirstResponder];
     }
     else
     {
@@ -3520,7 +3551,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.imagePickerController.sourceType = sourceType;
         [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
     }
-    
     self.controller = nil;
 }
 

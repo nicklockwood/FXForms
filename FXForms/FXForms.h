@@ -1,7 +1,7 @@
 //
 //  FXForms.h
 //
-//  Version 1.2.12
+//  Version 1.2.13
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -198,10 +198,13 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 
 @interface FXFormBaseCell : UITableViewCell <FXFormFieldCell>
 
+@property (nonatomic, readonly) UITableViewCell <FXFormFieldCell> *nextCell;
+
 - (void)setUp;
 - (void)update;
 - (void)didSelectWithTableView:(UITableView *)tableView
                     controller:(UIViewController *)controller;
+
 @end
 
 
