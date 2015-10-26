@@ -2688,7 +2688,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     
     if ([self.field.type isEqualToString:FXFormFieldTypeLabel])
     {
@@ -2705,6 +2707,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     else if ([self.field.type isEqualToString:FXFormFieldTypeBoolean] || [self.field.type isEqualToString:FXFormFieldTypeOption])
     {
         self.detailTextLabel.text = nil;
+        self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
         self.accessoryType = [self.field.value boolValue]? UITableViewCellAccessoryCheckmark: UITableViewCellAccessoryNone;
     }
     else if (self.field.action)
@@ -2901,6 +2904,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.textField.placeholder = [self.field.placeholder fieldDescription];
     self.textField.text = [self.field fieldDescription];
     
@@ -3110,8 +3114,10 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.textView.text = [self.field fieldDescription];
     self.detailTextLabel.text = self.field.placeholder;
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     self.detailTextLabel.hidden = ([self.textView.text length] > 0);
     
     self.textView.returnKeyType = UIReturnKeyDefault;
@@ -3227,6 +3233,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.switchControl.on = [self.field.value boolValue];
 }
 
@@ -3266,7 +3273,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     self.stepper.value = [self.field.value doubleValue];
 }
 
@@ -3279,6 +3288,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     self.field.value = @(self.stepper.value);
     self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     [self setNeedsLayout];
     
     if (self.field.action) self.field.action(self);
@@ -3319,6 +3329,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.slider.value = [self.field.value doubleValue];
 }
 
@@ -3350,7 +3361,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     
     if ([self.field.type isEqualToString:FXFormFieldTypeDate])
     {
@@ -3382,6 +3395,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     self.field.value = self.datePicker.date;
     self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     [self setNeedsLayout];
     
     if (self.field.action) self.field.action(self);
@@ -3443,6 +3457,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.imagePickerView.image = [self imageValue];
     [self setNeedsLayout];
 }
@@ -3582,7 +3597,9 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     self.detailTextLabel.text = [self.field fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     
     NSUInteger index = self.field.value? [self.field.options indexOfObject:self.field.value]: NSNotFound;
     if (self.field.placeholder)
@@ -3637,6 +3654,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 {
     [self.field setOptionSelected:YES atIndex:row];
     self.detailTextLabel.text = [self.field fieldDescription] ?: [self.field.placeholder fieldDescription];
+    self.detailTextLabel.accessibilityValue = self.detailTextLabel.text;
     
     [self setNeedsLayout];
     
@@ -3678,6 +3696,7 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 - (void)update
 {
     self.textLabel.text = self.field.title;
+    self.textLabel.accessibilityValue = self.textLabel.text;
     
     [self.segmentedControl removeAllSegments];
     for (NSUInteger i = 0; i < [self.field optionCount]; i++)
