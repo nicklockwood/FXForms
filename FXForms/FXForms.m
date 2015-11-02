@@ -2368,54 +2368,57 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 }
 
 - (void)keyboardDidShow:(NSNotification *)notification {
-    // calculate the size of the keyboard and how much is and isn't covering the tableview
-    NSDictionary *keyboardInfo = [notification userInfo];
-    CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
-    CGFloat heightOfTableViewThatIsCoveredByKeyboard = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
-    CGFloat heightOfTableViewThatIsNotCoveredByKeyboard = self.tableView.frame.size.height - heightOfTableViewThatIsCoveredByKeyboard;
-    
-    UIEdgeInsets tableContentInset = self.tableView.contentInset;
-    self.originalTableContentInset = tableContentInset;
-    tableContentInset.bottom = heightOfTableViewThatIsCoveredByKeyboard;
-    
-    UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
-    tableScrollIndicatorInsets.bottom += heightOfTableViewThatIsCoveredByKeyboard;
-    
-    [UIView beginAnimations:nil context:nil];
-    
-    // adjust the tableview insets by however much the keyboard is overlapping the tableview
-    self.tableView.contentInset = tableContentInset;
-    self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
-    
-    UIView *firstResponder = FXFormsFirstResponder(self.tableView);
-    if ([firstResponder isKindOfClass:[UITextView class]]) {
-        UITextView *textView = (UITextView *)firstResponder;
+    UITableViewCell *cell = [self cellContainingView:FXFormsFirstResponder(self.tableView)];
+    if (cell && ![self.delegate isKindOfClass:[UITableViewController class]]) {
+        // calculate the size of the keyboard and how much is and isn't covering the tableview
+        NSDictionary *keyboardInfo = [notification userInfo];
+        CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+        keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
+        CGFloat heightOfTableViewThatIsCoveredByKeyboard = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
+        CGFloat heightOfTableViewThatIsNotCoveredByKeyboard = self.tableView.frame.size.height - heightOfTableViewThatIsCoveredByKeyboard;
         
-        // calculate the position of the cursor in the textView
-        NSRange range = textView.selectedRange;
-        UITextPosition *beginning = textView.beginningOfDocument;
-        UITextPosition *start = [textView positionFromPosition:beginning offset:range.location];
-        UITextPosition *end = [textView positionFromPosition:start offset:range.length];
-        CGRect caretFrame = [textView caretRectForPosition:end];
+        UIEdgeInsets tableContentInset = self.tableView.contentInset;
+        self.originalTableContentInset = tableContentInset;
+        tableContentInset.bottom = heightOfTableViewThatIsCoveredByKeyboard;
         
-        // convert the cursor to the same coordinate system as the tableview
-        CGRect caretViewFrame = [textView convertRect:caretFrame toView:self.tableView.superview];
+        UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
+        tableScrollIndicatorInsets.bottom += heightOfTableViewThatIsCoveredByKeyboard;
         
-        // padding makes sure that the cursor isn't sitting just above the keyboard and will adjust to 3 lines of text worth above keyboard
-        CGFloat padding = textView.font.lineHeight * 3;
-        CGFloat keyboardToCursorDifference = (caretViewFrame.origin.y + caretViewFrame.size.height) - heightOfTableViewThatIsNotCoveredByKeyboard + padding;
+        [UIView beginAnimations:nil context:nil];
         
-        // if there is a difference then we want to adjust the keyboard, otherwise the cursor is fine to stay where it is and the keyboard doesn't need to move
-        if (keyboardToCursorDifference > 0.0f) {
-            // adjust offset by this difference
-            CGPoint contentOffset = self.tableView.contentOffset;
-            contentOffset.y += keyboardToCursorDifference;
-            [self.tableView setContentOffset:contentOffset animated:YES];
+        // adjust the tableview insets by however much the keyboard is overlapping the tableview
+        self.tableView.contentInset = tableContentInset;
+        self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
+        
+        UIView *firstResponder = FXFormsFirstResponder(self.tableView);
+        if ([firstResponder isKindOfClass:[UITextView class]]) {
+            UITextView *textView = (UITextView *)firstResponder;
+            
+            // calculate the position of the cursor in the textView
+            NSRange range = textView.selectedRange;
+            UITextPosition *beginning = textView.beginningOfDocument;
+            UITextPosition *start = [textView positionFromPosition:beginning offset:range.location];
+            UITextPosition *end = [textView positionFromPosition:start offset:range.length];
+            CGRect caretFrame = [textView caretRectForPosition:end];
+            
+            // convert the cursor to the same coordinate system as the tableview
+            CGRect caretViewFrame = [textView convertRect:caretFrame toView:self.tableView.superview];
+            
+            // padding makes sure that the cursor isn't sitting just above the keyboard and will adjust to 3 lines of text worth above keyboard
+            CGFloat padding = textView.font.lineHeight * 3;
+            CGFloat keyboardToCursorDifference = (caretViewFrame.origin.y + caretViewFrame.size.height) - heightOfTableViewThatIsNotCoveredByKeyboard + padding;
+            
+            // if there is a difference then we want to adjust the keyboard, otherwise the cursor is fine to stay where it is and the keyboard doesn't need to move
+            if (keyboardToCursorDifference > 0.0f) {
+                // adjust offset by this difference
+                CGPoint contentOffset = self.tableView.contentOffset;
+                contentOffset.y += keyboardToCursorDifference;
+                [self.tableView setContentOffset:contentOffset animated:YES];
+            }
         }
+        
+        [UIView commitAnimations];
     }
-    
-    [UIView commitAnimations];
 }
 
 - (void)keyboardWillHide:(NSNotification *)note
