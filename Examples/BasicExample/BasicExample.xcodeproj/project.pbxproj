@@ -23,6 +23,7 @@
 		01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DD618CBAA010069FC4A /* TermsViewController.xib */; };
 		01CB2DDC18CBB28C0069FC4A /* PrivacyPolicyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */; };
 		01CB2DDD18CBB28C0069FC4A /* PrivacyPolicyViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */; };
+		1349FDB01BE779C300FEFA51 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1349FDAF1BE779C200FEFA51 /* Launch Screen.storyboard */; settings = {ASSET_TAGS = (); }; };
 		CC566AAC18D76956002F2751 /* ISO3166CountryValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */; };
 /* End PBXBuildFile section */
 
@@ -54,6 +55,7 @@
 		01CB2DD918CBB28C0069FC4A /* PrivacyPolicyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrivacyPolicyViewController.h; sourceTree = "<group>"; };
 		01CB2DDA18CBB28C0069FC4A /* PrivacyPolicyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrivacyPolicyViewController.m; sourceTree = "<group>"; };
 		01CB2DDB18CBB28C0069FC4A /* PrivacyPolicyViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PrivacyPolicyViewController.xib; sourceTree = "<group>"; };
+		1349FDAF1BE779C200FEFA51 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		CC566AAA18D76956002F2751 /* ISO3166CountryValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISO3166CountryValueTransformer.h; sourceTree = "<group>"; };
 		CC566AAB18D76956002F2751 /* ISO3166CountryValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISO3166CountryValueTransformer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -121,6 +123,7 @@
 				0169995118A1663700E7085F /* BasicExample-Info.plist */,
 				0169995218A1663700E7085F /* InfoPlist.strings */,
 				0169995518A1663700E7085F /* main.m */,
+				1349FDAF1BE779C200FEFA51 /* Launch Screen.storyboard */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -228,6 +231,7 @@
 				0169995418A1663700E7085F /* InfoPlist.strings in Resources */,
 				01CB2DDD18CBB28C0069FC4A /* PrivacyPolicyViewController.xib in Resources */,
 				01CB2DD818CBAA010069FC4A /* TermsViewController.xib in Resources */,
+				1349FDB01BE779C300FEFA51 /* Launch Screen.storyboard in Resources */,
 				0169995C18A1663700E7085F /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

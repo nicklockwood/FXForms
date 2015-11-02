@@ -203,7 +203,7 @@
 		0169993E18A1663700E7085F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Charcoal Design";
 			};
 			buildConfigurationList = 0169994118A1663700E7085F /* Build configuration list for PBXProject "CustomFormControllerExample" */;
@@ -300,6 +300,7 @@
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -416,6 +417,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Classes/CustomFormControllerExample-Prefix.pch";
 				INFOPLIST_FILE = "Classes/CustomFormControllerExample-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.charcoaldesign.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = CustomFormControllerExample;
 				WRAPPER_EXTENSION = app;
 			};
@@ -429,6 +431,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Classes/CustomFormControllerExample-Prefix.pch";
 				INFOPLIST_FILE = "Classes/CustomFormControllerExample-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.charcoaldesign.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = CustomFormControllerExample;
 				WRAPPER_EXTENSION = app;
 			};

@@ -1,7 +1,7 @@
 //
 //  FXForms.m
 //
-//  Version 1.2.13
+//  Version 1.2.14
 //
 //  Created by Nick Lockwood on 13/02/2014.
 //  Copyright (c) 2014 Charcoal Design. All rights reserved.
@@ -2370,9 +2370,11 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return [self cellContainingView:view.superview];
 }
 
-- (void)keyboardDidShow:(NSNotification *)notification {
+- (void)keyboardDidShow:(NSNotification *)notification
+{
     UITableViewCell *cell = [self cellContainingView:FXFormsFirstResponder(self.tableView)];
-    if (cell && ![self.delegate isKindOfClass:[UITableViewController class]]) {
+    if (cell && ![self.delegate isKindOfClass:[UITableViewController class]])
+    {
         // calculate the size of the keyboard and how much is and isn't covering the tableview
         NSDictionary *keyboardInfo = [notification userInfo];
         CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
@@ -2394,7 +2396,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
         
         UIView *firstResponder = FXFormsFirstResponder(self.tableView);
-        if ([firstResponder isKindOfClass:[UITextView class]]) {
+        if ([firstResponder isKindOfClass:[UITextView class]])
+        {
             UITextView *textView = (UITextView *)firstResponder;
             
             // calculate the position of the cursor in the textView
@@ -2407,12 +2410,15 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             // convert the cursor to the same coordinate system as the tableview
             CGRect caretViewFrame = [textView convertRect:caretFrame toView:self.tableView.superview];
             
-            // padding makes sure that the cursor isn't sitting just above the keyboard and will adjust to 3 lines of text worth above keyboard
+            // padding makes sure that the cursor isn't sitting just above the
+            // keyboard and will adjust to 3 lines of text worth above keyboard
             CGFloat padding = textView.font.lineHeight * 3;
             CGFloat keyboardToCursorDifference = (caretViewFrame.origin.y + caretViewFrame.size.height) - heightOfTableViewThatIsNotCoveredByKeyboard + padding;
             
-            // if there is a difference then we want to adjust the keyboard, otherwise the cursor is fine to stay where it is and the keyboard doesn't need to move
-            if (keyboardToCursorDifference > 0.0f) {
+            // if there is a difference then we want to adjust the keyboard, otherwise
+            // the cursor is fine to stay where it is and the keyboard doesn't need to move
+            if (keyboardToCursorDifference > 0)
+            {
                 // adjust offset by this difference
                 CGPoint contentOffset = self.tableView.contentOffset;
                 contentOffset.y += keyboardToCursorDifference;
@@ -2512,7 +2518,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         self.tableView = [[UITableView alloc] initWithFrame:[UIScreen mainScreen].applicationFrame
                                                       style:UITableViewStyleGrouped];
-        if ([self.tableView respondsToSelector:@selector(cellLayoutMarginsFollowReadableWidth)]) {
+        if ([self.tableView respondsToSelector:@selector(cellLayoutMarginsFollowReadableWidth)])
+        {
             self.tableView.cellLayoutMarginsFollowReadableWidth = NO;
         }
     }
@@ -3568,14 +3575,16 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
             sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
             break;
         }
-    }
-    
-    if (buttonIndex != 2) {
-        if ([UIImagePickerController isSourceTypeAvailable:sourceType])
+        default:
         {
-            self.imagePickerController.sourceType = sourceType;
-            [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
+            self.controller = nil;
+            return;
         }
+    }
+    if ([UIImagePickerController isSourceTypeAvailable:sourceType])
+    {
+        self.imagePickerController.sourceType = sourceType;
+        [self.controller presentViewController:self.imagePickerController animated:YES completion:nil];
     }
     self.controller = nil;
 }
