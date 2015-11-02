@@ -23,7 +23,7 @@ class RegistrationForm: NSObject, FXForm {
     var phone: String?
     var country: String?
     var language: String?
-    var interests: NSArray? //NOTE: [String] or [AnyObject] won't work
+    var interests: [AnyObject]?
     var otherInterests = 0
     var about: String?
     
@@ -38,7 +38,7 @@ class RegistrationForm: NSObject, FXForm {
     //which lets us dictate exactly which fields appear
     //and in what order they appear
         
-    func fields() -> NSArray {
+    func fields() -> [AnyObject] {
         
         return [
         
@@ -137,13 +137,18 @@ class RegistrationForm: NSObject, FXForm {
             //FXFormFieldTypeOption will use an checkmark instead of a switch by default)
             
             [FXFormFieldKey: "agreedToTerms", FXFormFieldTitle: "I Agree To These Terms", FXFormFieldType: FXFormFieldTypeOption],
-            
+        ]
+    }
+   
+    func extraFields() -> [AnyObject] {
+        
+        return [
             //this field doesn't correspond to any property of the form
             //it's just an action button. the action will be called on first
             //object in the responder chain that implements the submitForm
             //method, which in this case would be the AppDelegate
             
-            [FXFormFieldTitle: "Submit", FXFormFieldHeader: "", FXFormFieldAction: "submitRegistrationForm:"],
+            [FXFormFieldCell: SubmitButtonCell.self, FXFormFieldHeader: "", FXFormFieldAction: "submitRegistrationForm:"],
         ]
     }
 }

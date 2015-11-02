@@ -18,7 +18,7 @@ class RegistrationFormViewController: FXFormViewController {
     func submitRegistrationForm(cell: FXFormFieldCellProtocol) {
         
         //we can lookup the form from the cell if we want, like this:
-        let form = cell.field.form as RegistrationForm
+        let form = cell.field.form as! RegistrationForm
     
         //we can then perform validation, etc
         if form.agreedToTerms {
