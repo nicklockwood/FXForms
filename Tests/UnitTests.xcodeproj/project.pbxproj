@@ -347,6 +347,7 @@
 					"-Wno-sign-compare",
 					"-Wno-documentation-unknown-command",
 					"-Wno-reserved-id-macro",
+					"-Wno-unknown-warning-option",
 				);
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -374,6 +375,7 @@
 					"-Wno-sign-compare",
 					"-Wno-documentation-unknown-command",
 					"-Wno-reserved-id-macro",
+					"-Wno-unknown-warning-option",
 				);
 				WRAPPER_EXTENSION = xctest;
 			};
